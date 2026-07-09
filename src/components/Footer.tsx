@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrainCircuit, Globe, Share2, Rss, Mail } from 'lucide-react';
+import { BrainCircuit, Linkedin, Github, Globe, Mail } from 'lucide-react';
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -23,10 +23,9 @@ export const Footer = () => {
               Dubai AI Readiness Index helps organizations assess AI readiness, identify business opportunities, and build practical roadmaps for responsible AI transformation.
             </p>
             <div className="flex items-center gap-4">
-              <a href="#" className="text-muted-foreground hover:text-cyber-cyan transition-colors"><Globe className="w-5 h-5" /></a>
-              <a href="#" className="text-muted-foreground hover:text-cyber-cyan transition-colors"><Share2 className="w-5 h-5" /></a>
-              <a href="#" className="text-muted-foreground hover:text-cyber-cyan transition-colors"><Rss className="w-5 h-5" /></a>
-              <a href="#" className="text-muted-foreground hover:text-cyber-cyan transition-colors"><Mail className="w-5 h-5" /></a>
+              <a href="https://www.linkedin.com/in/krishnamathurmay/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-cyber-cyan transition-colors"><Linkedin className="w-5 h-5" /></a>
+              <a href="https://github.com/krish2105" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-cyber-cyan transition-colors"><Github className="w-5 h-5" /></a>
+              <a href="mailto:hello@darix.ai" className="text-muted-foreground hover:text-cyber-cyan transition-colors"><Mail className="w-5 h-5" /></a>
             </div>
           </div>
 

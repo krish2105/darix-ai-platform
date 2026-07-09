@@ -44,7 +44,7 @@ export const FounderSection = () => {
                 <span>Dubai, United Arab Emirates</span>
               </div>
               
-              <Button variant="outline" className="w-full relative z-10" icon={<Link2 className="w-4 h-4" />}>
+              <Button variant="outline" className="w-full relative z-10" icon={<Link2 className="w-4 h-4" />} onClick={() => window.open('https://www.linkedin.com/in/krishnamathurmay/', '_blank')}>
                 Connect on LinkedIn
               </Button>
             </div>
@@ -79,8 +79,8 @@ export const FounderSection = () => {
               </div>
 
               <div className="mt-10 pt-6 border-t border-card-border">
-                <Button variant="ghost" className="pl-0 hover:bg-transparent hover:text-cyber-cyan">
-                  View Academic Research Projects →
+                <Button variant="ghost" className="pl-0 hover:bg-transparent hover:text-cyber-cyan" onClick={() => window.open('https://github.com/krish2105', '_blank')}>
+                  View GitHub & Projects →
                 </Button>
               </div>
             </div>
