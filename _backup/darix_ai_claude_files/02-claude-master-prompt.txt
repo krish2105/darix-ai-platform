@@ -1,0 +1,926 @@
+Create this as a complete premium Claude Design prototype first. I have an empty folder, so generate everything from scratch. Do not assume any existing files, assets, logo, images, or codebase. Create the full end-to-end website structure, design system, components, content, interactions, 3D visuals, assessment logic, and responsive layout.
+
+You are an elite senior SaaS product designer, AI business strategist, frontend architect, 3D web designer, motion designer, UX researcher, and full-stack developer.
+
+Build a complete premium, professional, fully responsive, 3D animated SaaS-style website for:
+
+PROJECT NAME
+Dubai AI Readiness Index
+
+SHORT BRAND NAME
+DARIX AI
+
+TAGLINE
+Measure. Transform. Scale with AI.
+
+LOCATION
+Dubai, UAE
+
+PROJECT TYPE
+AI business readiness SaaS platform
+
+AUDIENCE
+Dubai businesses, SMEs, enterprise leaders, startup founders, consultants, investors, recruiters, university professors, and AI transformation teams.
+
+PURPOSE
+This website is for a Master's student in AI Business based in Dubai. It must look like a serious product, not a basic student project. It should feel like a premium AI SaaS startup, AI consulting platform, and business intelligence dashboard combined.
+
+Create this as a complete end-to-end website with premium UI, 3D visuals, modern animations, interactive assessment logic, dashboard preview, business content, SaaS sections, responsive design, and clean production-ready code.
+
+The website must be impressive enough for:
+- Master's-level university presentation
+- Portfolio
+- LinkedIn profile
+- Recruiters
+- AI business consulting
+- Startup pitch
+- Investor demo
+- Dubai technology ecosystem positioning
+
+CORE PRODUCT IDEA
+Dubai AI Readiness Index is a SaaS-style platform that helps companies assess how ready they are to adopt artificial intelligence. Users answer a structured AI readiness assessment, receive a readiness score, see maturity levels, get personalized recommendations, and understand how AI can improve their business operations, productivity, governance, customer experience, and ROI.
+
+The website should feel like entering a futuristic Dubai AI command center with an interactive business intelligence dashboard.
+
+VISUAL IDENTITY
+- Premium
+- Dark
+- Futuristic
+- Dubai-inspired
+- Business-focused
+- Intelligent
+- Executive
+- SaaS-style
+- 3D animated
+- High-trust
+- Professional
+- Academic but commercial
+
+BRAND PERSONALITY
+- Strategic
+- Confident
+- Analytical
+- Innovative
+- Responsible
+- Premium
+- Clear
+- Data-driven
+
+COLOR PALETTE
+- Deep Black: #030712
+- AI Navy: #07111F
+- Graphite: #111827
+- Glass Gray: rgba(255,255,255,0.08)
+- Electric Blue: #38BDF8
+- Cyber Cyan: #22D3EE
+- AI Violet: #8B5CF6
+- Dubai Gold: #D4AF37
+- Emerald Success: #10B981
+- Warning Amber: #F59E0B
+- Risk Red: #EF4444
+- Soft White: #F8FAFC
+- Muted Gray: #94A3B8
+
+TYPOGRAPHY
+Use a premium modern sans-serif font style. Headings should be large, sharp, cinematic, and confident. Body text should feel executive and readable. Use uppercase micro-labels, strong spacing, and clean hierarchy.
+
+PREFERRED TECH STACK
+- React
+- TypeScript
+- Tailwind CSS
+- Framer Motion
+- Three.js or React Three Fiber
+- Drei if useful
+- Lucide React icons
+- Recharts or custom SVG charts for dashboards
+
+If full 3D is not possible, create strong 3D illusion using CSS perspective, layered gradients, animated particles, floating cards, glassmorphism, parallax, shadows, glow, and transform effects.
+
+If using Next.js is possible, use:
+- Next.js
+- TypeScript
+- Tailwind CSS
+- Framer Motion
+- React Three Fiber
+- Recharts
+- Clean component architecture
+
+If only a single file is possible, still build a complete polished single-page app with reusable internal components and organized data arrays.
+
+RECOMMENDED ARCHITECTURE
+src/
+  app/
+    page.tsx
+    layout.tsx
+    globals.css
+  components/
+    Navbar.tsx
+    Hero.tsx
+    ThreeDubaiScene.tsx
+    ReadinessAssessment.tsx
+    ScoreDashboard.tsx
+    ScoreGauge.tsx
+    DimensionCard.tsx
+    IndustryUseCases.tsx
+    FrameworkSection.tsx
+    FeatureSection.tsx
+    DashboardPreview.tsx
+    ReportPreview.tsx
+    PricingSection.tsx
+    CaseStudies.tsx
+    ResearchSection.tsx
+    FounderSection.tsx
+    FAQ.tsx
+    ContactSection.tsx
+    Footer.tsx
+    Button.tsx
+    SectionTitle.tsx
+    AnimatedCounter.tsx
+    FloatingCard.tsx
+  data/
+    questions.ts
+    industries.ts
+    recommendations.ts
+    caseStudies.ts
+    pricing.ts
+    faqs.ts
+  utils/
+    scoring.ts
+    animations.ts
+    constants.ts
+
+WEBSITE STRUCTURE
+
+1. PREMIUM NAVIGATION
+Create a luxury glassmorphism navbar.
+
+Navbar content:
+- Logo: DARIX AI
+- Small badge: Dubai AI Readiness Index
+- Links: Home, Assessment, Dashboard, Framework, Industries, Pricing, Research, Contact
+- Primary CTA: Start Free Assessment
+- Secondary CTA: View Demo Report
+- Mobile hamburger menu with smooth animation
+- Navbar should be transparent over hero, then become darker with blur on scroll
+- Active link hover glow
+- No broken links
+
+2. HERO SECTION
+Create a cinematic full-screen hero.
+
+Headline:
+Discover How AI-Ready Your Business Really Is
+
+Subheadline:
+DARIX AI helps Dubai businesses assess artificial intelligence readiness, identify high-value use cases, reduce adoption risk, and build a practical roadmap for AI transformation.
+
+Primary CTA:
+Start AI Readiness Assessment
+
+Secondary CTA:
+Explore Dashboard
+
+Hero visual:
+Create a futuristic 3D Dubai AI command center.
+
+Include:
+- Abstract 3D Dubai skyline inspired by Dubai, but do not copy exact copyrighted buildings
+- Holographic AI readiness score globe
+- Floating business dashboard panels
+- Animated neural network lines
+- Data particles
+- AI radar scan effect
+- Rotating circular score gauge
+- Parallax depth layers
+- Premium blue, violet, cyan, and gold lighting
+
+Hero KPI cards:
+- AI Readiness Score
+- Automation Potential
+- Governance Risk
+- ROI Opportunity
+- Data Maturity
+
+Hero stats:
+- 8 Business Dimensions
+- 40+ AI Use Cases
+- 12 Industry Profiles
+- Instant Readiness Report
+
+Important:
+The hero must look premium, not like a generic SaaS template. Make it cinematic, dark, deep, and 3D.
+
+3. PROBLEM SECTION
+Title:
+Most Businesses Want AI. Few Know Where to Start.
+
+Explain:
+- Companies hear about AI but lack a clear adoption roadmap.
+- Leaders struggle to identify the right use cases.
+- Data may be fragmented or not AI-ready.
+- Teams may lack skills and governance.
+- AI investment without readiness can waste money and create risk.
+
+Use animated glass cards:
+- Unclear AI strategy
+- Low data maturity
+- Process inefficiency
+- Governance gaps
+- Talent limitations
+- ROI uncertainty
+
+Visual:
+3D fragmented business system gradually connecting into an AI-ready operating model.
+
+4. SOLUTION SECTION
+Title:
+A Structured AI Readiness System for Modern Businesses
+
+Explain the platform in 4 steps:
+1. Assess - Answer structured questions across strategy, data, technology, people, process, governance, use cases, and ROI.
+2. Score - Receive a clear AI readiness score from 0 to 100.
+3. Diagnose - Identify strengths, weaknesses, risks, and high-impact opportunities.
+4. Transform - Get a practical AI adoption roadmap with recommended next steps.
+
+Visual:
+Horizontal or circular animated 3D workflow with glowing nodes.
+
+5. INTERACTIVE AI READINESS ASSESSMENT
+This is the most important feature.
+
+Create an interactive assessment section with real front-end logic.
+
+Assessment title:
+Free AI Readiness Assessment
+
+Dimensions:
+1. AI Strategy
+2. Data Maturity
+3. Technology Infrastructure
+4. Process Automation
+5. People and Skills
+6. AI Governance
+7. Use Case Potential
+8. ROI and Business Value
+
+Create 3-5 questions per dimension. Use radio buttons or sliders.
+
+Example questions:
+AI Strategy:
+- Does your organization have a documented AI strategy?
+- Have you identified specific AI use cases?
+- Do senior leaders understand AI's business value?
+
+Data Maturity:
+- Is your business data centralized and accessible?
+- Do you have clean historical data for analysis?
+- Are data ownership and quality standards defined?
+
+Technology Infrastructure:
+- Do your systems integrate through APIs?
+- Are cloud platforms or scalable infrastructure available?
+- Can your current systems support analytics and automation?
+
+Process Automation:
+- Are repetitive workflows documented?
+- Are there manual tasks suitable for automation?
+- Do teams use digital workflow tools?
+
+People and Skills:
+- Do employees understand AI basics?
+- Are there analytics or technical skills in the organization?
+- Is leadership willing to invest in AI training?
+
+AI Governance:
+- Are data privacy policies clear?
+- Are AI risks reviewed before implementation?
+- Is there a responsible AI or compliance process?
+
+Use Case Potential:
+- Are there customer service, sales, marketing, finance, HR, or operations processes that can benefit from AI?
+- Are there decision-making processes that need better prediction or insights?
+- Are there high-volume repetitive tasks?
+
+ROI and Business Value:
+- Can AI impact revenue, cost, speed, quality, or customer experience?
+- Are business KPIs clearly measured?
+- Can teams track the success of AI projects?
+
+Scoring logic:
+- Each question should score 0-5.
+- Each dimension receives a percentage.
+- Overall score is the weighted average of all dimensions.
+- Show results instantly after completion.
+- Use animated counters and score gauge.
+
+Readiness levels:
+0-25: AI Explorer
+Meaning: Early stage. Needs foundational strategy, data cleanup, and leadership alignment.
+
+26-50: AI Starter
+Meaning: Some readiness exists. Needs structured roadmap, use-case prioritization, and governance.
+
+51-75: AI Builder
+Meaning: Good foundation. Ready for pilots, automation, dashboards, and team enablement.
+
+76-90: AI Scaler
+Meaning: Strong readiness. Ready to scale AI across departments with governance and measurement.
+
+91-100: AI Leader
+Meaning: Advanced readiness. Ready for enterprise AI operating model, AI agents, predictive systems, and continuous optimization.
+
+After assessment, show:
+- Overall AI readiness score
+- Readiness level
+- Dimension breakdown
+- Radar chart or bar chart
+- Top 3 strengths
+- Top 3 gaps
+- Recommended first AI use cases
+- 90-day action roadmap
+- CTA: Download Full Report
+- CTA: Book AI Strategy Call
+
+Important:
+Make the assessment feel like a real SaaS tool. It must not be decorative only.
+
+6. AI READINESS DASHBOARD
+Create a premium 3D dashboard section.
+
+Title:
+Your AI Readiness Command Center
+
+Dashboard widgets:
+- Overall AI Readiness Score
+- Dimension radar chart
+- AI opportunity index
+- Automation potential
+- Data maturity score
+- Governance risk meter
+- Estimated implementation complexity
+- Suggested AI adoption timeline
+- Department impact map
+- ROI opportunity categories
+
+Department impact map:
+- Sales
+- Marketing
+- Operations
+- Finance
+- HR
+- Customer Support
+- Legal
+- Leadership
+
+Visual style:
+- Dark glass panels
+- Neon borders
+- Animated charts
+- Floating cards
+- 3D depth
+- Smooth reveal animations
+- Premium SaaS dashboard design
+
+7. AI MATURITY FRAMEWORK
+Create a professional framework section.
+
+Title:
+The DARIX AI Maturity Framework
+
+Framework stages:
+1. Discover - Understand business goals, data availability, and AI opportunities.
+2. Prepare - Improve data, infrastructure, leadership alignment, and governance.
+3. Pilot - Launch high-value AI use cases with measurable KPIs.
+4. Integrate - Connect AI into workflows, systems, teams, and decision-making.
+5. Scale - Expand AI across departments with continuous optimization and responsible governance.
+
+Visual:
+- 3D circular maturity ring
+- Glowing nodes
+- Progress path
+- Animated timeline
+- Each stage expands on hover
+
+8. INDUSTRY USE CASES
+Title:
+AI Readiness by Industry
+
+Create an interactive industry selector.
+
+Industries:
+- Real Estate
+- Tourism and Hospitality
+- Retail and Luxury
+- Finance
+- Healthcare
+- Logistics
+- Education
+- Government Services
+- Construction
+- Energy
+- Legal Services
+- SMEs
+
+For each industry show:
+- Common business problem
+- AI opportunity
+- Example AI solution
+- Business impact
+- Readiness requirements
+- Risk level
+- Implementation difficulty
+- Suggested first pilot
+
+Examples:
+
+Real Estate:
+Problem: Slow lead qualification and inconsistent buyer follow-up.
+AI Solution: Predictive lead scoring, AI sales assistant, property recommendation engine.
+Impact: Faster response, better conversion, improved sales productivity.
+Risk: Medium.
+Difficulty: Medium.
+First pilot: AI lead scoring dashboard.
+
+Tourism and Hospitality:
+Problem: Guests expect personalized experiences across languages and channels.
+AI Solution: AI concierge, itinerary personalization, demand forecasting.
+Impact: Better guest satisfaction, higher upsell potential, faster service.
+Risk: Medium.
+Difficulty: Medium.
+First pilot: Multilingual AI concierge.
+
+Retail and Luxury:
+Problem: Customer preferences are not fully used for personalization.
+AI Solution: Recommendation engine, VIP customer prediction, inventory intelligence.
+Impact: Higher conversion, better customer retention, improved merchandising.
+Risk: Medium.
+Difficulty: Medium.
+First pilot: AI personalization engine.
+
+Finance:
+Problem: Manual risk analysis and fraud monitoring.
+AI Solution: Predictive risk scoring, anomaly detection, financial forecasting.
+Impact: Faster decisions, lower risk, better compliance support.
+Risk: High.
+Difficulty: High.
+First pilot: Risk monitoring dashboard.
+
+Government Services:
+Problem: High-volume citizen queries and document workflows.
+AI Solution: AI assistant, document classification, service prediction.
+Impact: Faster response, better satisfaction, reduced manual workload.
+Risk: High.
+Difficulty: High.
+First pilot: AI service assistant.
+
+9. REPORT PREVIEW SECTION
+Title:
+Instant AI Readiness Report
+
+Show a premium mock report.
+
+Report sections:
+- Executive summary
+- Overall readiness score
+- Dimension breakdown
+- Business risks
+- Quick wins
+- Strategic opportunities
+- AI use-case roadmap
+- Governance checklist
+- 30-day, 60-day, and 90-day action plan
+
+CTA:
+Generate My Report
+
+Visual:
+- 3D PDF report mockup
+- Floating pages
+- Animated charts
+- Premium executive document style
+
+10. FEATURES SECTION
+Title:
+Everything Leaders Need to Start AI Transformation
+
+Feature cards:
+- Readiness Assessment
+- Business Dimension Scoring
+- Industry Use-Case Mapping
+- AI Governance Risk Review
+- ROI Opportunity Matrix
+- Executive Dashboard
+- Custom Recommendations
+- AI Adoption Roadmap
+- Report Export
+- Consultation Booking
+
+Each card:
+- Icon
+- Short description
+- Hover glow
+- 3D tilt
+- Premium glass surface
+
+11. SAAS PRICING SECTION
+Create a professional pricing section.
+
+Plans:
+
+Free Assessment
+Price: AED 0
+Features:
+- Basic AI readiness score
+- Dimension snapshot
+- Starter recommendations
+- Industry benchmark preview
+
+Professional Report
+Price: AED 499
+Features:
+- Full AI readiness report
+- Department-level analysis
+- 90-day roadmap
+- AI opportunity matrix
+- Governance checklist
+- PDF export
+
+Business Consultation
+Price: AED 1,999
+Features:
+- Full report
+- 60-minute AI strategy call
+- Custom use-case prioritization
+- ROI planning
+- Leadership presentation summary
+
+Enterprise AI Readiness
+Price: Custom
+Features:
+- Multi-department assessment
+- Stakeholder interviews
+- Data maturity review
+- AI governance framework
+- Executive workshop
+- Transformation roadmap
+
+Important:
+This can be fictional pricing. Present it professionally.
+
+12. CASE STUDIES
+Create fictional but realistic case studies.
+
+Case Study 1:
+Dubai Real Estate Agency
+Challenge: Low lead conversion and manual follow-up.
+Solution: AI lead scoring and property recommendation assistant.
+Result: Faster lead prioritization and improved sales workflow.
+
+Case Study 2:
+Luxury Retail Group
+Challenge: Generic customer experience and weak personalization.
+Solution: AI customer segmentation and recommendation dashboard.
+Result: Improved VIP targeting and merchandising insights.
+
+Case Study 3:
+Hospitality Brand
+Challenge: High guest query volume across multiple languages.
+Solution: AI concierge and demand forecasting.
+Result: Faster response and improved guest experience.
+
+Case Study 4:
+SME Operations Team
+Challenge: Manual reporting and repetitive admin workflows.
+Solution: AI automation roadmap and business intelligence dashboard.
+Result: Better visibility, less manual reporting, faster decision-making.
+
+Each case study should include:
+- Challenge
+- Readiness gap
+- AI solution
+- Business value
+- Timeline
+- Tools used
+- Result
+
+13. RESEARCH AND CREDIBILITY SECTION
+Title:
+Research-Driven AI Business Transformation
+
+Create a section that makes the project academically credible.
+
+Include:
+- AI adoption research
+- Responsible AI governance
+- Data maturity models
+- Human-AI collaboration
+- AI productivity impact
+- AI use-case prioritization
+- Business model innovation
+- Dubai and UAE AI transformation context
+
+Add featured research cards:
+- AI Readiness Framework for Dubai SMEs
+- Responsible AI Governance Checklist
+- AI Use-Case Prioritization Matrix
+- 90-Day AI Transformation Roadmap
+
+This section should look like a premium research lab, not a blog grid.
+
+14. FOUNDER SECTION
+Title:
+Built by an AI Business Master's Student in Dubai
+
+Text:
+I am a Master's student in AI Business based in Dubai, focused on the intersection of artificial intelligence, business strategy, digital transformation, responsible AI, and business value creation.
+
+Skills:
+- AI Strategy
+- Business Analytics
+- Digital Transformation
+- AI Governance
+- Prompt Engineering
+- Market Research
+- SaaS Product Thinking
+- Business Model Design
+- Data-Driven Decision Making
+- Startup Strategy
+
+Include:
+- Founder profile card
+- Academic positioning
+- Dubai context
+- Portfolio credibility
+- CTA: Connect on LinkedIn
+- CTA: View Research Projects
+
+15. TESTIMONIALS
+Create fictional professional testimonials.
+
+Profiles:
+- SME Founder
+- Real Estate Manager
+- Retail Strategy Director
+- University Professor
+- AI Consultant
+
+Keep testimonials realistic and credible. Do not exaggerate impossible results.
+
+16. FAQ SECTION
+Questions:
+- What is an AI readiness assessment?
+- Who should use Dubai AI Readiness Index?
+- Is this only for Dubai companies?
+- How is the AI readiness score calculated?
+- What happens after I complete the assessment?
+- Can this help SMEs?
+- Does it replace AI consultants?
+- Is the report suitable for executives?
+- Does the platform include AI governance?
+- Can companies request a custom assessment?
+
+17. CONTACT SECTION
+Title:
+Start Your AI Readiness Journey
+
+Form fields:
+- Full name
+- Work email
+- Company name
+- Company size
+- Industry
+- Current AI adoption stage
+- Main AI challenge
+- Message
+
+CTA:
+Request AI Readiness Review
+
+Add trust text:
+Get a structured view of your AI readiness, business opportunities, and transformation priorities.
+
+18. FOOTER
+Footer content:
+- DARIX AI logo
+- Short description
+- Navigation links
+- Product links
+- Resources
+- Contact
+- Social links
+- Newsletter
+- Copyright
+
+Footer description:
+Dubai AI Readiness Index helps organizations assess AI readiness, identify business opportunities, and build practical roadmaps for responsible AI transformation.
+
+DESIGN REQUIREMENTS
+Overall style:
+- Premium SaaS
+- Dark futuristic
+- 3D dashboard
+- Dubai-inspired
+- Executive
+- Academic credibility
+- AI business intelligence
+
+Do not use:
+- Basic white SaaS template
+- Cheap gradients
+- Cartoon graphics
+- Random stock photos
+- Lorem ipsum
+- Overcrowded design
+- Weak typography
+- Generic AI robot imagery
+- Broken layout
+- Unresponsive sections
+
+3D REQUIREMENTS
+Use true 3D if possible:
+- Three.js / React Three Fiber scene in hero
+- Abstract Dubai skyline
+- Rotating AI readiness globe
+- Floating particles
+- Holographic score ring
+- Neural network lines
+- Animated dashboard panels
+- Soft camera motion
+- Ambient light and glow
+
+If true 3D is not possible, create convincing 3D illusion using:
+- CSS perspective
+- Layered cards
+- Rotating rings
+- Parallax motion
+- Glass panels
+- Animated gradients
+- Radial lighting
+- Floating particles
+- transform-style: preserve-3d
+- Glow and shadow depth
+- SVG neural network lines
+
+ANIMATION REQUIREMENTS
+- Smooth hero entrance
+- Scroll reveal
+- Floating cards
+- Animated score gauge
+- Animated counters
+- Tilt hover effect
+- Parallax background
+- Dashboard chart animation
+- Assessment step transitions
+- Button glow
+- Mobile menu animation
+- Reduced motion support
+- Professional speed, not chaotic
+
+RESPONSIVE REQUIREMENTS
+- Desktop: cinematic 3D full-width layout
+- Large screens: dashboard should look rich and spacious
+- Tablet: two-column balanced layout
+- Mobile: clean single-column layout
+- Assessment must be easy to complete on mobile
+- Dashboard charts must resize properly
+- No horizontal overflow
+- Touch-friendly buttons
+- Font sizes must remain readable
+- Navbar must collapse into hamburger menu
+- 3D scene must not break on mobile
+
+UX REQUIREMENTS
+- Clear user journey
+- Strong hero CTA
+- Assessment CTA repeated across page
+- Smooth section flow
+- SaaS-style credibility
+- Business value first
+- Easy to understand for non-technical executives
+- Academic depth for professors
+- Professional enough for recruiters and investors
+
+ACCESSIBILITY REQUIREMENTS
+- Good color contrast
+- Keyboard-friendly buttons
+- Semantic HTML
+- Proper labels for forms
+- Clear focus states
+- Alt text for visuals
+- Reduced motion preference
+- Avoid tiny text
+- Avoid relying only on color for risk levels
+
+SEO REQUIREMENTS
+Page title:
+Dubai AI Readiness Index | AI Readiness Assessment for Businesses
+
+Meta description:
+Assess your organization's AI readiness with DARIX AI. Measure strategy, data maturity, automation potential, governance risk, and AI business value through a premium AI readiness dashboard.
+
+Use:
+- Proper headings
+- Semantic sections
+- Descriptive metadata
+- Open Graph title and description
+- Clean content structure
+- Descriptive alt text
+
+PERFORMANCE REQUIREMENTS
+- Optimize animations
+- Avoid unnecessary heavy assets
+- Lazy-load 3D scene if possible
+- Keep bundle clean
+- Use efficient components
+- Avoid layout shift
+- Use responsive images or CSS visuals
+- Ensure smooth scroll performance
+
+DATA STRUCTURE
+Create mock data arrays for:
+- Assessment dimensions
+- Questions
+- Scoring levels
+- Recommendations
+- Industries
+- Case studies
+- Pricing plans
+- Testimonials
+- FAQs
+
+ASSESSMENT SCORING ALGORITHM
+Implement a clear function:
+- Take user answers
+- Calculate dimension scores
+- Calculate overall score
+- Assign readiness level
+- Generate recommendations
+- Identify top strengths and weaknesses
+- Generate 30/60/90-day roadmap
+
+Example scoring output:
+Overall score: 68
+Level: AI Builder
+Strengths:
+- Strong leadership interest
+- Good automation potential
+- Clear business KPIs
+Gaps:
+- Data quality needs improvement
+- Governance process is limited
+- AI skills need training
+Recommended pilots:
+- AI customer support assistant
+- Sales lead scoring dashboard
+- Internal knowledge assistant
+90-day roadmap:
+Days 1-30: Data and use-case audit
+Days 31-60: Pilot design and governance setup
+Days 61-90: Build, test, measure, and refine AI pilot
+
+MICROCOPY STYLE
+Use professional SaaS language:
+- Measure your AI maturity
+- Identify high-value use cases
+- Reduce implementation risk
+- Align AI with business goals
+- Turn AI ambition into a roadmap
+- Build responsible AI capabilities
+- Move from experimentation to transformation
+
+IMPORTANT FINAL QUALITY RULES
+- Make this look like a real SaaS product.
+- Make the interactive assessment functional.
+- Make the dashboard feel premium and data-rich.
+- Make the website fully responsive.
+- Make the 3D visuals impressive but not distracting.
+- Make the copy professional, not childish.
+- Make the design suitable for Dubai business culture.
+- Make it credible for a Master's-level AI Business student.
+- Do not miss any section.
+- Do not leave placeholder lorem ipsum.
+- Do not copy any real company's branding.
+- Do not use copyrighted logos or exact Dubai landmark replicas.
+- Use original abstract Dubai-inspired visuals.
+- Prioritize quality over excessive decoration.
+
+FINAL OUTPUT REQUIREMENTS
+1. Generate the full website.
+2. Include all sections listed above.
+3. Include functional assessment scoring.
+4. Include dashboard preview.
+5. Include 3D or 3D-style visuals.
+6. Include responsive mobile design.
+7. Include clean reusable components.
+8. Include realistic business content.
+9. Include animation and interaction.
+10. Include instructions to run the project.
+11. Include install commands.
+12. Include file structure.
+13. Review for bugs before final answer.
+14. Ensure no missing imports.
+15. Ensure no horizontal overflow.
+16. Ensure mobile responsiveness.
+17. Ensure premium visual polish.
+
+Build the best possible end-to-end premium 3D animated SaaS website for Dubai AI Readiness Index.

@@ -1,0 +1,160 @@
+'use client';
+
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { dimensions, Dimension } from '@/data/questions';
+import { calculateReadiness, ReadinessResult } from '@/utils/scoring';
+import { Button } from './Button';
+import { SectionTitle } from './SectionTitle';
+import { ScoreDashboard } from './ScoreDashboard';
+import { CheckCircle2, ChevronRight, ChevronLeft } from 'lucide-react';
+
+export const ReadinessAssessment = () => {
+  const [currentDimIndex, setCurrentDimIndex] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [isComplete, setIsComplete] = useState(false);
+  const [result, setResult] = useState<ReadinessResult | null>(null);
+
+  const currentDim = dimensions[currentDimIndex];
+  
+  const handleAnswer = (qId: string, value: number) => {
+    setAnswers(prev => ({ ...prev, [qId]: value }));
+  };
+
+  const isCurrentDimComplete = () => {
+    return currentDim.questions.every(q => answers[q.id] !== undefined);
+  };
+
+  const handleNext = () => {
+    if (currentDimIndex < dimensions.length - 1) {
+      setCurrentDimIndex(prev => prev + 1);
+    } else {
+      const res = calculateReadiness(answers);
+      setResult(res);
+      setIsComplete(true);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentDimIndex > 0) {
+      setCurrentDimIndex(prev => prev - 1);
+    }
+  };
+
+  if (isComplete && result) {
+    return <ScoreDashboard result={result} onReset={() => {
+      setAnswers({});
+      setCurrentDimIndex(0);
+      setIsComplete(false);
+      setResult(null);
+    }} />;
+  }
+
+  const progress = ((currentDimIndex) / dimensions.length) * 100;
+
+  return (
+    <section className="py-24 bg-background" id="assessment">
+      <div className="container mx-auto px-4 md:px-6">
+        <SectionTitle 
+          title="Free AI Readiness Assessment" 
+          subtitle="Evaluate your organization across 8 critical dimensions to get a customized roadmap."
+        />
+
+        <div className="max-w-4xl mx-auto mt-12">
+          {/* Progress Bar */}
+          <div className="mb-8">
+            <div className="flex justify-between text-sm text-muted-foreground mb-2 font-medium">
+              <span>Dimension {currentDimIndex + 1} of {dimensions.length}</span>
+              <span>{Math.round(progress)}% Complete</span>
+            </div>
+            <div className="w-full h-2 bg-glass-panel rounded-full overflow-hidden">
+              <motion.div 
+                className="h-full bg-gradient-to-r from-electric-blue to-ai-violet"
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.5 }}
+              />
+            </div>
+          </div>
+
+          <div className="glass-card p-6 md:p-10 relative overflow-hidden">
+            {/* Background Glow */}
+            <div className="absolute -top-32 -right-32 w-64 h-64 bg-ai-violet/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentDim.id}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="mb-8 border-b border-card-border pb-6">
+                  <h3 className="text-2xl md:text-3xl font-display font-bold text-foreground mb-2">{currentDim.title}</h3>
+                  <p className="text-muted-foreground">{currentDim.description}</p>
+                </div>
+
+                <div className="space-y-8">
+                  {currentDim.questions.map((q, idx) => (
+                    <div key={q.id} className="space-y-4">
+                      <p className="text-lg font-medium text-foreground/90">{idx + 1}. {q.text}</p>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-6 gap-2 md:gap-4">
+                        {[0, 1, 2, 3, 4, 5].map((val) => {
+                          const isSelected = answers[q.id] === val;
+                          return (
+                            <button
+                              key={val}
+                              onClick={() => handleAnswer(q.id, val)}
+                              className={`
+                                relative p-3 rounded-lg border text-center transition-all duration-200
+                                ${isSelected 
+                                  ? 'bg-cyber-cyan/20 border-cyber-cyan text-foreground shadow-[0_0_15px_rgba(34,211,238,0.3)]' 
+                                  : 'bg-glass-panel border-card-border text-muted-foreground hover:bg-glass-panel hover:border-white/20'
+                                }
+                              `}
+                            >
+                              <span className="block text-xl font-bold mb-1">{val}</span>
+                              <span className="text-[10px] uppercase tracking-wider block">
+                                {val === 0 ? 'None' : val === 5 ? 'High' : 'Med'}
+                              </span>
+                              {isSelected && (
+                                <CheckCircle2 className="absolute top-1 right-1 w-3 h-3 text-cyber-cyan" />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+            <div className="mt-12 pt-6 border-t border-card-border flex justify-between items-center">
+              <Button 
+                variant="ghost" 
+                onClick={handlePrev}
+                disabled={currentDimIndex === 0}
+                className={currentDimIndex === 0 ? 'invisible' : ''}
+                icon={<ChevronLeft className="w-4 h-4" />}
+              >
+                Previous
+              </Button>
+              
+              <Button 
+                onClick={handleNext}
+                disabled={!isCurrentDimComplete()}
+                variant={currentDimIndex === dimensions.length - 1 ? 'primary' : 'secondary'}
+                className={!isCurrentDimComplete() ? 'opacity-50' : ''}
+              >
+                {currentDimIndex === dimensions.length - 1 ? 'See Results' : 'Next Dimension'}
+                {currentDimIndex !== dimensions.length - 1 && <ChevronRight className="w-4 h-4 ml-1" />}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};

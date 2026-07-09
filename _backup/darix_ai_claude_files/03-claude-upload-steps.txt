@@ -1,0 +1,39 @@
+CLAUDE UPLOAD STEPS FOR DARIX AI
+
+Folder name:
+darix-ai-readiness-index
+
+Start with an empty folder. Do not upload the empty folder to Claude.
+
+Upload these files to Claude:
+1. 01-brand-brief.txt
+2. 02-claude-master-prompt.txt
+
+Recommended Claude workflow:
+1. Open Claude Design if available.
+2. If Claude Design is not available, open normal Claude chat and use Artifacts.
+3. Choose the best available model. Use Opus if available. If not, use Sonnet.
+4. Upload 01-brand-brief.txt and 02-claude-master-prompt.txt.
+5. Paste this message:
+
+I have attached the brand brief and full master prompt. My folder is empty, so please generate the complete project from scratch.
+
+Build the full premium 3D animated SaaS website for Dubai AI Readiness Index / DARIX AI.
+
+First create the complete visual design/prototype. Then generate the production-ready React + TypeScript + Tailwind CSS code with functional AI readiness assessment, dashboard, animations, responsive layout, and clean folder structure.
+
+After Claude creates the first version, paste this improvement prompt:
+
+Upgrade this website to look 50% more premium, more SaaS-like, and more Dubai-futuristic.
+
+Improve the hero 3D command center, Dubai-inspired skyline depth, AI readiness score animation, dashboard realism, assessment UX, score report section, glassmorphism quality, typography hierarchy, dark luxury color balance, hover states, scroll animations, mobile responsiveness, pricing section, research credibility, founder positioning, and CTA hierarchy.
+
+Remove anything that looks generic, childish, flat, unfinished, or like a basic AI template. Make it look like a real premium SaaS startup product built for AI transformation in Dubai.
+
+Final cleanup prompt:
+
+Now audit and fix the complete code.
+
+Check missing imports, broken components, TypeScript errors, responsiveness issues, mobile overflow, broken assessment scoring, dashboard chart bugs, animation performance, accessibility, SEO metadata, button interactions, form layout, and reusable component structure.
+
+Return the final clean production-ready version with installation commands, folder structure, and run instructions.

@@ -1,0 +1,15 @@
+export const COLORS = {
+  deepBlack: '#030712',
+  aiNavy: '#07111F',
+  graphite: '#111827',
+  glassGray: 'rgba(255,255,255,0.08)',
+  electricBlue: '#38BDF8',
+  cyberCyan: '#22D3EE',
+  aiViolet: '#8B5CF6',
+  dubaiGold: '#D4AF37',
+  emeraldSuccess: '#10B981',
+  warningAmber: '#F59E0B',
+  riskRed: '#EF4444',
+  softWhite: '#F8FAFC',
+  mutedGray: '#94A3B8',
+};

@@ -1,0 +1,81 @@
+import React from 'react';
+import { BrainCircuit, Globe, Share2, Rss, Mail } from 'lucide-react';
+
+export const Footer = () => {
+  const currentYear = new Date().getFullYear();
+
+  return (
+    <footer className="bg-card border-t border-card-border pt-20 pb-10 relative overflow-hidden">
+      {/* Decorative Glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-cyber-cyan/30 to-transparent"></div>
+      
+      <div className="container mx-auto px-4 md:px-6 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+          
+          <div className="flex flex-col gap-6">
+            <a href="#" className="flex items-center gap-2 group">
+              <div className="w-8 h-8 rounded-md bg-gradient-to-br from-electric-blue to-ai-violet flex items-center justify-center">
+                <BrainCircuit className="text-foreground w-5 h-5" />
+              </div>
+              <span className="font-display font-bold text-xl tracking-wide text-foreground">DARIX AI</span>
+            </a>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Dubai AI Readiness Index helps organizations assess AI readiness, identify business opportunities, and build practical roadmaps for responsible AI transformation.
+            </p>
+            <div className="flex items-center gap-4">
+              <a href="#" className="text-muted-foreground hover:text-cyber-cyan transition-colors"><Globe className="w-5 h-5" /></a>
+              <a href="#" className="text-muted-foreground hover:text-cyber-cyan transition-colors"><Share2 className="w-5 h-5" /></a>
+              <a href="#" className="text-muted-foreground hover:text-cyber-cyan transition-colors"><Rss className="w-5 h-5" /></a>
+              <a href="#" className="text-muted-foreground hover:text-cyber-cyan transition-colors"><Mail className="w-5 h-5" /></a>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-foreground font-semibold mb-6 uppercase tracking-wider text-sm">Product</h4>
+            <ul className="flex flex-col gap-4">
+              <li><a href="#assessment" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Readiness Assessment</a></li>
+              <li><a href="#dashboard" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Executive Dashboard</a></li>
+              <li><a href="#framework" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Maturity Framework</a></li>
+              <li><a href="#pricing" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Pricing & Plans</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-foreground font-semibold mb-6 uppercase tracking-wider text-sm">Resources</h4>
+            <ul className="flex flex-col gap-4">
+              <li><a href="#industries" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Industry Use Cases</a></li>
+              <li><a href="#case-studies" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Case Studies</a></li>
+              <li><a href="#research" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Research Papers</a></li>
+              <li><a href="#faq" className="text-muted-foreground hover:text-foreground text-sm transition-colors">FAQ</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-foreground font-semibold mb-6 uppercase tracking-wider text-sm">Contact</h4>
+            <ul className="flex flex-col gap-4">
+              <li className="text-muted-foreground text-sm">Dubai, United Arab Emirates</li>
+              <li><a href="mailto:hello@darix.ai" className="text-muted-foreground hover:text-cyber-cyan text-sm transition-colors">hello@darix.ai</a></li>
+              <li className="mt-4">
+                <a href="#contact" className="inline-flex items-center text-sm font-medium text-electric-blue hover:text-foreground transition-colors group">
+                  Book a Consultation
+                  <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+
+        <div className="border-t border-card-border pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-muted-foreground text-xs">
+            © {currentYear} DARIX AI (Dubai AI Readiness Index). All rights reserved.
+          </p>
+          <div className="flex gap-6">
+            <a href="#" className="text-muted-foreground hover:text-foreground text-xs transition-colors">Privacy Policy</a>
+            <a href="#" className="text-muted-foreground hover:text-foreground text-xs transition-colors">Terms of Service</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};

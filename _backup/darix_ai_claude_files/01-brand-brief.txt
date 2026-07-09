@@ -1,0 +1,89 @@
+PROJECT NAME
+Dubai AI Readiness Index
+
+SHORT BRAND NAME
+DARIX AI
+
+TAGLINE
+Measure. Transform. Scale with AI.
+
+PROJECT TYPE
+Premium AI SaaS-style website for AI readiness assessment.
+
+LOCATION
+Dubai, UAE
+
+CREATED FOR
+A Master's student in AI Business based in Dubai.
+
+TARGET AUDIENCE
+Dubai businesses, SMEs, startup founders, enterprise leaders, AI consultants, recruiters, investors, university professors, and digital transformation teams.
+
+WEBSITE GOAL
+Create a premium, professional, fully responsive, 3D animated SaaS website that helps businesses assess their AI readiness, calculate a score, view dashboard insights, and get an AI adoption roadmap.
+
+CORE PRODUCT IDEA
+DARIX AI helps organizations measure AI readiness across strategy, data maturity, technology, automation, people, governance, use cases, and ROI. Users complete an assessment and receive a readiness score, maturity level, recommendations, and a 30/60/90-day AI transformation roadmap.
+
+VISUAL STYLE
+Dark, premium, futuristic, Dubai-inspired, business-focused, SaaS-style, 3D animated, executive, intelligent, and professional.
+
+COLOR PALETTE
+Deep Black: #030712
+AI Navy: #07111F
+Graphite: #111827
+Electric Blue: #38BDF8
+Cyber Cyan: #22D3EE
+AI Violet: #8B5CF6
+Dubai Gold: #D4AF37
+Emerald Success: #10B981
+Warning Amber: #F59E0B
+Risk Red: #EF4444
+Soft White: #F8FAFC
+Muted Gray: #94A3B8
+
+REQUIRED SECTIONS
+1. Premium navbar
+2. 3D hero section
+3. Business problem section
+4. Solution section
+5. Interactive AI readiness assessment
+6. AI readiness dashboard
+7. AI maturity framework
+8. Industry use cases
+9. Report preview
+10. Features
+11. Pricing
+12. Case studies
+13. Research and credibility
+14. Founder section
+15. Testimonials
+16. FAQ
+17. Contact form
+18. Footer
+
+MAIN FEATURE
+A functional AI readiness assessment with scoring from 0 to 100.
+
+ASSESSMENT DIMENSIONS
+1. AI Strategy
+2. Data Maturity
+3. Technology Infrastructure
+4. Process Automation
+5. People and Skills
+6. AI Governance
+7. Use Case Potential
+8. ROI and Business Value
+
+READINESS LEVELS
+0-25: AI Explorer
+26-50: AI Starter
+51-75: AI Builder
+76-90: AI Scaler
+91-100: AI Leader
+
+TECHNOLOGY PREFERENCE
+React, TypeScript, Tailwind CSS, Framer Motion, Three.js or React Three Fiber. If full 3D is not possible, use CSS 3D effects, parallax, glassmorphism, animated particles, glowing cards, and dashboard animations.
+
+IMPORTANT
+Make it look like a real premium SaaS startup product, not a basic student project.
