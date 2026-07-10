@@ -2,6 +2,43 @@
 
 _Last updated: 10 July 2026._
 
+## Status
+
+Every code-feasible item in this plan has been implemented and verified
+(lint/typecheck/unit-integration tests/build/e2e all green):
+
+- **Workstream 1 (Model & Content Integrity)**: dimension weighting,
+  industry-aware output, PDPL-specific governance copy, Arabic translation
+  of the two UAE-specific resource articles, and the case-study
+  disclaimer are all shipped — see `src/utils/scoring.ts` and the
+  in-code rationale comments for exactly what changed and what's still
+  deliberately deferred (question-level weighting, level-threshold
+  recalibration against real usage data).
+- **Workstream 2 (Test Coverage)**: the three previously-untested API
+  routes and nine priority components now have tests; the accessibility
+  suite targets an explicit WCAG 2.1 AA tag set.
+- **Workstream 3 (Compliance Precision)**: documentation-only updates to
+  `docs/ROPA.md` and `docs/GO_LIVE_CHECKLIST.md` (DIFC/ADGM scoping, DPO
+  item, ISO 27001 path) plus a jurisdiction question added to the contact
+  intake flow.
+- **Workstream 4 (Differentiation)**: dashboard score-trend chart and
+  anonymized industry benchmarking are both live (the benchmark honestly
+  reports "not enough data yet" until real usage accumulates — it never
+  fabricates a number).
+- **Workstream 5 (Growth Engine)**: PostHog feature flags are wired with
+  a first real experiment (pricing CTA copy); a re-assessment reminder
+  cron (Resend email, Vercel Cron, Hobby-plan-compatible) is built. The
+  WhatsApp nurture-sequence *content* remains explicitly not built —
+  that needs Meta template approval, an external business step no code
+  change can complete.
+- **Workstream 6 (Ops)**: Dependabot, CHANGELOG, CD-path documentation —
+  done in the prior pass.
+- **Workstreams 7-8 (Business Formation, Go-To-Market)**: unchanged —
+  these are real-world legal/business actions (trade licence, live
+  merchant activation, lawyer sign-off, grant applications, partner
+  outreach) that remain correctly scoped in `docs/GO_LIVE_CHECKLIST.md`,
+  not something a coding pass can complete.
+
 ## Context
 
 Darix AI (the Dubai AI Readiness Index) is functionally complete through

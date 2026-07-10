@@ -39,12 +39,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Verification failed. Please try again.' }, { status: 403 });
   }
 
-  const { answers, companyName, contactName, contactEmail } = parsed.data;
+  const { answers, companyName, contactName, contactEmail, industry, companySize } = parsed.data;
 
   // The score is always recomputed server-side from the raw answers — we
   // never trust a client-supplied result, since that's the number a user
-  // could otherwise tamper with before it's persisted.
-  const result = calculateReadiness(answers);
+  // could otherwise tamper with before it's persisted. `industry` is
+  // already validated against the known industries list by
+  // createAssessmentSchema, so it's safe to pass straight through.
+  const result = calculateReadiness(answers, { industryId: industry });
 
   // If the request carries a valid Supabase session, associate the
   // assessment with that user so it shows up in their dashboard history.
@@ -63,6 +65,8 @@ export async function POST(request: NextRequest) {
       company_name: companyName || null,
       contact_name: contactName || null,
       contact_email: contactEmail || null,
+      industry: industry || null,
+      company_size: companySize || null,
       answers,
       result,
     })

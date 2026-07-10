@@ -4,9 +4,39 @@ All notable changes to this project are documented here, grouped by the
 internal phase numbering used throughout `docs/` and commit history. Format
 loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
-## [Unreleased] — Phase 15+
+## Phase 15 — 2026-07-10
 
-Master roadmap for what's next: see `docs/PHASE_15_MASTER_PLAN.md`.
+Full plan: `docs/PHASE_15_MASTER_PLAN.md`. All code-feasible items shipped;
+business/legal items (trade licence, live merchant activation, lawyer
+sign-off, grants, partner outreach) remain in `docs/GO_LIVE_CHECKLIST.md`.
+
+### Added
+- Reasoned dimension weighting in the scoring model (Strategy/Data/
+  Governance weighted higher), replacing the previous equal-1/8th default.
+- Industry- and PDPL-governance-aware report content: personalized
+  recommended pilots, description context, and strength/gap copy — both
+  English and Arabic.
+- Optional industry + company-size fields on the assessment intake.
+- Anonymized industry benchmarking (`/api/benchmarks`) and a dashboard
+  score-over-time trend chart.
+- PostHog feature flags, with a first real experiment on pricing CTA copy.
+- A daily Vercel Cron re-assessment reminder email (90-day interval, Resend).
+- A business-registration-jurisdiction question on the contact form,
+  surfaced in the internal lead-alert email (DIFC/ADGM vs. mainland PDPL).
+- Arabic translation of the two UAE-specific resource articles.
+- Component tests for 9 previously-untested interactive components; API
+  route tests for the 3 previously-untested assessment routes.
+- WCAG 2.1 AA-scoped accessibility test target.
+
+### Fixed
+- `ContactSection`'s optional business-jurisdiction `<select>` blocked
+  form submission when left at its placeholder value (native `""` isn't
+  the same as `undefined` for an optional Zod enum) — caught by a new
+  component test, fixed with the same `.optional().or(z.literal(''))`
+  pattern already used elsewhere in the schema.
+- RTL's default 1000ms `waitFor` timeout was too tight once the component
+  test suite grew large enough to run into real parallel-CPU contention —
+  raised suite-wide in `src/test/setup.ts`.
 
 ## Phase 9–14 — 2026-07-10
 

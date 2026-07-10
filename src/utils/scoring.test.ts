@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { calculateReadiness } from './scoring';
 import { dimensions } from '@/data/questions';
+import { industries } from '@/data/industries';
 
 const allQuestionIds = dimensions.flatMap((d) => d.questions.map((q) => q.id));
 
@@ -13,6 +14,38 @@ const answersWithTotal = (total: number): Record<string, number> => {
     answers[id] = value;
     remaining -= value;
   }
+  return answers;
+};
+
+/**
+ * Sets every dimension to the same number of points (0-15), producing a
+ * uniform per-dimension percentage. Because DIMENSION_WEIGHTS sums to 1,
+ * a uniform fill produces an overall score equal to that percentage
+ * regardless of how dimensions are individually weighted — this is what
+ * makes it a reliable way to test level boundaries without hand-deriving
+ * a value for every specific weight combination.
+ */
+const answersUniform = (pointsPerDimension: number): Record<string, number> => {
+  const answers: Record<string, number> = {};
+  dimensions.forEach((dim) => {
+    let remaining = pointsPerDimension;
+    dim.questions.forEach((q) => {
+      const value = Math.max(0, Math.min(5, remaining));
+      answers[q.id] = value;
+      remaining -= value;
+    });
+  });
+  return answers;
+};
+
+/** Sets a single dimension to full marks (15/15) and every other dimension to 0. */
+const answersSingleDimensionMax = (dimensionId: string): Record<string, number> => {
+  const answers: Record<string, number> = {};
+  dimensions.forEach((dim) => {
+    dim.questions.forEach((q) => {
+      answers[q.id] = dim.id === dimensionId ? 5 : 0;
+    });
+  });
   return answers;
 };
 
@@ -41,6 +74,9 @@ describe('calculateReadiness', () => {
   });
 
   it('ignores answer keys that do not map to a known question', () => {
+    // Filling strategy+data+tech+process completely (60 of 120 raw points)
+    // lands on a clean dimension boundary, so the weighted score (their
+    // combined weight is exactly 0.5) still comes out to 50 here.
     const answers = { ...answersWithTotal(60), unknownQuestion: 5, '': 3 };
     const result = calculateReadiness(answers);
     expect(result.score).toBe(50);
@@ -51,26 +87,89 @@ describe('calculateReadiness', () => {
     answers['q1'] = 999; // should clamp to 5
     answers['q2'] = -10; // should clamp to 0
     const result = calculateReadiness(answers);
-    expect(result.score).toBe(Math.round((5 / 120) * 100));
+    // Only the "strategy" dimension (q1-q3) is affected: 5/15 = 33.33%,
+    // weighted at 0.15 -> 5.0 exactly.
+    expect(result.score).toBe(5);
   });
 
-  describe('level boundaries', () => {
-    // totalMax is 120 (24 questions * 5 points). Boundaries are defined as
-    // percentageScore <= 25 / 50 / 75 / 90.
+  describe('level boundaries (uniform dimension fill, weight-invariant)', () => {
     it.each([
       [0, 'AI Explorer'],
-      [30, 'AI Explorer'], // 25.0% rounds to 25 -> still Explorer
-      [31, 'AI Starter'], // 25.83% rounds to 26 -> crosses into Starter
-      [60, 'AI Starter'], // 50.0%
-      [61, 'AI Builder'], // 50.83% rounds to 51
-      [90, 'AI Builder'], // 75.0%
-      [91, 'AI Scaler'], // 75.83% rounds to 76
-      [108, 'AI Scaler'], // 90.0%
-      [109, 'AI Leader'], // 90.83% rounds to 91
-      [120, 'AI Leader'], // 100%
-    ])('total score %i maps to level %s', (total, expectedLevel) => {
-      const result = calculateReadiness(answersWithTotal(total));
+      [3, 'AI Explorer'], // 20%
+      [6, 'AI Starter'], // 40%
+      [9, 'AI Builder'], // 60%
+      [12, 'AI Scaler'], // 80%
+      [15, 'AI Leader'], // 100%
+    ])('%i points per dimension maps to level %s', (pointsPerDimension, expectedLevel) => {
+      const result = calculateReadiness(answersUniform(pointsPerDimension));
       expect(result.level).toBe(expectedLevel);
+    });
+  });
+
+  describe('dimension weighting', () => {
+    it('weights governance and strategy higher than tech/process/people', () => {
+      const governanceOnly = calculateReadiness(answersSingleDimensionMax('governance'));
+      const strategyOnly = calculateReadiness(answersSingleDimensionMax('strategy'));
+      const techOnly = calculateReadiness(answersSingleDimensionMax('tech'));
+
+      // A single dimension maxed out (100%) with everything else at 0%
+      // scores exactly that dimension's weight (as a percentage).
+      expect(governanceOnly.score).toBe(15);
+      expect(strategyOnly.score).toBe(15);
+      expect(techOnly.score).toBe(10);
+      expect(governanceOnly.score).toBeGreaterThan(techOnly.score);
+    });
+
+    it('never lets an unweighted or misconfigured dimension silently break the score', () => {
+      // Every real dimension id in src/data/questions.ts has an explicit
+      // weight; this just guards that dimensionScores always has exactly
+      // one entry per dimension regardless of which weight applies.
+      const result = calculateReadiness(answersUniform(9));
+      expect(result.dimensionScores).toHaveLength(dimensions.length);
+    });
+  });
+
+  describe('industry-aware output', () => {
+    it('swaps the first recommended pilot and appends industry context when a known industry is supplied', () => {
+      const finance = industries.find((i) => i.id === 'finance')!;
+      const result = calculateReadiness(answersUniform(9), { industryId: 'finance' });
+      expect(result.industryId).toBe('finance');
+      expect(result.recommendedPilots[0]).toBe(finance.firstPilot);
+      expect(result.description).toContain(finance.aiSolution);
+    });
+
+    it('falls back to generic output for an unknown industryId instead of throwing', () => {
+      const result = calculateReadiness(answersUniform(9), { industryId: 'not-a-real-industry' });
+      expect(result.industryId).toBeUndefined();
+      expect(result.recommendedPilots[0]).toBe('AI Customer Support Assistant');
+    });
+
+    it('produces generic output when no industryId is supplied at all', () => {
+      const result = calculateReadiness(answersUniform(9));
+      expect(result.industryId).toBeUndefined();
+      expect(result.recommendedPilots[0]).toBe('AI Customer Support Assistant');
+    });
+  });
+
+  describe('governance-specific PDPL copy', () => {
+    it('uses PDPL-specific gap text when governance is the weakest dimension', () => {
+      const answers = answersUniform(15);
+      dimensions
+        .find((d) => d.id === 'governance')!
+        .questions.forEach((q) => (answers[q.id] = 0));
+      const result = calculateReadiness(answers);
+      expect(result.gapDimensionIds).toContain('governance');
+      expect(result.gaps.some((g) => g.includes('UAE PDPL') && g.includes('AED 50,000'))).toBe(true);
+    });
+
+    it('uses PDPL-specific strength text when governance is the strongest dimension', () => {
+      const answers = answersUniform(0);
+      dimensions
+        .find((d) => d.id === 'governance')!
+        .questions.forEach((q) => (answers[q.id] = 5));
+      const result = calculateReadiness(answers);
+      expect(result.strengthDimensionIds).toContain('governance');
+      expect(result.strengths.some((s) => s.includes('UAE PDPL'))).toBe(true);
     });
   });
 

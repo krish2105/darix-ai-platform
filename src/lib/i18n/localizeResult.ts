@@ -33,13 +33,29 @@ export const localizeReadinessResult = (
   }
 
   const level = translate(locale, `level.${result.levelId}.name`);
-  const description = translate(locale, `level.${result.levelId}.desc`);
+  let description = translate(locale, `level.${result.levelId}.desc`);
 
+  // Mirrors the industry-context sentence appended in scoring.ts for
+  // English — same idea, translated template instead of re-deriving it.
+  if (result.industryId) {
+    description += translate(locale, 'result.industryContext.template', {
+      industry: translate(locale, `industry.${result.industryId}.name`),
+      aiSolution: translate(locale, `industry.${result.industryId}.aiSolution`),
+    });
+  }
+
+  // Governance gets PDPL-specific copy rather than the generic
+  // "{dimension} is/requires..." template — mirrors the same special-case
+  // in scoring.ts's English generation.
   const strengths = (result.strengthDimensionIds ?? []).map((id) =>
-    translate(locale, 'result.strength.template', { dimension: translate(locale, `dim.${id}.title`) })
+    id === 'governance'
+      ? translate(locale, 'result.strength.governance.template')
+      : translate(locale, 'result.strength.template', { dimension: translate(locale, `dim.${id}.title`) })
   );
   const gaps = (result.gapDimensionIds ?? []).map((id) =>
-    translate(locale, 'result.gap.template', { dimension: translate(locale, `dim.${id}.title`) })
+    id === 'governance'
+      ? translate(locale, 'result.gap.governance.template')
+      : translate(locale, 'result.gap.template', { dimension: translate(locale, `dim.${id}.title`) })
   );
 
   const roadmap = [1, 2, 3].map((n) => ({
@@ -48,7 +64,14 @@ export const localizeReadinessResult = (
     actions: [1, 2].map((a) => translate(locale, `roadmap.phase${n}.action${a}`)),
   }));
 
-  const recommendedPilots = [1, 2, 3].map((n) => translate(locale, `pilot${n}`));
+  // recommendedPilots[0] is industry-specific when industryId is set —
+  // mirrors scoring.ts's English generation via the same
+  // industry.<id>.firstPilot translation key.
+  const recommendedPilots = [1, 2, 3].map((n) =>
+    n === 1 && result.industryId
+      ? translate(locale, `industry.${result.industryId}.firstPilot`)
+      : translate(locale, `pilot${n}`)
+  );
 
   return { level, description, strengths, gaps, roadmap, recommendedPilots };
 };

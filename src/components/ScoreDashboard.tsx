@@ -10,6 +10,7 @@ import { pricingPlans } from '@/data/pricing';
 import { trackEvent } from '@/lib/analytics/posthog-client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { localizeReadinessResult } from '@/lib/i18n/localizeResult';
+import { IndustryBenchmarkPanel } from './IndustryBenchmarkPanel';
 import {
   Radar,
   RadarChart,
@@ -271,6 +272,8 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
             </div>
           </motion.div>
         </div>
+
+        {result.industryId && <IndustryBenchmarkPanel industryId={result.industryId} score={result.score} />}
 
         {/* Strengths & Gaps */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">

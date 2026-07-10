@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Clock, Calendar } from 'lucide-react';
-import type { Resource } from '@/data/resources';
+import { localizeResource, type Resource } from '@/data/resources';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export const ResourceArticleContent = ({ article }: { article: Resource }) => {
   const { t, locale } = useLanguage();
+  const { title, sections } = localizeResource(article, locale);
 
   return (
     <article className="py-32 bg-background">
@@ -23,7 +24,7 @@ export const ResourceArticleContent = ({ article }: { article: Resource }) => {
             {article.category}
           </span>
           <h1 className="text-3xl md:text-5xl font-display font-bold text-foreground mb-6 text-balance">
-            {article.title}
+            {title}
           </h1>
           <div className="flex items-center gap-6 text-sm text-muted-foreground mb-12">
             <span className="flex items-center gap-1.5">
@@ -36,7 +37,7 @@ export const ResourceArticleContent = ({ article }: { article: Resource }) => {
           </div>
 
           <div className="space-y-10">
-            {article.sections.map((section) => (
+            {sections.map((section) => (
               <div key={section.heading}>
                 <h2 className="text-xl font-display font-bold text-foreground mb-3">{section.heading}</h2>
                 <div className="space-y-4">

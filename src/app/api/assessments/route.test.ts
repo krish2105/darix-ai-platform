@@ -79,6 +79,18 @@ describe('POST /api/assessments', () => {
     expect(res.status).toBe(500);
   });
 
+  it('rejects an unknown industry id instead of storing free text', async () => {
+    const res = await POST(makeRequest({ answers: { q1: 3 }, industry: 'not-a-real-industry' }));
+    expect(res.status).toBe(400);
+  });
+
+  it('personalizes the result when a known industry is provided', async () => {
+    const res = await POST(makeRequest({ answers: { q1: 3 }, industry: 'finance' }));
+    expect(res.status).toBe(201);
+    const json = await res.json();
+    expect(json.result.industryId).toBe('finance');
+  });
+
   it('rate limits after repeated requests from the same IP', async () => {
     const ip = '203.0.113.99';
     let lastStatus = 0;

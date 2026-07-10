@@ -3,7 +3,9 @@
 import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { dimensions } from '@/data/questions';
+import { industries } from '@/data/industries';
 import { ReadinessResult } from '@/utils/scoring';
+import { companySizeOptions } from '@/lib/validation/schemas';
 import { Button } from './Button';
 import { SectionTitle } from './SectionTitle';
 import { ScoreDashboard } from './ScoreDashboard';
@@ -25,6 +27,8 @@ export const ReadinessAssessment = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [industry, setIndustry] = useState('');
+  const [companySize, setCompanySize] = useState('');
 
   const currentDim = dimensions[currentDimIndex];
   const hasStartedRef = useRef(false);
@@ -48,7 +52,12 @@ export const ReadinessAssessment = () => {
       const res = await fetch('/api/assessments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers, turnstileToken }),
+        body: JSON.stringify({
+          answers,
+          turnstileToken,
+          industry: industry || undefined,
+          companySize: companySize || undefined,
+        }),
       });
       if (!res.ok) throw new Error('Failed to save assessment');
       const data: { id: string; result: ReadinessResult } = await res.json();
@@ -184,6 +193,43 @@ export const ReadinessAssessment = () => {
               <div className="mt-8 flex items-start gap-3 rounded-lg border border-risk-red/40 bg-risk-red/10 p-4 text-sm text-risk-red">
                 <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                 <span>{saveError}</span>
+              </div>
+            )}
+
+            {currentDimIndex === dimensions.length - 1 && (
+              <div className="mt-8 pt-6 border-t border-card-border grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label htmlFor="assessment-industry" className="text-sm font-medium text-foreground/80">
+                    {t('assessment.industryLabel')}
+                  </label>
+                  <select
+                    id="assessment-industry"
+                    value={industry}
+                    onChange={(e) => setIndustry(e.target.value)}
+                    className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors appearance-none"
+                  >
+                    <option value="">{t('assessment.selectIndustry')}</option>
+                    {industries.map((ind) => (
+                      <option key={ind.id} value={ind.id}>{t(`industry.${ind.id}.name`)}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="assessment-company-size" className="text-sm font-medium text-foreground/80">
+                    {t('assessment.companySizeLabel')}
+                  </label>
+                  <select
+                    id="assessment-company-size"
+                    value={companySize}
+                    onChange={(e) => setCompanySize(e.target.value)}
+                    className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors appearance-none"
+                  >
+                    <option value="">{t('contact.selectSize')}</option>
+                    {companySizeOptions.map((size) => (
+                      <option key={size} value={size}>{size} {t('contact.employees')}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             )}
 

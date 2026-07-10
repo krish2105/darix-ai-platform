@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from './Button';
 import { Send, CheckCircle2, AlertTriangle, Loader2 } from 'lucide-react';
 import { fadeIn } from '@/utils/animations';
-import { companySizeOptions, contactSchema, type ContactInput } from '@/lib/validation/schemas';
+import { businessJurisdictionOptions, companySizeOptions, contactSchema, type ContactInput } from '@/lib/validation/schemas';
 import { trackEvent } from '@/lib/analytics/posthog-client';
 import { TurnstileWidget } from './Turnstile';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -141,6 +141,17 @@ export const ContactSection = () => {
                       </select>
                       {errors.companySize && <p className="text-xs text-risk-red">{errors.companySize.message}</p>}
                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="businessJurisdiction" className="text-sm font-medium text-foreground/80">{t('contact.businessJurisdiction')}</label>
+                    <select id="businessJurisdiction" {...register('businessJurisdiction')} defaultValue="" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors appearance-none">
+                      <option value="">{t('contact.selectJurisdiction')}</option>
+                      {businessJurisdictionOptions.map((option) => (
+                        <option key={option} value={option}>{t(`contact.jurisdiction.${option}`)}</option>
+                      ))}
+                    </select>
+                    {errors.businessJurisdiction && <p className="text-xs text-risk-red">{errors.businessJurisdiction.message}</p>}
                   </div>
 
                   <div className="space-y-2">

@@ -4,6 +4,7 @@ import { ArrowRight, FileText, Calendar, Crown } from 'lucide-react';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { SignOutButton } from '@/components/SignOutButton';
 import { PrivacyActions } from '@/components/PrivacyActions';
+import { DashboardScoreTrend } from '@/components/DashboardScoreTrend';
 import type { ReadinessResult } from '@/utils/scoring';
 
 interface AssessmentRow {
@@ -73,6 +74,17 @@ export default async function DashboardPage() {
               Start Assessment <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
+        )}
+
+        {assessments && assessments.length > 1 && (
+          <DashboardScoreTrend
+            points={[...assessments]
+              .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+              .map((a) => ({
+                date: new Date(a.created_at).toLocaleDateString('en-AE', { month: 'short', day: 'numeric' }),
+                score: a.result.score,
+              }))}
+          />
         )}
 
         {assessments && assessments.length > 0 && (

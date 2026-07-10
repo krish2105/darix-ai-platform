@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
     work_email: lead.workEmail,
     company_name: lead.companyName,
     company_size: lead.companySize,
+    business_jurisdiction: lead.businessJurisdiction || null,
     challenge: lead.challenge,
   });
 

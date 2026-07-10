@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { pricingPlans } from '@/data/pricing';
 import { SectionTitle } from './SectionTitle';
@@ -8,15 +8,34 @@ import { Button } from './Button';
 import { staggerContainer, fadeIn } from '@/utils/animations';
 import { Check, AlertTriangle, Loader2 } from 'lucide-react';
 import { LAST_ASSESSMENT_ID_KEY } from '@/lib/storage-keys';
-import { trackEvent } from '@/lib/analytics/posthog-client';
+import { trackEvent, getFeatureFlag, onFeatureFlagsLoaded } from '@/lib/analytics/posthog-client';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const planFeatureCounts: Record<string, number> = { free: 4, pro: 6, business: 5, enterprise: 6 };
+
+// First real consumer of the PostHog feature-flag wrapper
+// (src/lib/analytics/posthog-client.ts) — a copy variant on the free-tier
+// CTA, gated behind the "pricing-cta-copy" flag. Defaults to the existing
+// copy ('control') whenever PostHog isn't configured or the flag isn't
+// set, so this is purely additive, not a behavior change for anyone not
+// explicitly enrolled in the experiment.
+const PRICING_CTA_FLAG = 'pricing-cta-copy';
 
 export const PricingSection = () => {
   const { t } = useLanguage();
   const [pendingPlanId, setPendingPlanId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [ctaVariant, setCtaVariant] = useState<'control' | 'test'>('control');
+
+  useEffect(() => {
+    onFeatureFlagsLoaded(() => {
+      const variant = getFeatureFlag(PRICING_CTA_FLAG) === 'test' ? 'test' : 'control';
+      setCtaVariant(variant);
+      // Exposure event: without this, PostHog has no way to attribute a
+      // later conversion event to which variant the visitor actually saw.
+      trackEvent('pricing_cta_variant_shown', { variant });
+    });
+  }, []);
 
   const handlePlanClick = async (plan: (typeof pricingPlans)[number]) => {
     setNotice(null);
@@ -117,7 +136,7 @@ export const PricingSection = () => {
                 {pendingPlanId === plan.id
                   ? t('pricing.redirecting')
                   : plan.price === 'AED 0'
-                    ? t('pricing.startFree')
+                    ? t(ctaVariant === 'test' ? 'pricing.startFreeUrgent' : 'pricing.startFree')
                     : plan.price === 'Custom'
                       ? t('pricing.contactUs')
                       : t('pricing.requestPlan')}

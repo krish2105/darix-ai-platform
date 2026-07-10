@@ -29,6 +29,10 @@ export const CaseStudies = () => {
           subtitle={t('homeCaseStudies.subtitle')}
         />
 
+        <p className="max-w-2xl mx-auto text-center text-xs text-muted-foreground mt-4">
+          {t('caseStudiesPage.disclaimer')}
+        </p>
+
         <div className="max-w-5xl mx-auto mt-16 relative">
           <div className="absolute top-1/2 -translate-y-1/2 -left-4 md:-left-12 z-20">
             <button onClick={prevSlide} aria-label="Previous case study" className="w-10 h-10 rounded-full glass-panel flex items-center justify-center text-foreground hover:text-cyber-cyan transition-colors">

@@ -150,6 +150,21 @@ to find (already configured in `next.config.ts`), so this is worth
 verifying once against your actual Vercel deployment rather than assuming
 local dev behavior carries over.
 
+## 6g. Re-assessment reminder (Vercel Cron)
+
+`vercel.json` schedules a daily call to `/api/cron/reassessment-reminder`
+(06:00 UTC), which emails signed-in users whose latest assessment is 90+
+days old, at most once every 80 days, prompting them to retake it. Set
+`CRON_SECRET` to any random string (`openssl rand -hex 32`) — Vercel sends
+it automatically as a Bearer token when it triggers a scheduled route, and
+the route rejects any request without a matching one. This runs on
+Vercel's free Hobby plan (crons are capped at once/day on Hobby, which
+this schedule already fits) — no Pro plan needed. Requires
+`RESEND_API_KEY`/`EMAIL_FROM` to be configured (section 2); returns 503
+otherwise, same graceful-degradation pattern as everything else. Note:
+this covers the email channel only — a WhatsApp equivalent would need
+Meta-approved message templates first (see section 6b).
+
 ## 7. Environment variables
 
 Copy `.env.example` to `.env.local` and fill in every value described there. `NEXT_PUBLIC_SITE_URL` should be your production URL once deployed (used to build links inside emails and Stripe/Telr checkout redirects).

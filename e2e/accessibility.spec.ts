@@ -3,10 +3,17 @@ import AxeBuilder from '@axe-core/playwright';
 
 // Automated a11y pass focused on the assessment flow and the
 // glassmorphism-heavy sections, since low-contrast glass panels are a
-// common failure point for this visual style. Fails the build only on
-// critical/serious violations; moderate/minor findings are logged for
-// visibility without blocking (matches the "no critical accessibility
-// failures" bar from the MVP definition of done).
+// common failure point for this visual style. Scoped to WCAG 2.1 A/AA
+// rules specifically (via .withTags) rather than axe's full default
+// ruleset, which also includes non-WCAG "best practice" heuristics (e.g.
+// heading-order) that would otherwise mix in unrelated noise. WCAG 2.1 AA
+// is the explicit target because it's the conformance level the UAE's
+// TDRA National Digital Accessibility Policy sets for federal government
+// sites — a reasonable bar to hold this product to even before it
+// pursues any public-sector angle. Fails the build only on critical/
+// serious violations within that WCAG-tagged scope; moderate/minor
+// findings are logged for visibility without blocking.
+const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const BLOCKING_IMPACTS = new Set(['critical', 'serious']);
 
 async function runAxeAndAssert(page: import('@playwright/test').Page, label: string) {
@@ -18,7 +25,7 @@ async function runAxeAndAssert(page: import('@playwright/test').Page, label: str
   // window makes axe sample a blended, near-invisible text color and
   // report a false-positive contrast failure. This settles it first.
   await page.waitForTimeout(500);
-  const results = await new AxeBuilder({ page }).analyze();
+  const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   const blocking = results.violations.filter((v) => BLOCKING_IMPACTS.has(v.impact ?? ''));
   const nonBlocking = results.violations.filter((v) => !BLOCKING_IMPACTS.has(v.impact ?? ''));
 
