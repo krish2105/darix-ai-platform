@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ShieldCheck, ArrowRight } from 'lucide-react';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createServerSupabaseClient, isSupabaseConfigured } from '@/lib/supabase/server';
 import { PrivacyRequestForm } from '@/components/PrivacyRequestForm';
 
 export const metadata: Metadata = {
@@ -10,10 +10,12 @@ export const metadata: Metadata = {
 };
 
 export default async function PrivacyCenterPage() {
-  const supabase = await createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Unlike /dashboard and /admin, this page is reachable by anonymous
+  // visitors and never redirects — it must not crash when Supabase isn't
+  // configured, it should just show the same view as a logged-out visitor.
+  const user = isSupabaseConfigured()
+    ? (await (await createServerSupabaseClient()).auth.getUser()).data.user
+    : null;
 
   return (
     <section className="py-32 bg-background">
