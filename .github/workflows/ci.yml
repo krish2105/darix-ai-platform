@@ -58,6 +58,23 @@ jobs:
       - run: npm ci
       - run: npm run build
 
+  rls:
+    # Runs the RLS regression suite (rls-tests/) against a real local
+    # Supabase stack — see rls-tests/README.md for why this is a separate
+    # job from unit-tests rather than folded into `npm test`.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: npm run test:rls
+
   e2e:
     runs-on: ubuntu-latest
     needs: build
