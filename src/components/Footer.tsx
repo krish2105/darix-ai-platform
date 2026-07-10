@@ -1,6 +1,9 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
-import { BrainCircuit, Globe, Mail } from 'lucide-react';
+import { BrainCircuit, Mail } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const GithubIcon = ({ className }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -19,15 +22,16 @@ const LinkedinIcon = ({ className }: { className?: string }) => (
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const { t } = useLanguage();
 
   return (
     <footer className="bg-card border-t border-card-border pt-20 pb-10 relative overflow-hidden">
       {/* Decorative Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-cyber-cyan/30 to-transparent"></div>
-      
+
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-          
+
           <div className="flex flex-col gap-6">
             <a href="#" className="flex items-center gap-2 group">
               <div className="w-8 h-8 rounded-md bg-gradient-to-br from-electric-blue to-ai-violet flex items-center justify-center">
@@ -36,7 +40,7 @@ export const Footer = () => {
               <span className="font-display font-bold text-xl tracking-wide text-foreground">DARIX AI</span>
             </a>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Dubai AI Readiness Index helps organizations assess AI readiness, identify business opportunities, and build practical roadmaps for responsible AI transformation.
+              {t('footer.tagline')}
             </p>
             <div className="flex items-center gap-4">
               <a href="https://www.linkedin.com/in/krishnamathurmay/" target="_blank" rel="noopener noreferrer" aria-label="Darix AI on LinkedIn" className="text-muted-foreground hover:text-cyber-cyan transition-colors"><LinkedinIcon className="w-5 h-5" /></a>
@@ -46,33 +50,33 @@ export const Footer = () => {
           </div>
 
           <div>
-            <h4 className="text-foreground font-semibold mb-6 uppercase tracking-wider text-sm">Product</h4>
+            <h4 className="text-foreground font-semibold mb-6 uppercase tracking-wider text-sm">{t('footer.product')}</h4>
             <ul className="flex flex-col gap-4">
-              <li><a href="#assessment" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Readiness Assessment</a></li>
-              <li><a href="#dashboard" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Executive Dashboard</a></li>
-              <li><a href="#framework" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Maturity Framework</a></li>
-              <li><a href="#pricing" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Pricing & Plans</a></li>
+              <li><a href="#assessment" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.readinessAssessment')}</a></li>
+              <li><a href="#dashboard" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.executiveDashboard')}</a></li>
+              <li><a href="#framework" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.maturityFramework')}</a></li>
+              <li><a href="#pricing" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.pricingPlans')}</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-foreground font-semibold mb-6 uppercase tracking-wider text-sm">Resources</h4>
+            <h4 className="text-foreground font-semibold mb-6 uppercase tracking-wider text-sm">{t('footer.resources')}</h4>
             <ul className="flex flex-col gap-4">
-              <li><a href="#industries" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Industry Use Cases</a></li>
-              <li><a href="#case-studies" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Case Studies</a></li>
-              <li><a href="#research" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Research Papers</a></li>
-              <li><a href="#faq" className="text-muted-foreground hover:text-foreground text-sm transition-colors">FAQ</a></li>
+              <li><a href="#industries" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.industryUseCases')}</a></li>
+              <li><a href="#case-studies" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.caseStudies')}</a></li>
+              <li><a href="#research" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.researchPapers')}</a></li>
+              <li><a href="#faq" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.faq')}</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-foreground font-semibold mb-6 uppercase tracking-wider text-sm">Contact</h4>
+            <h4 className="text-foreground font-semibold mb-6 uppercase tracking-wider text-sm">{t('footer.contact')}</h4>
             <ul className="flex flex-col gap-4">
-              <li className="text-muted-foreground text-sm">Dubai, United Arab Emirates</li>
+              <li className="text-muted-foreground text-sm">{t('footer.location')}</li>
               <li><a href="mailto:hello@darix.ai" className="text-muted-foreground hover:text-cyber-cyan text-sm transition-colors">hello@darix.ai</a></li>
               <li className="mt-4">
                 <a href="#contact" className="inline-flex items-center text-sm font-medium text-[#0369A1] dark:text-electric-blue hover:text-foreground transition-colors group">
-                  Book a Consultation
+                  {t('footer.bookConsultation')}
                   <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
                 </a>
               </li>
@@ -83,11 +87,12 @@ export const Footer = () => {
 
         <div className="border-t border-card-border pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-muted-foreground text-xs">
-            © {currentYear} DARIX AI (Dubai AI Readiness Index). All rights reserved.
+            © {currentYear} DARIX AI (Dubai AI Readiness Index). {t('footer.allRightsReserved')}
           </p>
           <div className="flex gap-6">
-            <Link href="/privacy" className="text-muted-foreground hover:text-foreground text-xs transition-colors">Privacy Policy</Link>
-            <Link href="/terms" className="text-muted-foreground hover:text-foreground text-xs transition-colors">Terms of Service</Link>
+            <Link href="/privacy" className="text-muted-foreground hover:text-foreground text-xs transition-colors">{t('footer.privacyPolicy')}</Link>
+            <Link href="/terms" className="text-muted-foreground hover:text-foreground text-xs transition-colors">{t('footer.termsOfService')}</Link>
+            <Link href="/privacy-center" className="text-muted-foreground hover:text-foreground text-xs transition-colors">{t('footer.privacyCenter')}</Link>
           </div>
         </div>
       </div>

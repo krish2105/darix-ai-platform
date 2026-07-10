@@ -11,10 +11,12 @@ import { fadeIn } from '@/utils/animations';
 import { companySizeOptions, contactSchema, type ContactInput } from '@/lib/validation/schemas';
 import { trackEvent } from '@/lib/analytics/posthog-client';
 import { TurnstileWidget } from './Turnstile';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const TURNSTILE_REQUIRED = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
 export const ContactSection = () => {
+  const { t } = useLanguage();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
@@ -37,12 +39,12 @@ export const ContactSection = () => {
         body: JSON.stringify({ ...values, turnstileToken }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || 'Something went wrong. Please try again.');
+      if (!res.ok) throw new Error(data.error || t('contact.genericError'));
       setIsSubmitted(true);
       trackEvent('contact_submitted', { company_size: values.companySize });
       reset();
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      setSubmitError(err instanceof Error ? err.message : t('contact.genericError'));
     }
   };
 
@@ -64,11 +66,11 @@ export const ContactSection = () => {
               variants={fadeIn}
             >
               <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-6">
-                Start Your AI <br />
-                <span className="text-gradient">Readiness Journey</span>
+                {t('contact.titleBefore')} <br />
+                <span className="text-gradient">{t('contact.titleAccent')}</span>
               </h2>
               <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-                Get a structured view of your AI readiness, business opportunities, and transformation priorities. Request a personalized review with our team.
+                {t('contact.subtitle')}
               </p>
 
               <div className="space-y-6">
@@ -77,8 +79,8 @@ export const ContactSection = () => {
                     <span className="text-cyber-cyan font-bold">1</span>
                   </div>
                   <div>
-                    <h3 className="text-foreground font-semibold mb-1">Complete the Form</h3>
-                    <p className="text-sm text-muted-foreground">Tell us about your organization and current stage.</p>
+                    <h3 className="text-foreground font-semibold mb-1">{t('contact.step1Title')}</h3>
+                    <p className="text-sm text-muted-foreground">{t('contact.step1Desc')}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -86,8 +88,8 @@ export const ContactSection = () => {
                     <span className="text-cyber-cyan font-bold">2</span>
                   </div>
                   <div>
-                    <h3 className="text-foreground font-semibold mb-1">Schedule a Call</h3>
-                    <p className="text-sm text-muted-foreground">We'll arrange a 30-minute discovery session.</p>
+                    <h3 className="text-foreground font-semibold mb-1">{t('contact.step2Title')}</h3>
+                    <p className="text-sm text-muted-foreground">{t('contact.step2Desc')}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -95,8 +97,8 @@ export const ContactSection = () => {
                     <span className="text-cyber-cyan font-bold">3</span>
                   </div>
                   <div>
-                    <h3 className="text-foreground font-semibold mb-1">Receive Your Roadmap</h3>
-                    <p className="text-sm text-muted-foreground">Get actionable recommendations to start your AI transformation.</p>
+                    <h3 className="text-foreground font-semibold mb-1">{t('contact.step3Title')}</h3>
+                    <p className="text-sm text-muted-foreground">{t('contact.step3Desc')}</p>
                   </div>
                 </div>
               </div>
@@ -113,12 +115,12 @@ export const ContactSection = () => {
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label htmlFor="fullName" className="text-sm font-medium text-foreground/80">Full Name</label>
+                      <label htmlFor="fullName" className="text-sm font-medium text-foreground/80">{t('contact.fullName')}</label>
                       <input id="fullName" {...register('fullName')} type="text" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors" placeholder="John Doe" />
                       {errors.fullName && <p className="text-xs text-risk-red">{errors.fullName.message}</p>}
                     </div>
                     <div className="space-y-2">
-                      <label htmlFor="workEmail" className="text-sm font-medium text-foreground/80">Work Email</label>
+                      <label htmlFor="workEmail" className="text-sm font-medium text-foreground/80">{t('contact.workEmail')}</label>
                       <input id="workEmail" {...register('workEmail')} type="email" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors" placeholder="john@company.com" />
                       {errors.workEmail && <p className="text-xs text-risk-red">{errors.workEmail.message}</p>}
                     </div>
@@ -126,16 +128,16 @@ export const ContactSection = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label htmlFor="companyName" className="text-sm font-medium text-foreground/80">Company Name</label>
+                      <label htmlFor="companyName" className="text-sm font-medium text-foreground/80">{t('contact.companyName')}</label>
                       <input id="companyName" {...register('companyName')} type="text" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors" placeholder="Acme Corp" />
                       {errors.companyName && <p className="text-xs text-risk-red">{errors.companyName.message}</p>}
                     </div>
                     <div className="space-y-2">
-                      <label htmlFor="companySize" className="text-sm font-medium text-foreground/80">Company Size</label>
+                      <label htmlFor="companySize" className="text-sm font-medium text-foreground/80">{t('contact.companySize')}</label>
                       <select id="companySize" {...register('companySize')} defaultValue="" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors appearance-none">
-                        <option value="" disabled>Select size</option>
+                        <option value="" disabled>{t('contact.selectSize')}</option>
                         {companySizeOptions.map((size) => (
-                          <option key={size} value={size}>{size} employees</option>
+                          <option key={size} value={size}>{size} {t('contact.employees')}</option>
                         ))}
                       </select>
                       {errors.companySize && <p className="text-xs text-risk-red">{errors.companySize.message}</p>}
@@ -143,8 +145,8 @@ export const ContactSection = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <label htmlFor="challenge" className="text-sm font-medium text-foreground/80">Main AI Challenge</label>
-                    <textarea id="challenge" {...register('challenge')} rows={4} className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors resize-none" placeholder="What is the biggest barrier to AI adoption in your organization?"></textarea>
+                    <label htmlFor="challenge" className="text-sm font-medium text-foreground/80">{t('contact.mainChallenge')}</label>
+                    <textarea id="challenge" {...register('challenge')} rows={4} className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors resize-none" placeholder={t('contact.challengePlaceholder')}></textarea>
                     {errors.challenge && <p className="text-xs text-risk-red">{errors.challenge.message}</p>}
                   </div>
 
@@ -165,7 +167,7 @@ export const ContactSection = () => {
                     disabled={isSubmitting || (TURNSTILE_REQUIRED && !turnstileToken)}
                     icon={isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   >
-                    {isSubmitting ? 'Submitting…' : 'Request AI Readiness Review'}
+                    {isSubmitting ? t('contact.submitting') : t('contact.submit')}
                   </Button>
                 </form>
               ) : (
@@ -173,12 +175,12 @@ export const ContactSection = () => {
                   <div className="w-16 h-16 bg-emerald-success/20 rounded-full flex items-center justify-center mb-6">
                     <CheckCircle2 className="w-8 h-8 text-emerald-success" />
                   </div>
-                  <h3 className="text-2xl font-bold text-foreground mb-2">Request Submitted</h3>
+                  <h3 className="text-2xl font-bold text-foreground mb-2">{t('contact.successTitle')}</h3>
                   <p className="text-muted-foreground mb-8">
-                    Thank you. A member of our team will review your request and contact you shortly to schedule your consultation.
+                    {t('contact.successDesc')}
                   </p>
                   <Button variant="outline" onClick={() => setIsSubmitted(false)}>
-                    Submit Another Request
+                    {t('contact.submitAnother')}
                   </Button>
                 </div>
               )}

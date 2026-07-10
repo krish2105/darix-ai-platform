@@ -5,11 +5,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, BrainCircuit } from 'lucide-react';
 import { Button, cn } from './Button';
 import { ThemeToggle } from './ThemeToggle';
+import { LanguageToggle } from './LanguageToggle';
 import { AuthNavLink } from './AuthNavLink';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,11 +23,11 @@ export const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { name: 'Assessment', href: '#assessment' },
-    { name: 'Dashboard', href: '#dashboard' },
-    { name: 'Framework', href: '#framework' },
-    { name: 'Industries', href: '#industries' },
-    { name: 'Pricing', href: '#pricing' },
+    { name: t('nav.assessment'), href: '#assessment' },
+    { name: t('nav.dashboard'), href: '#dashboard' },
+    { name: t('nav.framework'), href: '#framework' },
+    { name: t('nav.industries'), href: '#industries' },
+    { name: t('nav.pricing'), href: '#pricing' },
   ];
 
   return (
@@ -50,7 +53,7 @@ export const Navbar = () => {
           <nav className="hidden lg:flex items-center gap-8">
             <ul className="flex items-center gap-6">
               {navLinks.map((link) => (
-                <li key={link.name}>
+                <li key={link.href}>
                   <a
                     href={link.href}
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors relative group"
@@ -63,9 +66,10 @@ export const Navbar = () => {
             </ul>
             <div className="flex items-center gap-4 border-l border-card-border pl-8">
               <ThemeToggle />
+              <LanguageToggle />
               <AuthNavLink />
               <Button variant="primary" size="sm" onClick={() => document.getElementById('assessment')?.scrollIntoView({ behavior: 'smooth' })}>
-                Start Free Assessment
+                {t('nav.startAssessment')}
               </Button>
             </div>
           </nav>
@@ -92,7 +96,7 @@ export const Navbar = () => {
             <div className="px-4 py-6 flex flex-col gap-4">
               {navLinks.map((link) => (
                 <a
-                  key={link.name}
+                  key={link.href}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="text-lg font-medium text-foreground py-2 border-b border-card-border"
@@ -101,6 +105,10 @@ export const Navbar = () => {
                 </a>
               ))}
               <div className="pt-4 flex flex-col gap-4">
+                <div className="flex items-center justify-center gap-3">
+                  <ThemeToggle />
+                  <LanguageToggle />
+                </div>
                 <AuthNavLink className="text-lg font-medium text-foreground py-2 flex items-center gap-2 justify-center" />
                 <Button
                   variant="outline"
@@ -110,7 +118,7 @@ export const Navbar = () => {
                     document.getElementById('report')?.scrollIntoView({ behavior: 'smooth' });
                   }}
                 >
-                  View Demo Report
+                  {t('nav.viewDemoReport')}
                 </Button>
                 <Button
                   variant="primary"
@@ -120,7 +128,7 @@ export const Navbar = () => {
                     document.getElementById('assessment')?.scrollIntoView({ behavior: 'smooth' });
                   }}
                 >
-                  Start Assessment
+                  {t('nav.startAssessmentMobile')}
                 </Button>
               </div>
             </div>

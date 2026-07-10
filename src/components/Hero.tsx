@@ -7,13 +7,15 @@ import { fadeIn, staggerContainer } from '@/utils/animations';
 import { Activity, ShieldAlert, TrendingUp, Database, CheckCircle2 } from 'lucide-react';
 import { FloatingWindows } from './FloatingWindows';
 import { NeuralNetwork } from './NeuralNetwork';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const Hero = () => {
+  const { t } = useLanguage();
   const kpis = [
-    { label: 'AI Readiness Score', icon: <Activity className="w-5 h-5 text-electric-blue" /> },
-    { label: 'Automation Potential', icon: <TrendingUp className="w-5 h-5 text-cyber-cyan" /> },
-    { label: 'Governance Risk', icon: <ShieldAlert className="w-5 h-5 text-warning-amber" /> },
-    { label: 'Data Maturity', icon: <Database className="w-5 h-5 text-ai-violet" /> },
+    { label: t('hero.kpi.score'), icon: <Activity className="w-5 h-5 text-electric-blue" /> },
+    { label: t('hero.kpi.automation'), icon: <TrendingUp className="w-5 h-5 text-cyber-cyan" /> },
+    { label: t('hero.kpi.governance'), icon: <ShieldAlert className="w-5 h-5 text-warning-amber" /> },
+    { label: t('hero.kpi.data'), icon: <Database className="w-5 h-5 text-ai-violet" /> },
   ];
 
   return (
@@ -42,30 +44,30 @@ export const Hero = () => {
           >
             <motion.div variants={fadeIn} className="inline-flex items-center space-x-2 bg-glass-panel px-3 py-1.5 rounded-full border border-cyber-cyan/30 mb-8 backdrop-blur-md">
               <span className="flex h-2 w-2 rounded-full bg-cyber-cyan animate-pulse"></span>
-              <span className="text-xs font-semibold text-cyber-cyan tracking-wider uppercase">Dubai AI Readiness Index</span>
+              <span className="text-xs font-semibold text-cyber-cyan tracking-wider uppercase">{t('hero.badge')}</span>
             </motion.div>
-            
+
             <motion.h1 variants={fadeIn} className="text-5xl md:text-7xl font-display font-bold leading-tight mb-6 text-foreground">
-              Discover How <span className="text-gradient">AI-Ready</span> Your Business Really Is
+              {t('hero.titleBefore')} <span className="text-gradient">{t('hero.titleAccent')}</span> {t('hero.titleAfter')}
             </motion.h1>
-            
+
             <motion.p variants={fadeIn} className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl leading-relaxed">
-              DARIX AI helps Dubai businesses assess artificial intelligence readiness, identify high-value use cases, reduce adoption risk, and build a practical roadmap for AI transformation.
+              {t('hero.subtitle')}
             </motion.p>
-            
+
             <motion.div variants={fadeIn} className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" onClick={() => document.getElementById('assessment')?.scrollIntoView({ behavior: 'smooth' })}>
-                Start AI Readiness Assessment
+                {t('hero.ctaPrimary')}
               </Button>
               <Button size="lg" variant="secondary" onClick={() => document.getElementById('dashboard')?.scrollIntoView({ behavior: 'smooth' })}>
-                Explore Dashboard
+                {t('hero.ctaSecondary')}
               </Button>
             </motion.div>
 
             <motion.div variants={fadeIn} className="mt-8 flex items-center gap-4 text-sm text-muted-foreground font-medium">
               <div className="flex items-center gap-1">
                 <CheckCircle2 className="w-4 h-4 text-emerald-success" />
-                <span>Free assessment</span>
+                <span>{t('hero.freeAssessment')}</span>
               </div>
             </motion.div>
           </motion.div>

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { ArrowRight, FileText, Calendar, Crown } from 'lucide-react';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { SignOutButton } from '@/components/SignOutButton';
+import { PrivacyActions } from '@/components/PrivacyActions';
 import type { ReadinessResult } from '@/utils/scoring';
 
 interface AssessmentRow {
@@ -118,6 +119,10 @@ export default async function DashboardPage() {
             ))}
           </div>
         )}
+
+        <div className="mt-12 max-w-2xl">
+          <PrivacyActions />
+        </div>
       </div>
     </section>
   );

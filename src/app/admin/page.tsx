@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { Mail, Building2, Calendar, ShieldAlert } from 'lucide-react';
+import { Mail, Building2, Calendar, ShieldAlert, FileWarning } from 'lucide-react';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminSupabaseClient } from '@/lib/supabase/admin';
 import { isAdminEmail } from '@/lib/auth/is-admin';
@@ -31,6 +31,16 @@ interface AssessmentRow {
   created_at: string;
 }
 
+interface DataRequestRow {
+  id: string;
+  request_type: 'access' | 'erasure';
+  full_name: string;
+  email: string;
+  details: string | null;
+  status: 'pending' | 'in_progress' | 'completed' | 'rejected';
+  created_at: string;
+}
+
 export default async function AdminPage() {
   const supabase = await createServerSupabaseClient();
   const {
@@ -54,7 +64,11 @@ export default async function AdminPage() {
   }
 
   const admin = createAdminSupabaseClient();
-  const [{ data: leads, error: leadsError }, { data: assessments, error: assessmentsError }] = await Promise.all([
+  const [
+    { data: leads, error: leadsError },
+    { data: assessments, error: assessmentsError },
+    { data: dataRequests, error: dataRequestsError },
+  ] = await Promise.all([
     admin
       .from('leads')
       .select('id, full_name, work_email, company_name, company_size, challenge, created_at')
@@ -67,7 +81,20 @@ export default async function AdminPage() {
       .order('created_at', { ascending: false })
       .limit(100)
       .returns<AssessmentRow[]>(),
+    admin
+      .from('data_requests')
+      .select('id, request_type, full_name, email, details, status, created_at')
+      .order('created_at', { ascending: false })
+      .limit(100)
+      .returns<DataRequestRow[]>(),
   ]);
+
+  const statusPillClass: Record<DataRequestRow['status'], string> = {
+    pending: 'bg-warning-amber/15 text-warning-amber',
+    in_progress: 'bg-electric-blue/15 text-electric-blue',
+    completed: 'bg-emerald-success/15 text-emerald-success',
+    rejected: 'bg-risk-red/15 text-risk-red',
+  };
 
   return (
     <section className="min-h-screen py-32 bg-background">
@@ -80,7 +107,7 @@ export default async function AdminPage() {
           <SignOutButton />
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
           <div>
             <h2 className="text-xl font-bold text-foreground mb-4">
               Leads {leads ? `(${leads.length})` : ''}
@@ -138,6 +165,35 @@ export default async function AdminPage() {
                 </a>
               ))}
               {assessments?.length === 0 && <p className="text-muted-foreground text-sm">No assessments yet.</p>}
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+              <FileWarning className="w-5 h-5 text-warning-amber" />
+              PDPL Requests {dataRequests ? `(${dataRequests.length})` : ''}
+            </h2>
+            {dataRequestsError && <p className="text-risk-red text-sm">Could not load data requests.</p>}
+            <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+              {dataRequests?.map((dr) => (
+                <div key={dr.id} className="glass-card p-5">
+                  <div className="flex items-start justify-between gap-4 mb-2">
+                    <h3 className="font-semibold text-foreground">{dr.full_name}</h3>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full flex-shrink-0 ${statusPillClass[dr.status]}`}>
+                      {dr.status.replace('_', ' ')}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1 mb-1">
+                    <Mail className="w-3 h-3" /> {dr.email}
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Request: <span className="font-semibold text-foreground/80">{dr.request_type}</span> &middot;{' '}
+                    {new Date(dr.created_at).toLocaleDateString('en-AE')}
+                  </p>
+                  {dr.details && <p className="text-sm text-foreground/80">{dr.details}</p>}
+                </div>
+              ))}
+              {dataRequests?.length === 0 && <p className="text-muted-foreground text-sm">No PDPL requests yet.</p>}
             </div>
           </div>
         </div>

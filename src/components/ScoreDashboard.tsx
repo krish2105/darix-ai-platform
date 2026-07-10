@@ -9,6 +9,7 @@ import { Button } from './Button';
 import { Download, RefreshCw, CheckCircle2, AlertTriangle, Lightbulb, Activity, Loader2, Mail, Send, Crown, PhoneCall } from 'lucide-react';
 import { pricingPlans } from '@/data/pricing';
 import { trackEvent } from '@/lib/analytics/posthog-client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   Radar,
   RadarChart,
@@ -34,6 +35,7 @@ interface ScoreDashboardProps {
 }
 
 export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessmentId, tier = 'free', onReset }) => {
+  const { t } = useLanguage();
   const radarData = result.dimensionScores.map(d => ({
     subject: d.dimensionId.charAt(0).toUpperCase() + d.dimensionId.slice(1),
     A: d.percentage,
@@ -66,7 +68,7 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
       URL.revokeObjectURL(url);
       trackEvent('report_pdf_downloaded', { assessment_id: assessmentId });
     } catch {
-      setDownloadError('Could not generate the PDF. Please try again.');
+      setDownloadError(t('results.pdfError'));
     } finally {
       setIsDownloading(false);
     }
@@ -97,11 +99,11 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
         body: JSON.stringify({ assessmentId, tier: targetTier }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.url) throw new Error(data.error || 'Could not start checkout.');
+      if (!res.ok || !data.url) throw new Error(data.error || t('results.checkoutError'));
       trackEvent('checkout_started', { assessment_id: assessmentId, tier: targetTier });
       window.location.assign(data.url);
     } catch (err) {
-      setUpgradeError(err instanceof Error ? err.message : 'Could not start checkout.');
+      setUpgradeError(err instanceof Error ? err.message : t('results.checkoutError'));
       setUpgradingTier(null);
     }
   };
@@ -122,11 +124,11 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
         body: JSON.stringify({ email: emailValue }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || 'Could not send the email.');
+      if (!res.ok) throw new Error(data.error || t('results.emailSendError'));
       setEmailStatus('sent');
     } catch (err) {
       setEmailStatus('error');
-      setEmailError(err instanceof Error ? err.message : 'Could not send the email.');
+      setEmailError(err instanceof Error ? err.message : t('results.emailSendError'));
     }
   };
 
@@ -141,16 +143,16 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
           >
             <div className="bg-background rounded-full px-6 py-2">
               <span className="text-sm font-semibold tracking-widest uppercase text-transparent bg-clip-text bg-gradient-to-r from-electric-blue to-cyber-cyan">
-                Assessment Complete
+                {t('results.badge')}
               </span>
             </div>
           </motion.div>
-          <h2 className="text-4xl md:text-5xl font-display font-bold mb-4">Your AI Readiness Command Center</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">Based on your responses, here is a detailed analysis of your organization&apos;s AI maturity.</p>
+          <h2 className="text-4xl md:text-5xl font-display font-bold mb-4">{t('results.title')}</h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">{t('results.subtitle')}</p>
           {tier !== 'free' && (
             <div className="inline-flex items-center gap-1.5 mt-4 px-3 py-1 rounded-full bg-dubai-gold/10 border border-dubai-gold/30 text-dubai-gold text-xs font-semibold uppercase tracking-wider">
               <Crown className="w-3.5 h-3.5" />
-              {tier === 'pro' ? 'Professional Report' : 'Business Consultation'}
+              {tier === 'pro' ? t('results.tierProfessional') : t('results.tierBusiness')}
             </div>
           )}
         </div>
@@ -162,7 +164,7 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
             className="max-w-xl mx-auto mb-10 flex items-center gap-3 rounded-lg border border-emerald-success/40 bg-emerald-success/10 p-4 text-sm text-emerald-success"
           >
             <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-            <span>Payment received — your upgraded report is unlocked. A receipt has been emailed to you.</span>
+            <span>{t('results.paymentSuccess')}</span>
           </motion.div>
         )}
 
@@ -175,7 +177,7 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
           >
             <div className="absolute top-0 right-0 w-64 h-64 bg-electric-blue/10 rounded-full blur-[80px] pointer-events-none"></div>
             
-            <h3 className="text-lg text-muted-foreground font-medium uppercase tracking-wider mb-2">Overall Score</h3>
+            <h3 className="text-lg text-muted-foreground font-medium uppercase tracking-wider mb-2">{t('results.overallScore')}</h3>
             <div className="relative w-48 h-48 flex items-center justify-center my-6">
               <svg className="absolute inset-0 w-full h-full transform -rotate-90">
                 <circle cx="96" cy="96" r="88" stroke="rgba(255,255,255,0.05)" strokeWidth="12" fill="none" />
@@ -216,7 +218,7 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
           >
             <h3 className="text-lg text-foreground font-semibold mb-6 flex items-center gap-2">
               <Activity className="w-5 h-5 text-electric-blue" />
-              Dimension Breakdown
+              {t('results.dimensionBreakdown')}
             </h3>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -245,7 +247,7 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
           >
             <h3 className="text-lg text-foreground font-semibold mb-6 flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-emerald-success" />
-              Top Strengths
+              {t('results.topStrengths')}
             </h3>
             <ul className="space-y-4">
               {result.strengths.map((s, i) => (
@@ -265,7 +267,7 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
           >
             <h3 className="text-lg text-foreground font-semibold mb-6 flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-risk-red" />
-              Critical Gaps
+              {t('results.criticalGaps')}
             </h3>
             <ul className="space-y-4">
               {result.gaps.map((g, i) => (
@@ -287,7 +289,7 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
         >
           <h3 className="text-xl text-foreground font-bold mb-8 flex items-center gap-2">
             <Lightbulb className="w-6 h-6 text-dubai-gold" />
-            90-Day Transformation Roadmap
+            {t('results.roadmap')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {result.roadmap.map((phase, i) => (
@@ -320,17 +322,17 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
           >
             <div>
               <h3 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
-                <PhoneCall className="w-5 h-5 text-dubai-gold" /> Your strategy call is included
+                <PhoneCall className="w-5 h-5 text-dubai-gold" /> {t('results.strategyCallIncluded')}
               </h3>
               <p className="text-sm text-muted-foreground">
-                Business Consultation includes a 60-minute AI strategy session — request a time and we&apos;ll confirm by email.
+                {t('results.strategyCallDesc')}
               </p>
             </div>
             <Button
               variant="outline"
               onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
             >
-              Schedule My Call
+              {t('results.scheduleCall')}
             </Button>
           </motion.div>
         ) : (
@@ -342,12 +344,10 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
           >
             <h3 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
               <Crown className="w-5 h-5 text-dubai-gold" />
-              {tier === 'free' ? 'Unlock a deeper report' : 'Add a strategy call'}
+              {tier === 'free' ? t('results.upgradeUnlock') : t('results.addCall')}
             </h3>
             <p className="text-sm text-muted-foreground mb-6">
-              {tier === 'free'
-                ? 'Upgrade this assessment for a department-level breakdown, opportunity matrix, and governance checklist.'
-                : 'Add a 60-minute AI strategy session with our team on top of your Professional Report.'}
+              {tier === 'free' ? t('results.upgradeFreeDesc') : t('results.upgradeProDesc')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               {tier === 'free' && (
@@ -358,8 +358,8 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
                   icon={upgradingTier === 'pro' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crown className="w-4 h-4" />}
                 >
                   {upgradingTier === 'pro'
-                    ? 'Redirecting…'
-                    : `Upgrade to Professional — AED ${pricingPlans.find((p) => p.id === 'pro')?.checkoutAmountAed}`}
+                    ? t('results.redirecting')
+                    : t('results.upgradeAedProfessional', { amount: pricingPlans.find((p) => p.id === 'pro')?.checkoutAmountAed ?? '' })}
                 </Button>
               )}
               <Button
@@ -368,8 +368,8 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
                 icon={upgradingTier === 'business' ? <Loader2 className="w-4 h-4 animate-spin" /> : <PhoneCall className="w-4 h-4" />}
               >
                 {upgradingTier === 'business'
-                  ? 'Redirecting…'
-                  : `Upgrade to Business Consultation — AED ${pricingPlans.find((p) => p.id === 'business')?.checkoutAmountAed}`}
+                  ? t('results.redirecting')
+                  : t('results.upgradeAedBusiness', { amount: pricingPlans.find((p) => p.id === 'business')?.checkoutAmountAed ?? '' })}
               </Button>
             </div>
             {upgradeError && (
@@ -395,7 +395,7 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
               disabled={isDownloading}
               icon={isDownloading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
             >
-              {isDownloading ? 'Generating PDF…' : 'Download Full Report PDF'}
+              {isDownloading ? t('results.generatingPdf') : t('results.downloadPdf')}
             </Button>
             <Button
               variant="secondary"
@@ -403,11 +403,11 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
               onClick={() => setShowEmailForm((v) => !v)}
               icon={<Mail className="w-5 h-5" />}
             >
-              Email Me This Report
+              {t('results.emailMe')}
             </Button>
             {onReset && (
               <Button variant="outline" size="lg" onClick={onReset} icon={<RefreshCw className="w-5 h-5" />}>
-                Retake Assessment
+                {t('results.retake')}
               </Button>
             )}
           </div>
@@ -427,7 +427,7 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
             >
               {emailStatus === 'sent' ? (
                 <div className="flex items-center gap-2 text-emerald-success text-sm py-2 mx-auto">
-                  <CheckCircle2 className="w-4 h-4" /> Report sent — check your inbox.
+                  <CheckCircle2 className="w-4 h-4" /> {t('results.reportSent')}
                 </div>
               ) : (
                 <div className="flex flex-col sm:flex-row gap-3 items-stretch">
@@ -445,7 +445,7 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
                     disabled={emailStatus === 'sending'}
                     icon={emailStatus === 'sending' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   >
-                    {emailStatus === 'sending' ? 'Sending…' : 'Send'}
+                    {emailStatus === 'sending' ? t('results.sending') : t('results.send')}
                   </Button>
                 </div>
               )}

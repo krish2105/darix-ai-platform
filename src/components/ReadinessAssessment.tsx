@@ -11,10 +11,12 @@ import { CheckCircle2, ChevronRight, ChevronLeft, AlertTriangle, Loader2 } from 
 import { LAST_ASSESSMENT_ID_KEY } from '@/lib/storage-keys';
 import { trackEvent } from '@/lib/analytics/posthog-client';
 import { TurnstileWidget } from './Turnstile';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const TURNSTILE_REQUIRED = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
 export const ReadinessAssessment = () => {
+  const { t } = useLanguage();
   const [currentDimIndex, setCurrentDimIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [isComplete, setIsComplete] = useState(false);
@@ -60,7 +62,7 @@ export const ReadinessAssessment = () => {
       }
       trackEvent('assessment_completed', { assessment_id: data.id, score: data.result.score, level: data.result.level });
     } catch {
-      setSaveError('We could not save your assessment. Please check your connection and try again.');
+      setSaveError(t('assessment.saveError'));
     } finally {
       setIsSaving(false);
     }
@@ -101,17 +103,17 @@ export const ReadinessAssessment = () => {
   return (
     <section className="py-24 bg-background" id="assessment">
       <div className="container mx-auto px-4 md:px-6">
-        <SectionTitle 
-          title="Free AI Readiness Assessment" 
-          subtitle="Evaluate your organization across 8 critical dimensions to get a customized roadmap."
+        <SectionTitle
+          title={t('assessment.title')}
+          subtitle={t('assessment.subtitle')}
         />
 
         <div className="max-w-4xl mx-auto mt-12">
           {/* Progress Bar */}
           <div className="mb-8">
             <div className="flex justify-between text-sm text-muted-foreground mb-2 font-medium">
-              <span>Dimension {currentDimIndex + 1} of {dimensions.length}</span>
-              <span>{Math.round(progress)}% Complete</span>
+              <span>{t('assessment.dimensionProgress', { current: currentDimIndex + 1, total: dimensions.length })}</span>
+              <span>{t('assessment.percentComplete', { percent: Math.round(progress) })}</span>
             </div>
             <div className="w-full h-2 bg-glass-panel rounded-full overflow-hidden">
               <motion.div 
@@ -136,14 +138,14 @@ export const ReadinessAssessment = () => {
                 transition={{ duration: 0.3 }}
               >
                 <div className="mb-8 border-b border-card-border pb-6">
-                  <h3 className="text-2xl md:text-3xl font-display font-bold text-foreground mb-2">{currentDim.title}</h3>
-                  <p className="text-muted-foreground">{currentDim.description}</p>
+                  <h3 className="text-2xl md:text-3xl font-display font-bold text-foreground mb-2">{t(`dim.${currentDim.id}.title`)}</h3>
+                  <p className="text-muted-foreground">{t(`dim.${currentDim.id}.desc`)}</p>
                 </div>
 
                 <div className="space-y-8">
                   {currentDim.questions.map((q, idx) => (
                     <div key={q.id} className="space-y-4">
-                      <p className="text-lg font-medium text-foreground/90">{idx + 1}. {q.text}</p>
+                      <p className="text-lg font-medium text-foreground/90">{idx + 1}. {t(`q.${q.id}`)}</p>
                       
                       <div className="grid grid-cols-2 md:grid-cols-6 gap-2 md:gap-4">
                         {[0, 1, 2, 3, 4, 5].map((val) => {
@@ -163,7 +165,7 @@ export const ReadinessAssessment = () => {
                             >
                               <span className="block text-xl font-bold mb-1">{val}</span>
                               <span className="text-[10px] uppercase tracking-wider block">
-                                {val === 0 ? 'None' : val === 5 ? 'High' : 'Med'}
+                                {val === 0 ? t('assessment.none') : val === 5 ? t('assessment.high') : t('assessment.med')}
                               </span>
                               {isSelected && (
                                 <CheckCircle2 className="absolute top-1 right-1 w-3 h-3 text-cyber-cyan" />
@@ -199,7 +201,7 @@ export const ReadinessAssessment = () => {
                 className={currentDimIndex === 0 ? 'invisible' : ''}
                 icon={<ChevronLeft className="w-4 h-4" />}
               >
-                Previous
+                {t('assessment.previous')}
               </Button>
 
               <Button
@@ -221,10 +223,10 @@ export const ReadinessAssessment = () => {
                 }
               >
                 {isSaving
-                  ? 'Saving your results…'
+                  ? t('assessment.saving')
                   : currentDimIndex === dimensions.length - 1
-                    ? (saveError ? 'Retry' : 'See Results')
-                    : 'Next Dimension'}
+                    ? (saveError ? t('assessment.retry') : t('assessment.seeResults'))
+                    : t('assessment.nextDimension')}
               </Button>
             </div>
           </div>

@@ -41,3 +41,14 @@ export const createCheckoutSchema = z.object({
 });
 
 export type CreateCheckoutInput = z.infer<typeof createCheckoutSchema>;
+
+export const dataRequestTypes = ['access', 'erasure'] as const;
+
+export const dataRequestSchema = z.object({
+  fullName: z.string().trim().min(2, 'Full name is required').max(200),
+  email: z.string().trim().email('Enter a valid email').max(320),
+  requestType: z.enum(dataRequestTypes, { message: 'Select a request type' }),
+  details: z.string().trim().max(4000).optional(),
+});
+
+export type DataRequestInput = z.infer<typeof dataRequestSchema>;

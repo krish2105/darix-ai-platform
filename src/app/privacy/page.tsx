@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { LegalPageLayout } from '@/components/LegalPageLayout';
 
 export const metadata: Metadata = {
@@ -78,7 +79,11 @@ export default function PrivacyPolicyPage() {
         <li>Request deletion of your data.</li>
         <li>Withdraw consent, where processing is based on consent.</li>
       </ul>
-      <p>To exercise these rights, contact us using the details below.</p>
+      <p>
+        To exercise these rights, visit our <Link href="/privacy-center">Privacy Center</Link>. If
+        you have an account, you can download or delete your data instantly; otherwise you can
+        submit a request there and we&apos;ll respond within 30 days.
+      </p>
 
       <h2>7. Security</h2>
       <p>
