@@ -8,7 +8,7 @@ import { verifyTurnstileToken } from '@/lib/turnstile/verify';
 
 export async function POST(request: NextRequest) {
   const ip = getClientIp(request);
-  const limitResult = rateLimit(`contact:post:${ip}`, { limit: 5, windowMs: 60_000 });
+  const limitResult = await rateLimit(`contact:post:${ip}`, { limit: 5, windowMs: 60_000 });
   if (!limitResult.allowed) {
     return NextResponse.json(
       { error: 'Too many requests. Please try again shortly.' },

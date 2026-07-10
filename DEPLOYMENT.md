@@ -3,10 +3,12 @@
 ## 1. Supabase (database + auth)
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. In the SQL Editor, run `supabase/migrations/0001_init.sql`. This creates:
-   - `public.assessments` — every completed quiz (answers, computed result, tier, optional company/contact info, optional `user_id`).
-   - `public.leads` — contact-form submissions.
-   - Row Level Security policies (see comments in the migration file for the trust model behind each one).
+2. In the SQL Editor, run every file in `supabase/migrations/` **in order**:
+   - `0001_init.sql` — `public.assessments` (every completed quiz) and `public.leads` (contact-form submissions), with Row Level Security policies.
+   - `0002_data_requests.sql` — `public.data_requests`, for anonymous UAE PDPL access/erasure requests submitted via `/privacy-center`.
+   - `0003_leads_crm.sql` — adds `status`/`notes`/`updated_at` to `public.leads` for the CRM-lite pipeline view in `/admin`.
+   - `0004_partner_inquiries.sql` — `public.partner_inquiries`, for applications submitted via `/partners`.
+   - `0005_processed_webhook_events.sql` — `public.processed_webhook_events`, used to make the Stripe webhook idempotent against redelivery.
 3. In **Authentication > Providers**, email/password is enabled by default — that's all this app uses. If you want confirmation emails to go out from your own domain rather than Supabase's shared sender, configure SMTP under **Authentication > Email Templates**.
 4. In **Authentication > URL Configuration**, add your deployed site URL and `http://localhost:3000` to the allowed redirect URLs (needed for `/auth/callback`).
 5. Copy the values from **Project Settings > API** into your environment:
@@ -36,6 +38,17 @@ No live UAE merchant account has been set up yet, so this runs in **test mode**:
 
 Until `STRIPE_SECRET_KEY` is set, checkout returns a 503 and the pricing tier buttons fall back to routing through the contact form.
 
+### 3b. Telr (UAE-local payment gateway alternative)
+
+Stripe works in the UAE but has weaker local card/wallet coverage than UAE-native gateways. `/api/checkout` can route through [Telr](https://telr.com) instead, with no client-side changes:
+
+1. Get `store_id` and `auth_key` from your Telr merchant portal.
+2. Set `TELR_STORE_ID`, `TELR_AUTH_KEY`, and `PAYMENT_PROVIDER=telr`.
+3. Leave `TELR_TEST_MODE=1` until you're ready to take real payments.
+4. **Verify against a live Telr sandbox before going to production** — the integration in `src/lib/telr/client.ts` follows Telr's published order.json guide, but field names should be confirmed against your own sandbox account the same way Stripe was verified in test mode.
+
+Only one provider is active at a time, controlled by `PAYMENT_PROVIDER` (defaults to `stripe`).
+
 ## 4. PostHog (analytics)
 
 1. Create a project at [posthog.com](https://posthog.com) (or self-host).
@@ -51,11 +64,32 @@ Until `STRIPE_SECRET_KEY` is set, checkout returns a 503 and the pricing tier bu
 
 ## 6. Admin access
 
-Set `ADMIN_EMAILS` to a comma-separated list of email addresses (must be accounts that can sign up/sign in via the app's own `/login`) that should be able to view `/admin` — a read-only list of recent leads and assessments for follow-up.
+Set `ADMIN_EMAILS` to a comma-separated list of email addresses (must be accounts that can sign up/sign in via the app's own `/login`) that should be able to view `/admin` — leads (with an editable CRM-lite status/notes pipeline), assessments, PDPL data requests, and partner inquiries, all for follow-up.
+
+## 6b. WhatsApp Business (click-to-chat)
+
+Set `NEXT_PUBLIC_WHATSAPP_NUMBER` to your business number in international format with no `+` or spaces (e.g. `971501234567`) to show a floating WhatsApp chat button site-wide. No API integration or approval needed — it's a `wa.me` deep link. Leave unset to hide the button entirely.
+
+## 6c. Upstash Redis (distributed rate limiting)
+
+The per-IP rate limiting on public API routes (assessments, contact, checkout, PDPL/partner forms) runs in-memory by default, which only protects a single warm serverless instance. For a real shared limit across every instance/region:
+
+1. Create a free Redis database at [console.upstash.com](https://console.upstash.com).
+2. Copy the REST URL and token into `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`.
+
+No code changes needed — `src/lib/rate-limit/index.ts` detects these automatically and falls back to in-memory limiting if a Redis call ever fails.
+
+## 6d. Sentry (error monitoring)
+
+1. Create a Next.js project at [sentry.io](https://sentry.io) and copy its DSN into `NEXT_PUBLIC_SENTRY_DSN`.
+2. Optionally set `SENTRY_ORG`, `SENTRY_PROJECT`, and `SENTRY_AUTH_TOKEN` (Settings > Auth Tokens) to enable source-map upload for readable stack traces in production.
+3. Captures: root layout errors (`global-error.tsx`), per-route errors (`error.tsx` in dashboard/admin/report), React error boundaries (`ErrorBoundary.tsx`), and server/edge request errors via `src/instrumentation.ts`.
+
+Leave `NEXT_PUBLIC_SENTRY_DSN` unset to fully disable Sentry — `next.config.ts` skips the Sentry build wrapper entirely in that case.
 
 ## 7. Environment variables
 
-Copy `.env.example` to `.env.local` and fill in every value described there. `NEXT_PUBLIC_SITE_URL` should be your production URL once deployed (used to build links inside emails and Stripe checkout redirects).
+Copy `.env.example` to `.env.local` and fill in every value described there. `NEXT_PUBLIC_SITE_URL` should be your production URL once deployed (used to build links inside emails and Stripe/Telr checkout redirects).
 
 ## 8. Local development
 
@@ -91,6 +125,7 @@ npm run test:e2e       # Playwright — installs its own browser if needed: npx 
 
 ## What's intentionally not wired up yet
 
-- **Live payments**: Stripe is fully wired end-to-end but running in test mode — see section 3 above for going live.
+- **Live payments**: Stripe and Telr are both fully wired end-to-end but default to test/sandbox mode — see sections 3 and 3b above for going live.
+- **Arabic/RTL coverage**: the core conversion path (nav, hero, assessment, results, contact, footer) is fully translated; the remaining marketing sections (Problem/Solution/Framework/Industries/Pricing/CaseStudies/Research/Founder/FAQ) and score-generated report content (level/description/strengths/gaps/roadmap, which is stored in English at save time) are English-only for now.
 - **SEO extras beyond the basics**: sitemap.xml, robots.txt, a generated OG image, and Organization/WebApplication JSON-LD are in place; per-page Open Graph images for individual routes (beyond the site-wide default) are not.
 - Anything not listed above that's mentioned in the original master build-out prompt as a later phase.

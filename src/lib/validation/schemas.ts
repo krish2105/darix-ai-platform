@@ -52,3 +52,24 @@ export const dataRequestSchema = z.object({
 });
 
 export type DataRequestInput = z.infer<typeof dataRequestSchema>;
+
+export const leadStatusOptions = ['new', 'contacted', 'qualified', 'won', 'lost'] as const;
+
+export const updateLeadSchema = z.object({
+  status: z.enum(leadStatusOptions).optional(),
+  notes: z.string().trim().max(4000).optional(),
+});
+
+export type UpdateLeadInput = z.infer<typeof updateLeadSchema>;
+
+export const partnerTypes = ['consultancy', 'systems_integrator', 'referral', 'other'] as const;
+
+export const partnerInquirySchema = z.object({
+  organizationName: z.string().trim().min(1, 'Organization name is required').max(200),
+  contactName: z.string().trim().min(2, 'Full name is required').max(200),
+  contactEmail: z.string().trim().email('Enter a valid work email').max(320),
+  partnerType: z.enum(partnerTypes, { message: 'Select a partner type' }),
+  message: z.string().trim().max(4000).optional(),
+});
+
+export type PartnerInquiryInput = z.infer<typeof partnerInquirySchema>;

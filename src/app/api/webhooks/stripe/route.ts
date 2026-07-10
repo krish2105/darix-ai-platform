@@ -34,6 +34,23 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid signature.' }, { status: 400 });
   }
 
+  const admin = createAdminSupabaseClient();
+
+  // Idempotency: Stripe retries webhook deliveries on timeout/5xx, and can
+  // send the same event more than once even without a retry. Recording
+  // the event id up front means a redelivered event is a no-op instead of
+  // unlocking the tier / sending the receipt email a second time.
+  const { error: idempotencyError } = await admin
+    .from('processed_webhook_events')
+    .insert({ provider: 'stripe', event_id: event.id });
+
+  if (idempotencyError) {
+    if (idempotencyError.code === '23505') {
+      return NextResponse.json({ received: true, duplicate: true });
+    }
+    console.error('Failed to record webhook event id (continuing to process)', idempotencyError);
+  }
+
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
     const assessmentId = session.metadata?.assessmentId;
@@ -44,7 +61,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
-    const admin = createAdminSupabaseClient();
     const { data: assessment, error } = await admin
       .from('assessments')
       .update({ tier })

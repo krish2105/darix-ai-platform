@@ -38,6 +38,10 @@ const en: Dict = {
   'nav.startAssessmentMobile': 'Start Assessment',
   'nav.switchLanguage': 'Switch language',
 
+  // WhatsApp
+  'whatsapp.chatWithUs': 'Chat with us on WhatsApp',
+  'whatsapp.defaultMessage': "Hi Darix AI, I'd like to know more about the AI Readiness Assessment.",
+
   // Hero
   'hero.badge': 'Dubai AI Readiness Index',
   'hero.titleBefore': 'Discover How',
@@ -192,6 +196,7 @@ const en: Dict = {
   'footer.privacyPolicy': 'Privacy Policy',
   'footer.termsOfService': 'Terms of Service',
   'footer.privacyCenter': 'Privacy Center',
+  'footer.partners': 'Partners',
 };
 
 const ar: Dict = {
@@ -206,6 +211,10 @@ const ar: Dict = {
   'nav.viewDemoReport': 'عرض تقرير تجريبي',
   'nav.startAssessmentMobile': 'ابدأ التقييم',
   'nav.switchLanguage': 'تبديل اللغة',
+
+  // WhatsApp
+  'whatsapp.chatWithUs': 'تواصل معنا عبر واتساب',
+  'whatsapp.defaultMessage': 'مرحباً Darix AI، أود معرفة المزيد عن تقييم جاهزية الذكاء الاصطناعي.',
 
   // Hero
   'hero.badge': 'مؤشر دبي لجاهزية الذكاء الاصطناعي',
@@ -360,6 +369,7 @@ const ar: Dict = {
   'footer.privacyPolicy': 'سياسة الخصوصية',
   'footer.termsOfService': 'شروط الخدمة',
   'footer.privacyCenter': 'مركز الخصوصية',
+  'footer.partners': 'الشركاء',
 };
 
 export const dictionaries: Record<Locale, Dict> = { en, ar };

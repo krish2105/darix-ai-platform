@@ -1,0 +1,137 @@
+export interface ResourceSection {
+  heading: string;
+  body: string[];
+}
+
+export interface Resource {
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  readTimeMinutes: number;
+  publishedAt: string;
+  sections: ResourceSection[];
+}
+
+export const resources: Resource[] = [
+  {
+    slug: 'ai-readiness-checklist-uae',
+    title: 'Is Your UAE Business Actually Ready for AI? A Practical Checklist',
+    excerpt:
+      'Most AI initiatives stall not because the technology fails, but because the organization wasn’t ready for it. Here’s what "ready" actually looks like.',
+    category: 'AI Strategy',
+    readTimeMinutes: 6,
+    publishedAt: '2026-05-04',
+    sections: [
+      {
+        heading: 'Readiness is an organizational question, not a technical one',
+        body: [
+          'Every AI vendor pitch starts with the model. Almost none of them start with the question that actually determines whether the project survives contact with your business: is the organization structured to use this?',
+          'A retail chain can license the same recommendation engine as a competitor and get wildly different results, because one team has clean, unified customer data and clear ownership of the customer experience, and the other has three disconnected point-of-sale systems and no one accountable for acting on the output.',
+        ],
+      },
+      {
+        heading: 'The four gaps that kill AI projects before they start',
+        body: [
+          'Data fragmentation. If customer, operations, or financial data lives in five different tools that don’t talk to each other, any AI system built on top inherits that fragmentation. Consolidation work — unglamorous, but necessary — usually has to happen first.',
+          'No process owner. AI recommendations only create value if someone with the authority to act on them actually does. Pilots frequently produce a working dashboard that nobody is responsible for using.',
+          'Underestimated governance load. Deploying AI that touches customer data, hiring decisions, or credit/lending decisions in the UAE means thinking through PDPL obligations, explainability, and human review from day one, not retrofitting them after a regulator asks.',
+          'Skills gap without a plan to close it. Buying a tool doesn’t create the internal capability to configure, monitor, and improve it. Most SMEs underinvest in the training and process redesign that make a tool stick.',
+        ],
+      },
+      {
+        heading: 'What a realistic first 90 days looks like',
+        body: [
+          'Start narrower than feels ambitious: one workflow, one team, one measurable outcome. Fix the data feeding that workflow before automating around it. Assign a single owner who is measured on the outcome, not just the deployment. Build the PDPL and human-review checkpoints in from the start rather than as an afterthought.',
+          'Organizations that follow roughly this sequence tend to reach a usable, defensible AI deployment in one quarter. Organizations that skip straight to "buy the tool" tend to have an expensive pilot that never gets adopted.',
+        ],
+      },
+      {
+        heading: 'How to find out where you actually stand',
+        body: [
+          'The gaps above are common, but which ones apply to your organization — and how severely — varies a lot by sector, size, and current tooling. That’s the specific question the Darix AI Readiness Assessment is built to answer: a structured score across strategy, data maturity, automation potential, governance, and team readiness, with a roadmap tied to your actual gaps rather than a generic one.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'pdpl-and-ai-what-uae-businesses-need-to-know',
+    title: 'UAE PDPL and AI: What to Check Before You Deploy',
+    excerpt:
+      'Federal Decree-Law No. 45 of 2021 applies to any AI system that touches personal data — which is most of them. Here’s the practical checklist, not the legal theory.',
+    category: 'Compliance',
+    readTimeMinutes: 7,
+    publishedAt: '2026-05-18',
+    sections: [
+      {
+        heading: 'PDPL applies the moment personal data is involved',
+        body: [
+          'The UAE Personal Data Protection Law (Federal Decree-Law No. 45 of 2021) governs the collection, processing, and storage of personal data by businesses operating in the UAE. An AI system that scores leads, recommends products, screens CVs, or personalizes a customer experience is processing personal data — which means it’s in scope, regardless of whether the AI vendor is based in the UAE or not.',
+          'This isn’t a reason to avoid AI. It’s a reason to build the compliance work into the deployment plan instead of bolting it on after a customer complaint or a regulator inquiry.',
+        ],
+      },
+      {
+        heading: 'The practical checklist before you go live',
+        body: [
+          'Legal basis: know which basis you’re relying on for each use of personal data in the AI system — consent, contract performance, or legitimate interest — and be able to explain it if asked.',
+          'Data minimization: check whether the AI tool actually needs every field it’s been given. Vendors often default to ingesting more than the use case requires.',
+          'Cross-border transfer: many AI tools process data on servers outside the UAE. PDPL has specific requirements for transferring personal data outside the country — this needs a real review, not an assumption that "the vendor is compliant" covers you.',
+          'Data subject rights: your business needs a working process for someone to request access to, correction of, or deletion of their data — including data that fed into or was generated by an AI system. A privacy policy that promises this without an actual mechanism behind it is a liability, not a safeguard.',
+          'Human oversight: for any AI-assisted decision that meaningfully affects a person (credit, hiring, pricing), have a defined process for human review, not just automated output going straight to action.',
+        ],
+      },
+      {
+        heading: 'Where this fits into an AI rollout timeline',
+        body: [
+          'The mistake we see most often: PDPL review happens after the AI tool is already selected and half-deployed, which turns it into a blocker instead of a design input. Reviewing data flows, transfer arrangements, and rights processes during vendor selection is significantly cheaper than doing it after go-live.',
+        ],
+      },
+      {
+        heading: 'A note on this article',
+        body: [
+          'This is a starting checklist, not legal advice — a UAE-qualified lawyer should review your specific data flows and vendor contracts before you rely on any of it. Darix AI’s own Privacy Policy and Privacy Center are built against this same PDPL framework; see the Privacy Center for how we handle access and erasure requests in practice.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'calculating-real-roi-on-ai-initiatives',
+    title: 'Beyond the Hype: Calculating Real ROI on AI Initiatives',
+    excerpt:
+      '"AI will transform your business" is not a budget line. Here’s how to build a defensible ROI case before you commit spend.',
+    category: 'Business Value',
+    readTimeMinutes: 5,
+    publishedAt: '2026-06-02',
+    sections: [
+      {
+        heading: 'Why so many AI budgets get cut after year one',
+        body: [
+          'The most common failure pattern isn’t that the AI didn’t work — it’s that no one defined what "working" meant in terms the finance team would recognize before the project started. A chatbot that "improves customer experience" is hard to defend in a budget review. A chatbot that reduces average handling time by a measured amount, tied to a headcount or overtime line, is not.',
+        ],
+      },
+      {
+        heading: 'Three ROI categories that actually hold up',
+        body: [
+          'Time reclaimed: hours saved on a specific, currently-manual workflow (reporting, data entry, follow-up scheduling), multiplied by the fully-loaded cost of the people doing it today.',
+          'Conversion or retention lift: a measurable change in a funnel metric you already track — lead-to-close rate, repeat purchase rate, response time to inquiry — attributable to the AI system, ideally validated with a before/after or holdout comparison.',
+          'Risk or error reduction: fewer compliance exceptions, fewer manual-entry errors, faster detection of anomalies — valued at what those errors currently cost when they happen.',
+        ],
+      },
+      {
+        heading: 'Build the baseline before you build the AI',
+        body: [
+          'You cannot prove a lift you didn’t measure the starting point for. Before deploying, capture the current numbers for the metric the AI is meant to move — current handling time, current conversion rate, current error rate — over a representative period, not just a good week.',
+          'This baseline step is the one organizations skip most often under time pressure, and it’s the one that determines whether the project can defend its budget at renewal time.',
+        ],
+      },
+      {
+        heading: 'Tie ROI tracking to your readiness gaps',
+        body: [
+          'The AI initiatives with the clearest ROI tend to be the ones targeted at a specific, already-measured bottleneck — which is exactly what a structured readiness assessment surfaces. Rather than starting from "what can AI do for us," start from "what is our most expensive manual bottleneck, and is the data behind it clean enough to automate against."',
+        ],
+      },
+    ],
+  },
+];
+
+export const getResourceBySlug = (slug: string) => resources.find((r) => r.slug === slug);

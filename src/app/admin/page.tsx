@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { Mail, Building2, Calendar, ShieldAlert, FileWarning } from 'lucide-react';
+import { Mail, Building2, Calendar, ShieldAlert, FileWarning, Handshake } from 'lucide-react';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminSupabaseClient } from '@/lib/supabase/admin';
 import { isAdminEmail } from '@/lib/auth/is-admin';
 import { SignOutButton } from '@/components/SignOutButton';
+import { LeadStatusEditor } from '@/components/LeadStatusEditor';
 import type { ReadinessResult } from '@/utils/scoring';
+import type { leadStatusOptions } from '@/lib/validation/schemas';
 
 export const metadata: Metadata = {
   title: 'Admin | Darix AI',
@@ -19,6 +21,8 @@ interface LeadRow {
   company_name: string;
   company_size: string;
   challenge: string;
+  status: (typeof leadStatusOptions)[number];
+  notes: string | null;
   created_at: string;
 }
 
@@ -38,6 +42,16 @@ interface DataRequestRow {
   email: string;
   details: string | null;
   status: 'pending' | 'in_progress' | 'completed' | 'rejected';
+  created_at: string;
+}
+
+interface PartnerInquiryRow {
+  id: string;
+  organization_name: string;
+  contact_name: string;
+  contact_email: string;
+  partner_type: 'consultancy' | 'systems_integrator' | 'referral' | 'other';
+  message: string | null;
   created_at: string;
 }
 
@@ -68,10 +82,11 @@ export default async function AdminPage() {
     { data: leads, error: leadsError },
     { data: assessments, error: assessmentsError },
     { data: dataRequests, error: dataRequestsError },
+    { data: partnerInquiries, error: partnerInquiriesError },
   ] = await Promise.all([
     admin
       .from('leads')
-      .select('id, full_name, work_email, company_name, company_size, challenge, created_at')
+      .select('id, full_name, work_email, company_name, company_size, challenge, status, notes, created_at')
       .order('created_at', { ascending: false })
       .limit(100)
       .returns<LeadRow[]>(),
@@ -87,6 +102,12 @@ export default async function AdminPage() {
       .order('created_at', { ascending: false })
       .limit(100)
       .returns<DataRequestRow[]>(),
+    admin
+      .from('partner_inquiries')
+      .select('id, organization_name, contact_name, contact_email, partner_type, message, created_at')
+      .order('created_at', { ascending: false })
+      .limit(100)
+      .returns<PartnerInquiryRow[]>(),
   ]);
 
   const statusPillClass: Record<DataRequestRow['status'], string> = {
@@ -107,7 +128,7 @@ export default async function AdminPage() {
           <SignOutButton />
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-10">
           <div>
             <h2 className="text-xl font-bold text-foreground mb-4">
               Leads {leads ? `(${leads.length})` : ''}
@@ -130,6 +151,7 @@ export default async function AdminPage() {
                     <Building2 className="w-3 h-3" /> {lead.company_name} &middot; {lead.company_size} employees
                   </p>
                   <p className="text-sm text-foreground/80">{lead.challenge}</p>
+                  <LeadStatusEditor leadId={lead.id} initialStatus={lead.status} initialNotes={lead.notes} />
                 </div>
               ))}
               {leads?.length === 0 && <p className="text-muted-foreground text-sm">No leads yet.</p>}
@@ -194,6 +216,36 @@ export default async function AdminPage() {
                 </div>
               ))}
               {dataRequests?.length === 0 && <p className="text-muted-foreground text-sm">No PDPL requests yet.</p>}
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+              <Handshake className="w-5 h-5 text-cyber-cyan" />
+              Partner Inquiries {partnerInquiries ? `(${partnerInquiries.length})` : ''}
+            </h2>
+            {partnerInquiriesError && <p className="text-risk-red text-sm">Could not load partner inquiries.</p>}
+            <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+              {partnerInquiries?.map((pi) => (
+                <div key={pi.id} className="glass-card p-5">
+                  <div className="flex items-start justify-between gap-4 mb-2">
+                    <h3 className="font-semibold text-foreground">{pi.organization_name}</h3>
+                    <span className="text-xs text-muted-foreground flex items-center gap-1 flex-shrink-0">
+                      <Calendar className="w-3 h-3" />
+                      {new Date(pi.created_at).toLocaleDateString('en-AE')}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-1">{pi.contact_name}</p>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1 mb-2">
+                    <Mail className="w-3 h-3" /> {pi.contact_email}
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Type: <span className="font-semibold text-foreground/80">{pi.partner_type.replace('_', ' ')}</span>
+                  </p>
+                  {pi.message && <p className="text-sm text-foreground/80">{pi.message}</p>}
+                </div>
+              ))}
+              {partnerInquiries?.length === 0 && <p className="text-muted-foreground text-sm">No partner inquiries yet.</p>}
             </div>
           </div>
         </div>

@@ -63,9 +63,10 @@ export const Footer = () => {
             <h4 className="text-foreground font-semibold mb-6 uppercase tracking-wider text-sm">{t('footer.resources')}</h4>
             <ul className="flex flex-col gap-4">
               <li><a href="#industries" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.industryUseCases')}</a></li>
-              <li><a href="#case-studies" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.caseStudies')}</a></li>
-              <li><a href="#research" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.researchPapers')}</a></li>
+              <li><Link href="/case-studies" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.caseStudies')}</Link></li>
+              <li><Link href="/resources" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.researchPapers')}</Link></li>
               <li><a href="#faq" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.faq')}</a></li>
+              <li><Link href="/partners" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.partners')}</Link></li>
             </ul>
           </div>
 
