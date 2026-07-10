@@ -5,26 +5,20 @@ import { motion } from 'framer-motion';
 import { SectionTitle } from './SectionTitle';
 import { staggerContainer, fadeIn } from '@/utils/animations';
 import { CheckCircle2 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const FeaturesSection = () => {
+  const { t } = useLanguage();
   const features = [
-    'Readiness Assessment',
-    'Business Dimension Scoring',
-    'Industry Use-Case Mapping',
-    'AI Governance Risk Review',
-    'ROI Opportunity Matrix',
-    'Executive Dashboard',
-    'Custom Recommendations',
-    'AI Adoption Roadmap',
-    'Report Export',
-    'Consultation Booking'
+    t('features.item1'), t('features.item2'), t('features.item3'), t('features.item4'), t('features.item5'),
+    t('features.item6'), t('features.item7'), t('features.item8'), t('features.item9'), t('features.item10'),
   ];
 
   return (
     <section className="py-24 bg-card relative" id="features">
       <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <SectionTitle 
-          title="Everything Leaders Need to Start AI Transformation"
+        <SectionTitle
+          title={t('features.title')}
         />
 
         <motion.div 

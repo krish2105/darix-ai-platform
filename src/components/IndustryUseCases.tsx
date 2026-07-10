@@ -6,16 +6,24 @@ import { industries } from '@/data/industries';
 import { SectionTitle } from './SectionTitle';
 import { Building2, Lightbulb, TrendingUp, ShieldAlert, ArrowRight } from 'lucide-react';
 import { cn } from './Button';
+import { useLanguage } from '@/contexts/LanguageContext';
+
+const riskLevelKey: Record<'Low' | 'Medium' | 'High', string> = {
+  Low: 'industry.level.low',
+  Medium: 'industry.level.medium',
+  High: 'industry.level.high',
+};
 
 export const IndustryUseCases = () => {
+  const { t } = useLanguage();
   const [activeIndustry, setActiveIndustry] = useState(industries[0]);
 
   return (
     <section className="py-24 bg-card border-y border-card-border" id="industries">
       <div className="container mx-auto px-4 md:px-6">
-        <SectionTitle 
-          title="AI Readiness by Industry"
-          subtitle="Explore high-value AI applications and readiness requirements for your specific sector."
+        <SectionTitle
+          title={t('industries.title')}
+          subtitle={t('industries.subtitle')}
         />
 
         <div className="flex flex-col lg:flex-row gap-8 mt-16">
@@ -32,7 +40,7 @@ export const IndustryUseCases = () => {
                     : "bg-glass-panel border border-card-border text-muted-foreground hover:bg-glass-panel hover:text-foreground"
                 )}
               >
-                <span>{industry.name}</span>
+                <span>{t(`industry.${industry.id}.name`)}</span>
                 {activeIndustry.id === industry.id && <ArrowRight className="w-4 h-4 text-electric-blue hidden lg:block" />}
               </button>
             ))}
@@ -53,43 +61,43 @@ export const IndustryUseCases = () => {
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-electric-blue to-ai-violet flex items-center justify-center shadow-lg">
                     <Building2 className="w-6 h-6 text-foreground" />
                   </div>
-                  <h3 className="text-3xl font-display font-bold text-foreground">{activeIndustry.name}</h3>
+                  <h3 className="text-3xl font-display font-bold text-foreground">{t(`industry.${activeIndustry.id}.name`)}</h3>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                   <div>
-                    <h4 className="text-sm uppercase tracking-wider text-muted-foreground mb-2 font-semibold">The Challenge</h4>
-                    <p className="text-foreground leading-relaxed">{activeIndustry.problem}</p>
+                    <h4 className="text-sm uppercase tracking-wider text-muted-foreground mb-2 font-semibold">{t('industries.challenge')}</h4>
+                    <p className="text-foreground leading-relaxed">{t(`industry.${activeIndustry.id}.problem`)}</p>
                   </div>
                   <div>
                     <h4 className="text-sm uppercase tracking-wider text-[#0369A1] dark:text-electric-blue mb-2 font-semibold flex items-center gap-2">
-                      <Lightbulb className="w-4 h-4" /> AI Solution
+                      <Lightbulb className="w-4 h-4" /> {t('industries.aiSolution')}
                     </h4>
-                    <p className="text-foreground leading-relaxed">{activeIndustry.aiSolution}</p>
+                    <p className="text-foreground leading-relaxed">{t(`industry.${activeIndustry.id}.aiSolution`)}</p>
                   </div>
                 </div>
 
                 <div className="bg-background/50 border border-card-border rounded-xl p-6 mb-8">
                   <h4 className="text-sm uppercase tracking-wider text-[#047857] dark:text-emerald-success mb-3 font-semibold flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4" /> Business Impact
+                    <TrendingUp className="w-4 h-4" /> {t('industries.impact')}
                   </h4>
-                  <p className="text-lg text-foreground/90">{activeIndustry.impact}</p>
+                  <p className="text-lg text-foreground/90">{t(`industry.${activeIndustry.id}.impact`)}</p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-card-border pt-8">
                   <div>
-                    <span className="block text-xs text-muted-foreground uppercase mb-1">Recommended Pilot</span>
-                    <span className="font-medium text-[#0369A1] dark:text-electric-blue">{activeIndustry.firstPilot}</span>
+                    <span className="block text-xs text-muted-foreground uppercase mb-1">{t('industries.pilot')}</span>
+                    <span className="font-medium text-[#0369A1] dark:text-electric-blue">{t(`industry.${activeIndustry.id}.firstPilot`)}</span>
                   </div>
                   <div>
                     <span className="block text-xs text-muted-foreground uppercase mb-1 flex items-center gap-1">
-                      Risk Level <ShieldAlert className="w-3 h-3 text-warning-amber" />
+                      {t('industries.risk')} <ShieldAlert className="w-3 h-3 text-warning-amber" />
                     </span>
-                    <span className="font-medium text-foreground">{activeIndustry.risk}</span>
+                    <span className="font-medium text-foreground">{t(riskLevelKey[activeIndustry.risk])}</span>
                   </div>
                   <div>
-                    <span className="block text-xs text-muted-foreground uppercase mb-1">Implementation Diff.</span>
-                    <span className="font-medium text-foreground">{activeIndustry.difficulty}</span>
+                    <span className="block text-xs text-muted-foreground uppercase mb-1">{t('industries.difficulty')}</span>
+                    <span className="font-medium text-foreground">{t(riskLevelKey[activeIndustry.difficulty])}</span>
                   </div>
                 </div>
 

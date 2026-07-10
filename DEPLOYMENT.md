@@ -49,6 +49,19 @@ Stripe works in the UAE but has weaker local card/wallet coverage than UAE-nativ
 
 Only one provider is active at a time, controlled by `PAYMENT_PROVIDER` (defaults to `stripe`).
 
+### 3c. Tabby (buy-now-pay-later, Business Consultation tier only)
+
+Unlike Stripe/Telr, [Tabby](https://tabby.ai) is additive rather than a `PAYMENT_PROVIDER` option — a "Pay in 4 with Tabby" button appears next to the regular checkout button, offered only for the AED 1,999 Business Consultation tier (the only tier priced high enough for installments to be a meaningful purchase decision):
+
+1. Register as a merchant at [partners.tabby.ai](https://partners.tabby.ai) and get your test secret key and merchant code.
+2. Set `TABBY_SECRET_KEY` and `TABBY_MERCHANT_CODE`.
+3. **Verify against Tabby's test environment before going live** — same caveat as Telr (section 3b): the integration in `src/lib/tabby/client.ts` follows Tabby's published Checkout API guide, but field names, the exact redirect query-param name Tabby appends (`payment_id`), and the authorize→capture flow should be confirmed against your own test merchant account.
+4. Going live: swap in your live secret key/merchant code — no code changes needed.
+
+Until `TABBY_SECRET_KEY`/`TABBY_MERCHANT_CODE` are set, the "Pay in 4 with Tabby" button returns a 503 and the regular Stripe/Telr checkout button keeps working regardless (see `isTabbyConfigured()`).
+
+Note: not every buyer is approved for BNPL — Tabby runs its own eligibility check per checkout session. A decline (`TabbyNotEligibleError`) surfaces as "Pay-in-installments is not available for this purchase. Try another payment method." rather than a generic error, since it's an expected outcome, not a failure.
+
 ## 4. PostHog (analytics)
 
 1. Create a project at [posthog.com](https://posthog.com) (or self-host).
@@ -66,9 +79,20 @@ Only one provider is active at a time, controlled by `PAYMENT_PROVIDER` (default
 
 Set `ADMIN_EMAILS` to a comma-separated list of email addresses (must be accounts that can sign up/sign in via the app's own `/login`) that should be able to view `/admin` — leads (with an editable CRM-lite status/notes pipeline), assessments, PDPL data requests, and partner inquiries, all for follow-up.
 
-## 6b. WhatsApp Business (click-to-chat)
+## 6b. WhatsApp Business (click-to-chat + Cloud API)
 
 Set `NEXT_PUBLIC_WHATSAPP_NUMBER` to your business number in international format with no `+` or spaces (e.g. `971501234567`) to show a floating WhatsApp chat button site-wide. No API integration or approval needed — it's a `wa.me` deep link. Leave unset to hide the button entirely.
+
+For programmatic sending (report delivery on request, internal lead/purchase alerts), set up the Meta WhatsApp Cloud API separately:
+
+1. Create a [Meta developer app](https://developers.facebook.com/apps), add the WhatsApp product, and complete business verification.
+2. Generate a permanent access token (a System User token under **Business Settings**, not the 24-hour temporary token shown by default) and set `WHATSAPP_ACCESS_TOKEN`.
+3. Copy the **Phone number ID** (not the phone number) from **WhatsApp > API Setup** into `WHATSAPP_PHONE_NUMBER_ID`.
+4. Optionally set `TEAM_WHATSAPP_NUMBER` (international format, no `+`) to receive best-effort internal alerts for new leads and Business Consultation purchases.
+
+Until `WHATSAPP_ACCESS_TOKEN`/`WHATSAPP_PHONE_NUMBER_ID` are set, the "Send to WhatsApp" button on the results screen returns a 503 (see `isWhatsAppConfigured()` in `src/lib/whatsapp/client.ts`) and team alerts are silently skipped — the click-to-chat button above keeps working regardless, since it needs no API access at all.
+
+Note: Meta requires recipients to have messaged your business number within the last 24 hours (or the message to use a pre-approved template) for a session message to deliver outside that window. The "Send to WhatsApp" report flow only works for numbers with an open session; a multi-day automated nurture sequence would need approved message templates and a scheduler, and isn't built here — see "What's intentionally not wired up yet" below.
 
 ## 6c. Upstash Redis (distributed rate limiting)
 
@@ -86,6 +110,45 @@ No code changes needed — `src/lib/rate-limit/index.ts` detects these automatic
 3. Captures: root layout errors (`global-error.tsx`), per-route errors (`error.tsx` in dashboard/admin/report), React error boundaries (`ErrorBoundary.tsx`), and server/edge request errors via `src/instrumentation.ts`.
 
 Leave `NEXT_PUBLIC_SENTRY_DSN` unset to fully disable Sentry — `next.config.ts` skips the Sentry build wrapper entirely in that case.
+
+## 6e. Compliance documentation (PDPL — read before launch)
+
+UAE PDPL moved to full enforcement in 2026 (Executive Regulations issued,
+real fines up to AED 5 million). Before relying on Darix in production:
+
+1. Have a UAE-qualified lawyer review the Privacy Policy and Terms — both
+   pages carry an explicit "draft" notice until that happens.
+2. Review `docs/ROPA.md` (Records of Processing Activities) — an internal,
+   non-public document listing every processing activity, its legal basis,
+   and open items for counsel.
+3. The public `/sub-processors` page lists every third-party service that
+   touches personal data and where it's hosted; request each provider's
+   Data Processing Addendum (Stripe, Resend, Supabase, Sentry, and PostHog
+   all offer one) and keep signed copies on file.
+4. Confirm with counsel that Darix's sector (not financial services,
+   healthcare, telecoms, or government) means no data-localization
+   requirement applies — `docs/ROPA.md` documents this as a working
+   assumption, not a legal conclusion.
+5. See `docs/GO_LIVE_CHECKLIST.md` for the full list of non-code business
+   readiness items — trade license, live merchant accounts, DPAs with
+   every sub-processor, and more — none of which this repo can complete
+   on its own.
+
+## 6f. Arabic reports (PDF + report content)
+
+Score-generated report content (level, description, strengths, gaps,
+roadmap, recommended pilots) and the downloadable PDF both render in Arabic
+when the site's language toggle is set to Arabic — no configuration
+needed. The PDF uses the Tajawal font (bundled via `@fontsource/tajawal`)
+rather than Noto Sans Arabic, which crashes react-pdf's bidi text reorderer
+on certain letter combinations (see the comment in `src/lib/pdf/fonts.ts`
+for the specific repro). After your first deploy, download an Arabic PDF
+report and confirm it shows real Arabic glyphs rather than empty boxes —
+the font is loaded from `node_modules` at runtime via a path that Next's
+build-time file tracer needs an explicit `outputFileTracingIncludes` hint
+to find (already configured in `next.config.ts`), so this is worth
+verifying once against your actual Vercel deployment rather than assuming
+local dev behavior carries over.
 
 ## 7. Environment variables
 
@@ -123,9 +186,12 @@ npm run test:e2e       # Playwright — installs its own browser if needed: npx 
 
 `.github/workflows/ci.yml` runs on every pull request: lint, typecheck, unit/integration tests, a production build, and the Playwright E2E suite (in its own job, installing Chromium fresh via `playwright install --with-deps`). All must pass before merging.
 
+E2E coverage note: `e2e/checkout-and-forms.spec.ts` covers the checkout flow for all three payment methods (Stripe, Telr, Tabby) and the anonymous forms (WhatsApp report delivery, Privacy Center PDPL request, partner application) by intercepting `/api/*` client-side, the same technique `e2e/assessment-flow.spec.ts` uses. What isn't covered: the `/dashboard` self-service PDPL export/delete and the `/admin` CRM lead editor, because both sit behind real Supabase Auth — sign-in happens client-side (interceptable) but `proxy.ts` validates the session server-side against the real `NEXT_PUBLIC_SUPABASE_URL` on every request, which Playwright's browser-side route interception can't reach. Exercising those two flows end-to-end needs a real (or locally-run) Supabase project wired into the E2E environment; both are covered at the unit/integration level instead (`src/app/api/account/export/route.test.ts`, `src/app/api/account/delete/route.test.ts`, `src/app/api/admin/leads/[id]/route.test.ts`).
+
 ## What's intentionally not wired up yet
 
-- **Live payments**: Stripe and Telr are both fully wired end-to-end but default to test/sandbox mode — see sections 3 and 3b above for going live.
-- **Arabic/RTL coverage**: the core conversion path (nav, hero, assessment, results, contact, footer) is fully translated; the remaining marketing sections (Problem/Solution/Framework/Industries/Pricing/CaseStudies/Research/Founder/FAQ) and score-generated report content (level/description/strengths/gaps/roadmap, which is stored in English at save time) are English-only for now.
+- **Live payments**: Stripe, Telr, and Tabby are all fully wired end-to-end but default to test/sandbox mode — see sections 3, 3b, and 3c above for going live.
+- **WhatsApp nurture sequences**: only a single on-request "send my report" message and one-off team alerts are wired up (section 6b). A multi-day automated follow-up sequence would need Meta-approved message templates (session messages can't be sent outside a 24h customer-initiated window) and a scheduler (e.g. Vercel Cron) — a separate, larger piece of infrastructure not built here.
+- **Arabic/RTL coverage**: the full site — nav, hero, all marketing sections, assessment, score-generated report content (level/description/strengths/gaps/roadmap), the PDF export, contact, and footer — is translated (section 6f). Long-form resource article body text (`src/data/resources.ts`) is English-only by scope decision.
 - **SEO extras beyond the basics**: sitemap.xml, robots.txt, a generated OG image, and Organization/WebApplication JSON-LD are in place; per-page Open Graph images for individual routes (beyond the site-wide default) are not.
 - Anything not listed above that's mentioned in the original master build-out prompt as a later phase.

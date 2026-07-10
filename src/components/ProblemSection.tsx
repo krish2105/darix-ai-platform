@@ -5,47 +5,25 @@ import { motion } from 'framer-motion';
 import { SectionTitle } from './SectionTitle';
 import { Target, ServerCrash, GitPullRequest, Users, TrendingDown, Scale } from 'lucide-react';
 import { staggerContainer, fadeIn } from '@/utils/animations';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const ProblemSection = () => {
+  const { t } = useLanguage();
   const problems = [
-    {
-      title: 'Unclear AI Strategy',
-      description: 'Organizations hear about AI but lack a clear, actionable roadmap aligned with business goals.',
-      icon: <Target className="w-6 h-6 text-warning-amber" />
-    },
-    {
-      title: 'Low Data Maturity',
-      description: 'Data is fragmented, siloed, or poorly governed, making it impossible to train reliable AI models.',
-      icon: <ServerCrash className="w-6 h-6 text-risk-red" />
-    },
-    {
-      title: 'Process Inefficiency',
-      description: 'Undocumented manual workflows prevent the effective deployment of AI automation.',
-      icon: <GitPullRequest className="w-6 h-6 text-ai-violet" />
-    },
-    {
-      title: 'Governance Gaps',
-      description: 'Lack of responsible AI policies exposes the business to compliance, privacy, and security risks.',
-      icon: <Scale className="w-6 h-6 text-cyber-cyan" />
-    },
-    {
-      title: 'Talent Limitations',
-      description: 'Teams lack the necessary AI literacy or technical skills to adopt and scale new tools.',
-      icon: <Users className="w-6 h-6 text-electric-blue" />
-    },
-    {
-      title: 'ROI Uncertainty',
-      description: 'Heavy investments in AI experiments fail to translate into measurable business value or productivity gains.',
-      icon: <TrendingDown className="w-6 h-6 text-muted-foreground" />
-    }
+    { title: t('problem.item1.title'), description: t('problem.item1.desc'), icon: <Target className="w-6 h-6 text-warning-amber" /> },
+    { title: t('problem.item2.title'), description: t('problem.item2.desc'), icon: <ServerCrash className="w-6 h-6 text-risk-red" /> },
+    { title: t('problem.item3.title'), description: t('problem.item3.desc'), icon: <GitPullRequest className="w-6 h-6 text-ai-violet" /> },
+    { title: t('problem.item4.title'), description: t('problem.item4.desc'), icon: <Scale className="w-6 h-6 text-cyber-cyan" /> },
+    { title: t('problem.item5.title'), description: t('problem.item5.desc'), icon: <Users className="w-6 h-6 text-electric-blue" /> },
+    { title: t('problem.item6.title'), description: t('problem.item6.desc'), icon: <TrendingDown className="w-6 h-6 text-muted-foreground" /> }
   ];
 
   return (
     <section className="py-24 relative bg-background overflow-hidden" id="problem">
       <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <SectionTitle 
-          title="Most Businesses Want AI. Few Know Where to Start."
-          subtitle="AI investment without readiness wastes money and creates risk. We identify the critical gaps holding you back."
+        <SectionTitle
+          title={t('problem.title')}
+          subtitle={t('problem.subtitle')}
         />
 
         <motion.div 

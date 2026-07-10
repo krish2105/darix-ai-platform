@@ -5,13 +5,11 @@ import { motion } from 'framer-motion';
 import { Button } from './Button';
 import { fadeIn } from '@/utils/animations';
 import { Link2, GraduationCap, MapPin, Briefcase } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const FounderSection = () => {
-  const skills = [
-    'AI Strategy', 'Business Analytics', 'Digital Transformation', 
-    'AI Governance', 'Prompt Engineering', 'Market Research', 
-    'SaaS Product Thinking', 'Business Model Design', 'Data-Driven Decisions'
-  ];
+  const { t } = useLanguage();
+  const skills = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => t(`founder.skill${n}`));
 
   return (
     <section className="py-24 bg-background relative" id="founder">
@@ -35,38 +33,34 @@ export const FounderSection = () => {
                 </div>
               </div>
               
-              <h3 className="text-2xl font-bold text-foreground mb-2 relative z-10">Master&apos;s Student</h3>
-              <p className="text-cyber-cyan font-medium mb-4 relative z-10">AI Business Strategy</p>
-              
+              <h3 className="text-2xl font-bold text-foreground mb-2 relative z-10">{t('founder.role')}</h3>
+              <p className="text-cyber-cyan font-medium mb-4 relative z-10">{t('founder.field')}</p>
+
               <div className="flex items-center gap-2 text-muted-foreground text-sm mb-8 relative z-10">
                 <MapPin className="w-4 h-4" />
-                <span>Dubai, United Arab Emirates</span>
+                <span>{t('founder.location')}</span>
               </div>
-              
+
               <Button variant="outline" className="w-full relative z-10" icon={<Link2 className="w-4 h-4" />} onClick={() => window.open('https://www.linkedin.com/in/krishnamathurmay/', '_blank')}>
-                Connect on LinkedIn
+                {t('founder.linkedin')}
               </Button>
             </div>
 
             {/* Right side: Bio & Skills */}
             <div className="md:col-span-3 p-8 md:p-12">
               <h2 className="text-3xl font-display font-bold text-foreground mb-6">
-                Bridging the Gap Between <span className="text-gradient">AI Capabilities</span> and Business Value
+                {t('founder.headlineBefore')} <span className="text-gradient">{t('founder.headlineAccent')}</span> {t('founder.headlineAfter')}
               </h2>
-              
+
               <div className="space-y-4 text-muted-foreground leading-relaxed mb-10 text-sm md:text-base">
-                <p>
-                  I am a Master’s student in AI Business based in Dubai, focused on the intersection of artificial intelligence, business strategy, digital transformation, and responsible AI.
-                </p>
-                <p>
-                  DARIX AI was built from the realization that while many organizations want to adopt AI, very few know where their data, teams, and processes actually stand. My research and practical work aims to provide actionable, quantitative frameworks to measure AI readiness and drive real business impact.
-                </p>
+                <p>{t('founder.bio1')}</p>
+                <p>{t('founder.bio2')}</p>
               </div>
 
               <div>
                 <h3 className="text-sm uppercase tracking-wider text-foreground font-semibold mb-4 flex items-center gap-2">
                   <Briefcase className="w-4 h-4 text-electric-blue" />
-                  Core Competencies
+                  {t('founder.competencies')}
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {skills.map((skill, i) => (
@@ -79,7 +73,7 @@ export const FounderSection = () => {
 
               <div className="mt-10 pt-6 border-t border-card-border">
                 <Button variant="ghost" className="pl-0 hover:bg-transparent hover:text-cyber-cyan" onClick={() => window.open('https://github.com/krish2105', '_blank')}>
-                  View GitHub & Projects →
+                  {t('founder.github')} →
                 </Button>
               </div>
             </div>

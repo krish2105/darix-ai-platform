@@ -3,6 +3,7 @@ import { renderToBuffer } from '@react-pdf/renderer';
 import { createAdminSupabaseClient } from '@/lib/supabase/admin';
 import { ReadinessReportDocument } from '@/lib/pdf/ReadinessReportDocument';
 import type { ReadinessResult } from '@/utils/scoring';
+import type { Locale } from '@/lib/i18n/translations';
 
 // @react-pdf/renderer needs Node APIs (fontkit, buffers) that aren't
 // available on the Edge runtime.
@@ -11,7 +12,7 @@ export const runtime = 'nodejs';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
@@ -19,6 +20,9 @@ export async function GET(
   if (!UUID_RE.test(id)) {
     return NextResponse.json({ error: 'Not found.' }, { status: 404 });
   }
+
+  const requestedLocale = request.nextUrl.searchParams.get('locale');
+  const locale: Locale = requestedLocale === 'ar' ? 'ar' : 'en';
 
   const admin = createAdminSupabaseClient();
   const { data, error } = await admin
@@ -36,6 +40,7 @@ export async function GET(
       result={data.result as ReadinessResult}
       companyName={data.company_name}
       generatedAt={new Date(data.created_at)}
+      locale={locale}
     />
   );
 

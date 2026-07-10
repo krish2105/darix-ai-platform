@@ -33,6 +33,18 @@ export const emailReportSchema = z.object({
   email: z.string().trim().email('Enter a valid email').max(320),
 });
 
+// International format, digits only (no leading "+"), matching what Meta's
+// WhatsApp Cloud API expects and what NEXT_PUBLIC_WHATSAPP_NUMBER already
+// uses for the click-to-chat button — e.g. 971501234567. Accepts an
+// optional leading "+" from user input and strips it before validation.
+export const whatsappReportSchema = z.object({
+  phone: z
+    .string()
+    .trim()
+    .transform((val) => val.replace(/[\s-]/g, '').replace(/^\+/, ''))
+    .pipe(z.string().regex(/^[1-9]\d{7,14}$/, 'Enter a valid phone number with country code')),
+});
+
 export const purchasableTiers = ['pro', 'business'] as const;
 
 export const createCheckoutSchema = z.object({
@@ -41,6 +53,14 @@ export const createCheckoutSchema = z.object({
 });
 
 export type CreateCheckoutInput = z.infer<typeof createCheckoutSchema>;
+
+// Tabby (BNPL) is only offered for the Business Consultation tier — see
+// src/lib/tabby/client.ts — so this doesn't take a `tier` param at all.
+export const tabbyCheckoutSchema = z.object({
+  assessmentId: z.string().uuid('Invalid assessment id'),
+});
+
+export type TabbyCheckoutInput = z.infer<typeof tabbyCheckoutSchema>;
 
 export const dataRequestTypes = ['access', 'erasure'] as const;
 

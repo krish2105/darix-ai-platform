@@ -53,16 +53,19 @@ export default function PrivacyPolicyPage() {
       </p>
 
       <h2>4. Data Sharing &amp; Processors</h2>
-      <p>We share personal data with the following service providers, solely to operate the Service:</p>
-      <ul>
-        <li><strong>Supabase</strong> — database hosting and authentication.</li>
-        <li><strong>Resend</strong> — transactional email delivery.</li>
-        <li><strong>Vercel</strong> — application hosting.</li>
-      </ul>
+      <p>
+        We share personal data with the service providers listed on our{' '}
+        <Link href="/sub-processors">Sub-Processors</Link> page, solely to operate the Service.
+        None of them fall into a UAE PDPL sector with a mandatory data-localization requirement
+        (financial services, healthcare, telecommunications, or government); this determination,
+        like the rest of this policy, should be confirmed as part of a full legal review.
+      </p>
       <p>
         These providers may process or store data outside the UAE. We take reasonable steps to
-        ensure they maintain appropriate safeguards; a full cross-border transfer assessment
-        should be completed as part of the legal review of this policy.
+        ensure they maintain appropriate safeguards — encryption in transit and at rest, and
+        standard contractual terms available on request — but a full cross-border transfer
+        assessment and Records of Processing Activities should be completed as part of the legal
+        review of this policy.
       </p>
 
       <h2>5. Data Retention</h2>

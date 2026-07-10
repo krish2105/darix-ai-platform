@@ -9,8 +9,12 @@ import { staggerContainer, fadeIn } from '@/utils/animations';
 import { Check, AlertTriangle, Loader2 } from 'lucide-react';
 import { LAST_ASSESSMENT_ID_KEY } from '@/lib/storage-keys';
 import { trackEvent } from '@/lib/analytics/posthog-client';
+import { useLanguage } from '@/contexts/LanguageContext';
+
+const planFeatureCounts: Record<string, number> = { free: 4, pro: 6, business: 5, enterprise: 6 };
 
 export const PricingSection = () => {
+  const { t } = useLanguage();
   const [pendingPlanId, setPendingPlanId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -29,7 +33,7 @@ export const PricingSection = () => {
 
     const assessmentId = window.localStorage.getItem(LAST_ASSESSMENT_ID_KEY);
     if (!assessmentId) {
-      setNotice('Complete your free assessment first — we tie your paid report to those results.');
+      setNotice(t('pricing.completeFirst'));
       document.getElementById('assessment')?.scrollIntoView({ behavior: 'smooth' });
       return;
     }
@@ -55,8 +59,8 @@ export const PricingSection = () => {
     <section className="py-24 bg-card relative border-t border-card-border" id="pricing">
       <div className="container mx-auto px-4 md:px-6">
         <SectionTitle
-          title="Transparent Pricing for Every Stage"
-          subtitle="From free initial baseline assessments to comprehensive enterprise transformation roadmaps."
+          title={t('pricing.title')}
+          subtitle={t('pricing.subtitle')}
         />
 
         {notice && (
@@ -81,24 +85,24 @@ export const PricingSection = () => {
             >
               {plan.isPopular && (
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-cyber-cyan text-deep-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                  Most Popular
+                  {t('pricing.popular')}
                 </div>
               )}
 
               <div className="mb-8">
-                <h3 className="text-xl font-bold text-foreground mb-2">{plan.name}</h3>
-                <p className="text-sm text-muted-foreground mb-6 min-h-[40px]">{plan.description}</p>
+                <h3 className="text-xl font-bold text-foreground mb-2">{t(`plan.${plan.id}.name`)}</h3>
+                <p className="text-sm text-muted-foreground mb-6 min-h-[40px]">{t(`plan.${plan.id}.description`)}</p>
                 <div className="flex items-baseline gap-1">
                   <span className="text-3xl font-display font-black text-foreground">{plan.price}</span>
-                  {plan.price !== 'Custom' && <span className="text-sm text-muted-foreground">/ one-time</span>}
+                  {plan.price !== 'Custom' && <span className="text-sm text-muted-foreground">{t('pricing.perOneTime')}</span>}
                 </div>
               </div>
 
               <div className="flex-grow space-y-4 mb-8">
-                {plan.features.map((feature, j) => (
+                {Array.from({ length: planFeatureCounts[plan.id] ?? plan.features.length }).map((_, j) => (
                   <div key={j} className="flex items-start gap-3 text-sm text-foreground/90">
                     <Check className="w-4 h-4 text-electric-blue flex-shrink-0 mt-0.5" />
-                    <span>{feature}</span>
+                    <span>{t(`plan.${plan.id}.feature${j + 1}`)}</span>
                   </div>
                 ))}
               </div>
@@ -111,12 +115,12 @@ export const PricingSection = () => {
                 icon={pendingPlanId === plan.id ? <Loader2 className="w-4 h-4 animate-spin" /> : undefined}
               >
                 {pendingPlanId === plan.id
-                  ? 'Redirecting…'
+                  ? t('pricing.redirecting')
                   : plan.price === 'AED 0'
-                    ? 'Start Free'
+                    ? t('pricing.startFree')
                     : plan.price === 'Custom'
-                      ? 'Contact Us'
-                      : 'Request This Plan'}
+                      ? t('pricing.contactUs')
+                      : t('pricing.requestPlan')}
               </Button>
             </motion.div>
           ))}

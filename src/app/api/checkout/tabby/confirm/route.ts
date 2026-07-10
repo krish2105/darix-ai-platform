@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { checkTelrOrder } from '@/lib/telr/client';
+import { captureTabbyPayment, retrieveTabbyPayment } from '@/lib/tabby/client';
 import { createAdminSupabaseClient } from '@/lib/supabase/admin';
 import { EMAIL_FROM, getResendClient, isEmailConfigured } from '@/lib/email/resend';
 import { paymentReceiptEmail } from '@/lib/email/templates';
@@ -7,18 +7,17 @@ import { pricingPlans } from '@/data/pricing';
 import { captureServerEvent } from '@/lib/analytics/posthog-server';
 import { alertTeamOnWhatsApp } from '@/lib/whatsapp/client';
 
-// Telr redirects the shopper's browser here after the "authorised" step of
-// its hosted payment page, appending its own order reference param. That
-// redirect alone is not proof of payment (a shopper could hit this URL
-// without paying), so this route calls back to Telr server-to-server to
-// confirm the order's real status before unlocking anything — playing the
-// same role the signed Stripe webhook event plays for the Stripe flow.
+const BUSINESS_PLAN = pricingPlans.find((p) => p.id === 'business')!;
+
+// Tabby redirects the shopper's browser here after checkout, appending its
+// own payment_id param. Same as the Telr confirm route: that redirect
+// alone is not proof of payment, so this calls back to Tabby
+// server-to-server to verify the payment is actually authorized, then
+// explicitly captures it, before unlocking the Business tier.
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const assessmentId = searchParams.get('assessmentId');
-  const tier = searchParams.get('tier');
-  const orderRef =
-    searchParams.get('OrderRef') || searchParams.get('order_ref') || searchParams.get('ref');
+  const paymentId = searchParams.get('payment_id') || searchParams.get('id');
 
   if (!assessmentId) {
     return NextResponse.redirect(new URL('/', request.url));
@@ -27,37 +26,41 @@ export async function GET(request: NextRequest) {
   const declinedUrl = new URL(`/report/${assessmentId}`, request.url);
   declinedUrl.searchParams.set('upgrade_declined', '1');
 
-  if (!tier || !orderRef) {
+  if (!paymentId) {
     return NextResponse.redirect(declinedUrl);
   }
 
   try {
-    const status = await checkTelrOrder(orderRef);
-    if (!status.paid) {
+    const payment = await retrieveTabbyPayment(paymentId);
+    if (!payment.authorized) {
+      return NextResponse.redirect(declinedUrl);
+    }
+
+    const captured = await captureTabbyPayment(paymentId, BUSINESS_PLAN.checkoutAmountAed!);
+    if (!captured) {
       return NextResponse.redirect(declinedUrl);
     }
 
     const admin = createAdminSupabaseClient();
     const { data: assessment, error } = await admin
       .from('assessments')
-      .update({ tier })
+      .update({ tier: 'business' })
       .eq('id', assessmentId)
       .select('id, company_name, contact_email')
       .single();
 
     if (error || !assessment) {
-      console.error('Failed to update assessment tier after Telr payment', error);
+      console.error('Failed to update assessment tier after Tabby payment', error);
       return NextResponse.redirect(declinedUrl);
     }
 
-    const plan = pricingPlans.find((p) => p.id === tier);
-    if (assessment.contact_email && plan && isEmailConfigured()) {
+    if (assessment.contact_email && isEmailConfigured()) {
       const resend = getResendClient();
       if (resend) {
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? request.nextUrl.origin;
         const receipt = paymentReceiptEmail({
-          planName: plan.name,
-          amountAed: plan.checkoutAmountAed ?? 0,
+          planName: BUSINESS_PLAN.name,
+          amountAed: BUSINESS_PLAN.checkoutAmountAed ?? 0,
           reportUrl: `${siteUrl}/report/${assessmentId}`,
         });
         const { error: sendError } = await resend.emails.send({
@@ -66,28 +69,26 @@ export async function GET(request: NextRequest) {
           subject: receipt.subject,
           html: receipt.html,
         });
-        if (sendError) console.error('Failed to send Telr payment receipt email', sendError);
+        if (sendError) console.error('Failed to send Tabby payment receipt email', sendError);
       }
     }
 
     await captureServerEvent(assessmentId, 'payment_completed', {
-      tier,
-      amount_aed: plan?.checkoutAmountAed,
+      tier: 'business',
+      amount_aed: BUSINESS_PLAN.checkoutAmountAed,
       assessment_id: assessmentId,
-      provider: 'telr',
+      provider: 'tabby',
     });
 
-    if (tier === 'business') {
-      await alertTeamOnWhatsApp(
-        `New Business Consultation purchase (Telr) — ${assessment.company_name ?? 'unknown company'}. Report: ${assessmentId}`
-      ).catch((err) => console.error('Business purchase WhatsApp alert failed', err));
-    }
+    await alertTeamOnWhatsApp(
+      `New Business Consultation purchase (Tabby, pay-in-installments) — ${assessment.company_name ?? 'unknown company'}. Report: ${assessmentId}`
+    ).catch((err) => console.error('Business purchase WhatsApp alert failed', err));
 
     const successUrl = new URL(`/report/${assessmentId}`, request.url);
     successUrl.searchParams.set('upgraded', '1');
     return NextResponse.redirect(successUrl);
   } catch (err) {
-    console.error('Telr order confirmation failed', err);
+    console.error('Tabby payment confirmation failed', err);
     return NextResponse.redirect(declinedUrl);
   }
 }

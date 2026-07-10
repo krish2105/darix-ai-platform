@@ -5,8 +5,12 @@ import { motion } from 'framer-motion';
 import { Button } from './Button';
 import { FileText, Download } from 'lucide-react';
 import { fadeIn } from '@/utils/animations';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const ReportPreview = () => {
+  const { t } = useLanguage();
+  const items = [t('report.item1'), t('report.item2'), t('report.item3'), t('report.item4'), t('report.item5')];
+
   return (
     <section className="py-24 bg-background overflow-hidden relative" id="report">
       <div className="absolute -left-32 top-1/2 -translate-y-1/2 w-96 h-96 bg-electric-blue/10 rounded-full blur-[120px]"></div>
@@ -23,25 +27,19 @@ export const ReportPreview = () => {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/80 border border-card-border mb-6">
               <FileText className="w-4 h-4 text-cyber-cyan" />
-              <span className="text-xs font-semibold text-cyber-cyan uppercase">Instant AI Readiness Report</span>
+              <span className="text-xs font-semibold text-cyber-cyan uppercase">{t('report.badge')}</span>
             </div>
-            
+
             <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
-              Get Your Comprehensive <br className="hidden md:block"/> Executive Report
+              {t('report.titleBefore')} <br className="hidden md:block"/> {t('report.titleAfter')}
             </h2>
-            
+
             <p className="text-lg text-muted-foreground mb-8">
-              Transform your assessment results into a board-ready PDF document. The report includes detailed gap analysis, risk factors, high-ROI use cases, and a step-by-step transformation roadmap.
+              {t('report.subtitle')}
             </p>
-            
+
             <ul className="space-y-4 mb-10">
-              {[
-                'Executive summary & overall score',
-                'Dimension-by-dimension breakdown',
-                'Strategic opportunities & quick wins',
-                'Governance & risk checklist',
-                '30/60/90-day action plan'
-              ].map((item, i) => (
+              {items.map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <div className="w-5 h-5 rounded-full bg-glass-panel border border-card-border flex items-center justify-center flex-shrink-0 mt-0.5">
                     <div className="w-2 h-2 rounded-full bg-cyber-cyan"></div>
@@ -52,7 +50,7 @@ export const ReportPreview = () => {
             </ul>
             
             <Button size="lg" icon={<Download className="w-5 h-5" />}>
-              Generate My Report
+              {t('report.cta')}
             </Button>
           </motion.div>
 

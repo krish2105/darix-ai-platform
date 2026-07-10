@@ -5,10 +5,11 @@ import { motion } from 'framer-motion';
 import { ReadinessResult } from '@/utils/scoring';
 import { AnimatedCounter } from './AnimatedCounter';
 import { Button } from './Button';
-import { Download, RefreshCw, CheckCircle2, AlertTriangle, Lightbulb, Activity, Loader2, Mail, Send, Crown, PhoneCall } from 'lucide-react';
+import { Download, RefreshCw, CheckCircle2, AlertTriangle, Lightbulb, Activity, Loader2, Mail, Send, Crown, PhoneCall, MessageCircle, CreditCard } from 'lucide-react';
 import { pricingPlans } from '@/data/pricing';
 import { trackEvent } from '@/lib/analytics/posthog-client';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { localizeReadinessResult } from '@/lib/i18n/localizeResult';
 import {
   Radar,
   RadarChart,
@@ -29,9 +30,10 @@ interface ScoreDashboardProps {
 }
 
 export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessmentId, tier = 'free', onReset }) => {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
+  const localized = localizeReadinessResult(result, locale);
   const radarData = result.dimensionScores.map(d => ({
-    subject: d.dimensionId.charAt(0).toUpperCase() + d.dimensionId.slice(1),
+    subject: t(`dim.${d.dimensionId}.title`),
     A: d.percentage,
     fullMark: 100,
   }));
@@ -43,7 +45,7 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
     setIsDownloading(true);
     setDownloadError(null);
     try {
-      const res = await fetch(`/api/assessments/${assessmentId}/pdf`);
+      const res = await fetch(`/api/assessments/${assessmentId}/pdf?locale=${locale}`);
       if (!res.ok) throw new Error('PDF generation failed');
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
@@ -64,6 +66,28 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
 
   const [upgradingTier, setUpgradingTier] = useState<'pro' | 'business' | null>(null);
   const [upgradeError, setUpgradeError] = useState<string | null>(null);
+
+  const [isTabbyLoading, setIsTabbyLoading] = useState(false);
+  const [tabbyError, setTabbyError] = useState<string | null>(null);
+
+  const handleTabbyUpgrade = async () => {
+    setIsTabbyLoading(true);
+    setTabbyError(null);
+    try {
+      const res = await fetch('/api/checkout/tabby', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assessmentId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.url) throw new Error(data.error || t('results.checkoutError'));
+      trackEvent('checkout_started', { assessment_id: assessmentId, tier: 'business', provider: 'tabby' });
+      window.location.assign(data.url);
+    } catch (err) {
+      setTabbyError(err instanceof Error ? err.message : t('results.checkoutError'));
+      setIsTabbyLoading(false);
+    }
+  };
 
   // Derived from a browser-only URL query param. useSyncExternalStore (not
   // a mount effect) is what lets this read `window.location.search`
@@ -116,6 +140,30 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
     } catch (err) {
       setEmailStatus('error');
       setEmailError(err instanceof Error ? err.message : t('results.emailSendError'));
+    }
+  };
+
+  const [showWhatsappForm, setShowWhatsappForm] = useState(false);
+  const [phoneValue, setPhoneValue] = useState('');
+  const [whatsappStatus, setWhatsappStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [whatsappError, setWhatsappError] = useState<string | null>(null);
+
+  const handleWhatsappReport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setWhatsappStatus('sending');
+    setWhatsappError(null);
+    try {
+      const res = await fetch(`/api/assessments/${assessmentId}/whatsapp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phoneValue }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || t('results.whatsappSendError'));
+      setWhatsappStatus('sent');
+    } catch (err) {
+      setWhatsappStatus('error');
+      setWhatsappError(err instanceof Error ? err.message : t('results.whatsappSendError'));
     }
   };
 
@@ -192,8 +240,8 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
               </div>
             </div>
             
-            <h4 className="text-2xl font-bold text-cyber-cyan mb-2">{result.level}</h4>
-            <p className="text-sm text-muted-foreground leading-relaxed">{result.description}</p>
+            <h4 className="text-2xl font-bold text-cyber-cyan mb-2">{localized.level}</h4>
+            <p className="text-sm text-muted-foreground leading-relaxed">{localized.description}</p>
           </motion.div>
 
           {/* Radar Chart */}
@@ -237,7 +285,7 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
               {t('results.topStrengths')}
             </h3>
             <ul className="space-y-4">
-              {result.strengths.map((s, i) => (
+              {localized.strengths.map((s, i) => (
                 <li key={i} className="flex items-start gap-3 text-muted-foreground text-sm">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-success mt-1.5 flex-shrink-0"></div>
                   {s}
@@ -257,7 +305,7 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
               {t('results.criticalGaps')}
             </h3>
             <ul className="space-y-4">
-              {result.gaps.map((g, i) => (
+              {localized.gaps.map((g, i) => (
                 <li key={i} className="flex items-start gap-3 text-muted-foreground text-sm">
                   <div className="w-1.5 h-1.5 rounded-full bg-risk-red mt-1.5 flex-shrink-0"></div>
                   {g}
@@ -279,7 +327,7 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
             {t('results.roadmap')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {result.roadmap.map((phase, i) => (
+            {localized.roadmap.map((phase, i) => (
               <div key={i} className="bg-glass-panel border border-card-border rounded-xl p-6 relative">
                 <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-card border border-card-border flex items-center justify-center text-xs font-bold text-cyber-cyan">
                   {i + 1}
@@ -358,10 +406,23 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
                   ? t('results.redirecting')
                   : t('results.upgradeAedBusiness', { amount: pricingPlans.find((p) => p.id === 'business')?.checkoutAmountAed ?? '' })}
               </Button>
+              <Button
+                variant="outline"
+                onClick={handleTabbyUpgrade}
+                disabled={upgradingTier !== null || isTabbyLoading}
+                icon={isTabbyLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
+              >
+                {isTabbyLoading ? t('results.redirecting') : t('results.payInInstallments')}
+              </Button>
             </div>
             {upgradeError && (
               <p className="text-sm text-risk-red flex items-center gap-2 mt-4">
                 <AlertTriangle className="w-4 h-4" /> {upgradeError}
+              </p>
+            )}
+            {tabbyError && (
+              <p className="text-sm text-risk-red flex items-center gap-2 mt-4">
+                <AlertTriangle className="w-4 h-4" /> {tabbyError}
               </p>
             )}
           </motion.div>
@@ -391,6 +452,14 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
               icon={<Mail className="w-5 h-5" />}
             >
               {t('results.emailMe')}
+            </Button>
+            <Button
+              variant="secondary"
+              size="lg"
+              onClick={() => setShowWhatsappForm((v) => !v)}
+              icon={<MessageCircle className="w-5 h-5" />}
+            >
+              {t('results.whatsappMe')}
             </Button>
             {onReset && (
               <Button variant="outline" size="lg" onClick={onReset} icon={<RefreshCw className="w-5 h-5" />}>
@@ -438,6 +507,43 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
               )}
               {emailStatus === 'error' && (
                 <p className="text-xs text-risk-red">{emailError}</p>
+              )}
+            </motion.form>
+          )}
+
+          {showWhatsappForm && (
+            <motion.form
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              onSubmit={handleWhatsappReport}
+              className="w-full max-w-md glass-card p-4 flex flex-col gap-3"
+            >
+              {whatsappStatus === 'sent' ? (
+                <div className="flex items-center gap-2 text-emerald-success text-sm py-2 mx-auto">
+                  <CheckCircle2 className="w-4 h-4" /> {t('results.reportSentWhatsapp')}
+                </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row gap-3 items-stretch">
+                  <input
+                    type="tel"
+                    required
+                    value={phoneValue}
+                    onChange={(e) => setPhoneValue(e.target.value)}
+                    placeholder={t('results.whatsappPlaceholder')}
+                    className="flex-1 bg-glass-panel border border-card-border rounded-lg px-4 py-2 text-sm text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors"
+                  />
+                  <Button
+                    type="submit"
+                    size="sm"
+                    disabled={whatsappStatus === 'sending'}
+                    icon={whatsappStatus === 'sending' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  >
+                    {whatsappStatus === 'sending' ? t('results.sending') : t('results.send')}
+                  </Button>
+                </div>
+              )}
+              {whatsappStatus === 'error' && (
+                <p className="text-xs text-risk-red">{whatsappError}</p>
               )}
             </motion.form>
           )}

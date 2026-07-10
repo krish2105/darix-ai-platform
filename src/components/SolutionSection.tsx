@@ -4,43 +4,25 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { SectionTitle } from './SectionTitle';
 import { staggerContainer, fadeIn } from '@/utils/animations';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const SolutionSection = () => {
+  const { t } = useLanguage();
   const steps = [
-    {
-      num: '01',
-      title: 'Assess',
-      description: 'Answer structured questions across strategy, data, tech, people, process, governance, and ROI.',
-      color: 'from-electric-blue to-cyber-cyan'
-    },
-    {
-      num: '02',
-      title: 'Score',
-      description: 'Receive a clear AI readiness score from 0 to 100 with an objective maturity classification.',
-      color: 'from-cyber-cyan to-emerald-success'
-    },
-    {
-      num: '03',
-      title: 'Diagnose',
-      description: 'Identify your organization’s core strengths, hidden weaknesses, risks, and high-impact opportunities.',
-      color: 'from-emerald-success to-warning-amber'
-    },
-    {
-      num: '04',
-      title: 'Transform',
-      description: 'Get a practical, step-by-step AI adoption roadmap with recommended next steps and quick wins.',
-      color: 'from-warning-amber to-ai-violet'
-    }
+    { num: '01', title: t('solution.step1.title'), description: t('solution.step1.desc'), color: 'from-electric-blue to-cyber-cyan' },
+    { num: '02', title: t('solution.step2.title'), description: t('solution.step2.desc'), color: 'from-cyber-cyan to-emerald-success' },
+    { num: '03', title: t('solution.step3.title'), description: t('solution.step3.desc'), color: 'from-emerald-success to-warning-amber' },
+    { num: '04', title: t('solution.step4.title'), description: t('solution.step4.desc'), color: 'from-warning-amber to-ai-violet' }
   ];
 
   return (
     <section className="py-24 relative bg-card border-y border-card-border" id="solution">
       <div className="absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyber-cyan/20 to-transparent -translate-y-1/2 hidden lg:block"></div>
-      
+
       <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <SectionTitle 
-          title="A Structured AI Readiness System for Modern Businesses"
-          subtitle="Stop guessing. Start measuring. Follow a proven path to AI transformation."
+        <SectionTitle
+          title={t('solution.title')}
+          subtitle={t('solution.subtitle')}
         />
 
         <motion.div 

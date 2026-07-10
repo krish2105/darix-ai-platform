@@ -5,42 +5,24 @@ import { motion } from 'framer-motion';
 import { SectionTitle } from './SectionTitle';
 import { staggerContainer, fadeIn } from '@/utils/animations';
 import { Search, PenTool, Rocket, Network, ShieldCheck } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const FrameworkSection = () => {
+  const { t } = useLanguage();
   const stages = [
-    {
-      title: 'Discover',
-      description: 'Understand business goals, data availability, and AI opportunities.',
-      icon: <Search className="w-6 h-6 text-electric-blue" />
-    },
-    {
-      title: 'Prepare',
-      description: 'Improve data, infrastructure, leadership alignment, and governance.',
-      icon: <PenTool className="w-6 h-6 text-cyber-cyan" />
-    },
-    {
-      title: 'Pilot',
-      description: 'Launch high-value AI use cases with measurable KPIs.',
-      icon: <Rocket className="w-6 h-6 text-emerald-success" />
-    },
-    {
-      title: 'Integrate',
-      description: 'Connect AI into workflows, systems, teams, and decision-making.',
-      icon: <Network className="w-6 h-6 text-ai-violet" />
-    },
-    {
-      title: 'Scale',
-      description: 'Expand AI across departments with continuous optimization and responsible governance.',
-      icon: <ShieldCheck className="w-6 h-6 text-dubai-gold" />
-    }
+    { title: t('framework.stage1.title'), description: t('framework.stage1.desc'), icon: <Search className="w-6 h-6 text-electric-blue" /> },
+    { title: t('framework.stage2.title'), description: t('framework.stage2.desc'), icon: <PenTool className="w-6 h-6 text-cyber-cyan" /> },
+    { title: t('framework.stage3.title'), description: t('framework.stage3.desc'), icon: <Rocket className="w-6 h-6 text-emerald-success" /> },
+    { title: t('framework.stage4.title'), description: t('framework.stage4.desc'), icon: <Network className="w-6 h-6 text-ai-violet" /> },
+    { title: t('framework.stage5.title'), description: t('framework.stage5.desc'), icon: <ShieldCheck className="w-6 h-6 text-dubai-gold" /> }
   ];
 
   return (
     <section className="py-24 bg-background overflow-hidden" id="framework">
       <div className="container mx-auto px-4 md:px-6">
-        <SectionTitle 
-          title="The DARIX AI Maturity Framework"
-          subtitle="A structured, 5-stage evolutionary path to transform your organization into an AI leader."
+        <SectionTitle
+          title={t('framework.title')}
+          subtitle={t('framework.subtitle')}
         />
 
         <div className="relative mt-20 max-w-5xl mx-auto">

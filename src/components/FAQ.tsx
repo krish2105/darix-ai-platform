@@ -5,47 +5,23 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { SectionTitle } from './SectionTitle';
 import { Plus, Minus } from 'lucide-react';
 import { staggerContainer, fadeIn } from '@/utils/animations';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const FAQ = () => {
+  const { t } = useLanguage();
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
-  const faqs = [
-    {
-      question: "What is an AI readiness assessment?",
-      answer: "An AI readiness assessment is a structured diagnostic tool that evaluates an organization's maturity across strategy, data, infrastructure, talent, and governance to determine how prepared they are to adopt and scale artificial intelligence."
-    },
-    {
-      question: "Who should use Dubai AI Readiness Index?",
-      answer: "This platform is designed for C-level executives, department heads, SME founders, consultants, and digital transformation leaders in Dubai who want an objective measure of their AI capabilities."
-    },
-    {
-      question: "Is this only for Dubai companies?",
-      answer: "While the platform incorporates context relevant to the UAE and Dubai's digital strategy initiatives, the core assessment framework applies to any modern organization globally."
-    },
-    {
-      question: "How is the AI readiness score calculated?",
-      answer: "The score is calculated using a weighted algorithm across 8 dimensions. Each answer is scored from 0 to 5, resulting in a dimension percentage and an overall maturity level ranging from 'AI Explorer' to 'AI Leader'."
-    },
-    {
-      question: "What happens after I complete the assessment?",
-      answer: "You will receive an instant dashboard showing your score, dimension breakdown, top strengths, critical gaps, and a 90-day transformation roadmap. You can also export this as a PDF report or book a strategy call."
-    },
-    {
-      question: "Does it replace AI consultants?",
-      answer: "No. The tool serves as a starting point. It provides the diagnostic baseline and initial roadmap, which makes subsequent work with consultants, internal teams, and vendors much more efficient and focused."
-    },
-    {
-      question: "Does the platform include AI governance?",
-      answer: "Yes, AI Governance is one of the 8 core dimensions evaluated, ensuring that data privacy, compliance, and responsible AI practices are considered before scaling AI."
-    }
-  ];
+  const faqs = [1, 2, 3, 4, 5, 6, 7].map((n) => ({
+    question: t(`faq.q${n}`),
+    answer: t(`faq.a${n}`),
+  }));
 
   return (
     <section className="py-24 bg-card border-t border-card-border" id="faq">
       <div className="container mx-auto px-4 md:px-6">
-        <SectionTitle 
-          title="Frequently Asked Questions"
-          subtitle="Everything you need to know about measuring AI readiness and business value."
+        <SectionTitle
+          title={t('faq.title')}
+          subtitle={t('faq.subtitle')}
         />
 
         <motion.div 

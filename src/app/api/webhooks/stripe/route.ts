@@ -6,6 +6,7 @@ import { EMAIL_FROM, getResendClient, isEmailConfigured } from '@/lib/email/rese
 import { paymentReceiptEmail } from '@/lib/email/templates';
 import { pricingPlans } from '@/data/pricing';
 import { captureServerEvent } from '@/lib/analytics/posthog-server';
+import { alertTeamOnWhatsApp } from '@/lib/whatsapp/client';
 
 // Needs the raw request body for Stripe signature verification, and the
 // Node.js runtime for the Stripe SDK.
@@ -100,6 +101,15 @@ export async function POST(request: NextRequest) {
       amount_aed: plan?.checkoutAmountAed,
       assessment_id: assessmentId,
     });
+
+    // Business Consultation is the highest-value tier and includes a
+    // strategy call the team needs to actually schedule — flag it
+    // immediately rather than waiting for someone to check email/admin.
+    if (tier === 'business') {
+      await alertTeamOnWhatsApp(
+        `New Business Consultation purchase (Stripe) — ${assessment.company_name ?? 'unknown company'}. Report: ${assessmentId}`
+      ).catch((err) => console.error('Business purchase WhatsApp alert failed', err));
+    }
   }
 
   return NextResponse.json({ received: true });

@@ -5,6 +5,7 @@ import { getClientIp, rateLimit } from '@/lib/rate-limit';
 import { EMAIL_FROM, TEAM_ALERT_EMAIL, getResendClient, isEmailConfigured } from '@/lib/email/resend';
 import { leadAlertEmail, leadConfirmationEmail } from '@/lib/email/templates';
 import { verifyTurnstileToken } from '@/lib/turnstile/verify';
+import { alertTeamOnWhatsApp } from '@/lib/whatsapp/client';
 
 export async function POST(request: NextRequest) {
   const ip = getClientIp(request);
@@ -94,6 +95,12 @@ export async function POST(request: NextRequest) {
       });
     }
   }
+
+  // Same best-effort treatment as the email alert above — a missing/failed
+  // WhatsApp send never blocks the lead response.
+  await alertTeamOnWhatsApp(
+    `New lead: ${lead.fullName} (${lead.companyName}, ${lead.companySize}) — ${lead.workEmail}`
+  ).catch((err) => console.error('Lead WhatsApp alert failed', err));
 
   return NextResponse.json({ success: true }, { status: 201 });
 }

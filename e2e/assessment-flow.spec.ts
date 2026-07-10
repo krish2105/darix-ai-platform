@@ -24,7 +24,11 @@ test.describe('core assessment → report → contact flow', () => {
       });
     });
 
-    await page.route(`**/api/assessments/${FAKE_ASSESSMENT_ID}/pdf`, async (route) => {
+    // Trailing `**` because the real request carries a `?locale=` query
+    // string (added when Arabic report content was localized) — an exact
+    // suffix match here would silently never fire and the click would
+    // hang waiting for a download that never starts.
+    await page.route(`**/api/assessments/${FAKE_ASSESSMENT_ID}/pdf**`, async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/pdf',

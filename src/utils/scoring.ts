@@ -1,5 +1,7 @@
 import { dimensions as questionDimensions } from '@/data/questions';
 
+export type ReadinessLevelId = 'explorer' | 'starter' | 'builder' | 'scaler' | 'leader';
+
 export interface ReadinessResult {
   score: number;
   level: string;
@@ -9,6 +11,15 @@ export interface ReadinessResult {
   recommendedPilots: string[];
   roadmap: { phase: string; timeline: string; actions: string[] }[];
   dimensionScores: { dimensionId: string; score: number; percentage: number }[];
+  // Locale-independent companions to the English fields above — added so
+  // Arabic rendering (ScoreDashboard, PDF export) can look up translated
+  // templates instead of re-deriving them. The English string fields stay
+  // the source of truth for English rendering and for assessments saved
+  // before this field existed (locale-aware rendering falls back to the
+  // English fields when these are absent). See src/lib/i18n/localizeResult.ts.
+  levelId?: ReadinessLevelId;
+  strengthDimensionIds?: string[];
+  gapDimensionIds?: string[];
 }
 
 // ---------------------------------------------------------------------------
@@ -77,21 +88,27 @@ export const calculateReadiness = (answers: Record<string, number>): ReadinessRe
 
   let level = '';
   let description = '';
+  let levelId: ReadinessLevelId;
   if (percentageScore <= 25) {
     level = 'AI Explorer';
     description = 'Early stage. Needs foundational strategy, data cleanup, and leadership alignment.';
+    levelId = 'explorer';
   } else if (percentageScore <= 50) {
     level = 'AI Starter';
     description = 'Some readiness exists. Needs structured roadmap, use-case prioritization, and governance.';
+    levelId = 'starter';
   } else if (percentageScore <= 75) {
     level = 'AI Builder';
     description = 'Good foundation. Ready for pilots, automation, dashboards, and team enablement.';
+    levelId = 'builder';
   } else if (percentageScore <= 90) {
     level = 'AI Scaler';
     description = 'Strong readiness. Ready to scale AI across departments with governance and measurement.';
+    levelId = 'scaler';
   } else {
     level = 'AI Leader';
     description = 'Advanced readiness. Ready for enterprise AI operating model, predictive systems, and continuous optimization.';
+    levelId = 'leader';
   }
 
   const dimensionScores = dimensionIds.map((id) => ({
@@ -105,12 +122,11 @@ export const calculateReadiness = (answers: Record<string, number>): ReadinessRe
 
   const sortedDims = [...dimensionScores].sort((a, b) => b.percentage - a.percentage);
 
-  const strengths = sortedDims
-    .slice(0, 3)
-    .map((d) => `${dimensionNames[d.dimensionId]} is a core competency`);
-  const gaps = sortedDims
-    .slice(-3)
-    .map((d) => `${dimensionNames[d.dimensionId]} requires attention`);
+  const strengthDimensionIds = sortedDims.slice(0, 3).map((d) => d.dimensionId);
+  const gapDimensionIds = sortedDims.slice(-3).map((d) => d.dimensionId);
+
+  const strengths = strengthDimensionIds.map((id) => `${dimensionNames[id]} is a core competency`);
+  const gaps = gapDimensionIds.map((id) => `${dimensionNames[id]} requires attention`);
 
   const roadmap = [
     { phase: 'Phase 1', timeline: 'Days 1–30', actions: ['Data and use-case audit', 'Leadership alignment workshop'] },
@@ -133,5 +149,8 @@ export const calculateReadiness = (answers: Record<string, number>): ReadinessRe
     recommendedPilots,
     roadmap,
     dimensionScores,
+    levelId,
+    strengthDimensionIds,
+    gapDimensionIds,
   };
 };

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useCallback, useContext, useSyncExternalStore } from 'react';
-import { dictionaries, localeDirection, type Locale } from '@/lib/i18n/translations';
+import { localeDirection, translate, type Locale } from '@/lib/i18n/translations';
 
 const STORAGE_KEY = 'darix:locale';
 
@@ -57,16 +57,7 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
   }, []);
 
   const t = useCallback(
-    (key: string, vars?: Record<string, string | number>) => {
-      const dict = dictionaries[locale];
-      let value = dict[key] ?? dictionaries.en[key] ?? key;
-      if (vars) {
-        for (const [varKey, varValue] of Object.entries(vars)) {
-          value = value.replace(`{${varKey}}`, String(varValue));
-        }
-      }
-      return value;
-    },
+    (key: string, vars?: Record<string, string | number>) => translate(locale, key, vars),
     [locale]
   );
 

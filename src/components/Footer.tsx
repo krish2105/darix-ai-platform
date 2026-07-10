@@ -94,6 +94,7 @@ export const Footer = () => {
             <Link href="/privacy" className="text-muted-foreground hover:text-foreground text-xs transition-colors">{t('footer.privacyPolicy')}</Link>
             <Link href="/terms" className="text-muted-foreground hover:text-foreground text-xs transition-colors">{t('footer.termsOfService')}</Link>
             <Link href="/privacy-center" className="text-muted-foreground hover:text-foreground text-xs transition-colors">{t('footer.privacyCenter')}</Link>
+            <Link href="/sub-processors" className="text-muted-foreground hover:text-foreground text-xs transition-colors">{t('footer.subProcessors')}</Link>
           </div>
         </div>
       </div>
