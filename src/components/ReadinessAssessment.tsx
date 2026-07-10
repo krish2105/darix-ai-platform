@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { dimensions, Dimension } from '@/data/questions';
 import { ReadinessResult } from '@/utils/scoring';
@@ -8,6 +8,11 @@ import { Button } from './Button';
 import { SectionTitle } from './SectionTitle';
 import { ScoreDashboard } from './ScoreDashboard';
 import { CheckCircle2, ChevronRight, ChevronLeft, AlertTriangle, Loader2 } from 'lucide-react';
+import { LAST_ASSESSMENT_ID_KEY } from '@/lib/storage-keys';
+import { trackEvent } from '@/lib/analytics/posthog-client';
+import { TurnstileWidget } from './Turnstile';
+
+const TURNSTILE_REQUIRED = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
 export const ReadinessAssessment = () => {
   const [currentDimIndex, setCurrentDimIndex] = useState(0);
@@ -17,10 +22,16 @@ export const ReadinessAssessment = () => {
   const [assessmentId, setAssessmentId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const currentDim = dimensions[currentDimIndex];
+  const hasStartedRef = useRef(false);
 
   const handleAnswer = (qId: string, value: number) => {
+    if (!hasStartedRef.current) {
+      hasStartedRef.current = true;
+      trackEvent('assessment_started');
+    }
     setAnswers(prev => ({ ...prev, [qId]: value }));
   };
 
@@ -35,13 +46,19 @@ export const ReadinessAssessment = () => {
       const res = await fetch('/api/assessments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers }),
+        body: JSON.stringify({ answers, turnstileToken }),
       });
       if (!res.ok) throw new Error('Failed to save assessment');
       const data: { id: string; result: ReadinessResult } = await res.json();
       setResult(data.result);
       setAssessmentId(data.id);
       setIsComplete(true);
+      try {
+        window.localStorage.setItem(LAST_ASSESSMENT_ID_KEY, data.id);
+      } catch {
+        // localStorage can throw in private-browsing/blocked-storage modes — non-critical, skip silently.
+      }
+      trackEvent('assessment_completed', { assessment_id: data.id, score: data.result.score, level: data.result.level });
     } catch {
       setSaveError('We could not save your assessment. Please check your connection and try again.');
     } finally {
@@ -134,6 +151,7 @@ export const ReadinessAssessment = () => {
                           return (
                             <button
                               key={val}
+                              data-testid={`answer-${q.id}-${val}`}
                               onClick={() => handleAnswer(q.id, val)}
                               className={`
                                 relative p-3 rounded-lg border text-center transition-all duration-200
@@ -167,6 +185,12 @@ export const ReadinessAssessment = () => {
               </div>
             )}
 
+            {currentDimIndex === dimensions.length - 1 && (
+              <div className="mt-8 flex justify-center">
+                <TurnstileWidget onVerify={setTurnstileToken} onExpire={() => setTurnstileToken(null)} />
+              </div>
+            )}
+
             <div className="mt-12 pt-6 border-t border-card-border flex justify-between items-center">
               <Button
                 variant="ghost"
@@ -179,8 +203,13 @@ export const ReadinessAssessment = () => {
               </Button>
 
               <Button
+                data-testid="assessment-next-button"
                 onClick={handleNext}
-                disabled={!isCurrentDimComplete() || isSaving}
+                disabled={
+                  !isCurrentDimComplete() ||
+                  isSaving ||
+                  (currentDimIndex === dimensions.length - 1 && TURNSTILE_REQUIRED && !turnstileToken)
+                }
                 variant={currentDimIndex === dimensions.length - 1 ? 'primary' : 'secondary'}
                 className={!isCurrentDimComplete() ? 'opacity-50' : ''}
                 icon={

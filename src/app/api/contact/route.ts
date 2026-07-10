@@ -4,6 +4,7 @@ import { contactSchema } from '@/lib/validation/schemas';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
 import { EMAIL_FROM, TEAM_ALERT_EMAIL, getResendClient, isEmailConfigured } from '@/lib/email/resend';
 import { leadAlertEmail, leadConfirmationEmail } from '@/lib/email/templates';
+import { verifyTurnstileToken } from '@/lib/turnstile/verify';
 
 export async function POST(request: NextRequest) {
   const ip = getClientIp(request);
@@ -28,6 +29,14 @@ export async function POST(request: NextRequest) {
       { error: 'Please check the form for errors.', details: parsed.error.flatten() },
       { status: 400 }
     );
+  }
+
+  const turnstileToken = typeof body === 'object' && body !== null && 'turnstileToken' in body
+    ? (body as { turnstileToken?: string }).turnstileToken
+    : undefined;
+  const isHuman = await verifyTurnstileToken(turnstileToken, ip);
+  if (!isHuman) {
+    return NextResponse.json({ error: 'Verification failed. Please try again.' }, { status: 403 });
   }
 
   const lead = parsed.data;

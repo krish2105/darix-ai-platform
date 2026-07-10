@@ -33,7 +33,10 @@
     --card: rgba(255, 255, 255, 0.7);
     --card-border: rgba(0, 0, 0, 0.1);
     --muted: #F1F5F9;
-    --muted-foreground: #64748B;
+    /* Darkened from #64748B — axe flagged the original as failing WCAG AA
+       (4.5:1) once blended through the glass-panel/backdrop-blur layers
+       it's used behind. This keeps the same muted slate-gray family. */
+    --muted-foreground: #475569;
     --glass-panel: rgba(255, 255, 255, 0.5);
   }
 

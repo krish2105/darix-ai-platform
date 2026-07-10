@@ -15,7 +15,7 @@ async function getAssessment(id: string) {
   const admin = createAdminSupabaseClient();
   const { data, error } = await admin
     .from('assessments')
-    .select('id, company_name, result')
+    .select('id, company_name, result, tier')
     .eq('id', id)
     .single();
   if (error || !data) return null;
@@ -40,5 +40,11 @@ export default async function ReportPage({ params }: ReportPageProps) {
 
   if (!assessment) notFound();
 
-  return <ScoreDashboard result={assessment.result as ReadinessResult} assessmentId={assessment.id} />;
+  return (
+    <ScoreDashboard
+      result={assessment.result as ReadinessResult}
+      assessmentId={assessment.id}
+      tier={(assessment.tier as 'free' | 'pro' | 'business') ?? 'free'}
+    />
+  );
 }

@@ -1,0 +1,14 @@
+import type { MetadataRoute } from 'next';
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://darix.ai';
+
+export default function sitemap(): MetadataRoute.Sitemap {
+  // Only public, indexable, static routes. /login, /dashboard, /admin, and
+  // /report/[id] are all noindex (see their generateMetadata/metadata
+  // exports) and deliberately excluded here too.
+  return [
+    { url: siteUrl, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
+    { url: `${siteUrl}/privacy`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${siteUrl}/terms`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+  ];
+}

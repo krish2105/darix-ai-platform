@@ -12,6 +12,7 @@ import { ResearchSection } from "@/components/ResearchSection";
 import { FounderSection } from "@/components/FounderSection";
 import { FAQ } from "@/components/FAQ";
 import { ContactSection } from "@/components/ContactSection";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function Home() {
   return (
@@ -19,7 +20,9 @@ export default function Home() {
       <Hero />
       <ProblemSection />
       <SolutionSection />
-      <ReadinessAssessment />
+      <ErrorBoundary label="the assessment">
+        <ReadinessAssessment />
+      </ErrorBoundary>
       <FrameworkSection />
       <IndustryUseCases />
       <ReportPreview />
@@ -29,7 +32,9 @@ export default function Home() {
       <ResearchSection />
       <FounderSection />
       <FAQ />
-      <ContactSection />
+      <ErrorBoundary label="the contact form">
+        <ContactSection />
+      </ErrorBoundary>
     </>
   );
 }

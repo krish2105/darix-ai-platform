@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ArrowRight, FileText, Calendar } from 'lucide-react';
+import { ArrowRight, FileText, Calendar, Crown } from 'lucide-react';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { SignOutButton } from '@/components/SignOutButton';
 import type { ReadinessResult } from '@/utils/scoring';
@@ -9,8 +9,15 @@ interface AssessmentRow {
   id: string;
   company_name: string | null;
   result: ReadinessResult;
+  tier: 'free' | 'pro' | 'business';
   created_at: string;
 }
+
+const tierLabels: Record<AssessmentRow['tier'], string> = {
+  free: 'Free',
+  pro: 'Professional',
+  business: 'Business',
+};
 
 export default async function DashboardPage() {
   const supabase = await createServerSupabaseClient();
@@ -27,7 +34,7 @@ export default async function DashboardPage() {
   // it doesn't hurt to be explicit about intent.
   const { data: assessments, error } = await supabase
     .from('assessments')
-    .select('id, company_name, result, created_at')
+    .select('id, company_name, result, tier, created_at')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
     .returns<AssessmentRow[]>();
@@ -96,7 +103,14 @@ export default async function DashboardPage() {
                     <div className="text-[10px] text-muted-foreground uppercase tracking-wider">/100</div>
                   </div>
                 </div>
-                <div className="text-sm font-medium text-cyber-cyan">{a.result.level}</div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-cyber-cyan">{a.result.level}</span>
+                  {a.tier !== 'free' && (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-dubai-gold">
+                      <Crown className="w-3 h-3" /> {tierLabels[a.tier]}
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-center gap-1 text-sm text-muted-foreground group-hover:text-foreground transition-colors mt-auto">
                   View Report <ArrowRight className="w-3.5 h-3.5" />
                 </div>

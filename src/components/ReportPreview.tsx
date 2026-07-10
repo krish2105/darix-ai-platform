@@ -81,14 +81,14 @@ export const ReportPreview = () => {
                 </div>
 
                 <div className="space-y-3 mb-6">
-                  <h4 className="text-sm font-bold text-gray-800">Executive Summary</h4>
+                  <h3 className="text-sm font-bold text-gray-800">Executive Summary</h3>
                   <p className="text-xs text-gray-600 leading-relaxed">
                     Your organization demonstrates a strong technical foundation and high data maturity. The primary gap exists in AI governance frameworks and workforce upskilling. Immediate focus should be on establishing an AI ethics committee and deploying a high-ROI pilot in customer operations.
                   </p>
                 </div>
                 
                 <div className="space-y-3">
-                  <h4 className="text-sm font-bold text-gray-800">Priority Roadmap (90 Days)</h4>
+                  <h3 className="text-sm font-bold text-gray-800">Priority Roadmap (90 Days)</h3>
                   <div className="w-full p-3 bg-blue-50 rounded-lg border border-blue-100 flex items-start gap-3">
                     <div className="w-5 h-5 rounded bg-blue-500 text-white flex items-center justify-center text-xs font-bold shrink-0">1</div>
                     <div>

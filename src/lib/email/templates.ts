@@ -85,6 +85,29 @@ export const reportReadyEmail = ({
   ),
 });
 
+export const paymentReceiptEmail = ({
+  planName,
+  amountAed,
+  reportUrl,
+}: {
+  planName: string;
+  amountAed: number;
+  reportUrl: string;
+}) => ({
+  subject: `Receipt: ${planName} (AED ${amountAed})`,
+  html: layout(
+    'Payment received',
+    `${p(`Thank you for purchasing the <strong>${escapeHtml(planName)}</strong> report.`)}
+    <table role="presentation" width="100%" style="font-size:14px;color:#334155;margin-bottom:16px;">
+      <tr><td style="padding:4px 0;font-weight:600;width:120px;">Plan</td><td>${escapeHtml(planName)}</td></tr>
+      <tr><td style="padding:4px 0;font-weight:600;">Amount</td><td>AED ${amountAed}</td></tr>
+      <tr><td style="padding:4px 0;font-weight:600;">Currency</td><td>AED (United Arab Emirates Dirham)</td></tr>
+    </table>
+    ${p('Your upgraded report is ready — view it using the link below.')}
+    <a href="${reportUrl}" style="display:inline-block;background:#22D3EE;color:#030712;text-decoration:none;font-weight:600;padding:12px 24px;border-radius:10px;font-size:14px;">View My Report</a>`
+  ),
+});
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')

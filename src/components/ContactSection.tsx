@@ -9,10 +9,15 @@ import { Button } from './Button';
 import { Send, CheckCircle2, AlertTriangle, Loader2 } from 'lucide-react';
 import { fadeIn } from '@/utils/animations';
 import { companySizeOptions, contactSchema, type ContactInput } from '@/lib/validation/schemas';
+import { trackEvent } from '@/lib/analytics/posthog-client';
+import { TurnstileWidget } from './Turnstile';
+
+const TURNSTILE_REQUIRED = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
 export const ContactSection = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const {
     register,
@@ -29,11 +34,12 @@ export const ContactSection = () => {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
+        body: JSON.stringify({ ...values, turnstileToken }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Something went wrong. Please try again.');
       setIsSubmitted(true);
+      trackEvent('contact_submitted', { company_size: values.companySize });
       reset();
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
@@ -71,7 +77,7 @@ export const ContactSection = () => {
                     <span className="text-cyber-cyan font-bold">1</span>
                   </div>
                   <div>
-                    <h4 className="text-foreground font-semibold mb-1">Complete the Form</h4>
+                    <h3 className="text-foreground font-semibold mb-1">Complete the Form</h3>
                     <p className="text-sm text-muted-foreground">Tell us about your organization and current stage.</p>
                   </div>
                 </div>
@@ -80,7 +86,7 @@ export const ContactSection = () => {
                     <span className="text-cyber-cyan font-bold">2</span>
                   </div>
                   <div>
-                    <h4 className="text-foreground font-semibold mb-1">Schedule a Call</h4>
+                    <h3 className="text-foreground font-semibold mb-1">Schedule a Call</h3>
                     <p className="text-sm text-muted-foreground">We'll arrange a 30-minute discovery session.</p>
                   </div>
                 </div>
@@ -89,7 +95,7 @@ export const ContactSection = () => {
                     <span className="text-cyber-cyan font-bold">3</span>
                   </div>
                   <div>
-                    <h4 className="text-foreground font-semibold mb-1">Receive Your Roadmap</h4>
+                    <h3 className="text-foreground font-semibold mb-1">Receive Your Roadmap</h3>
                     <p className="text-sm text-muted-foreground">Get actionable recommendations to start your AI transformation.</p>
                   </div>
                 </div>
@@ -107,26 +113,26 @@ export const ContactSection = () => {
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground/80">Full Name</label>
-                      <input {...register('fullName')} type="text" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors" placeholder="John Doe" />
+                      <label htmlFor="fullName" className="text-sm font-medium text-foreground/80">Full Name</label>
+                      <input id="fullName" {...register('fullName')} type="text" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors" placeholder="John Doe" />
                       {errors.fullName && <p className="text-xs text-risk-red">{errors.fullName.message}</p>}
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground/80">Work Email</label>
-                      <input {...register('workEmail')} type="email" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors" placeholder="john@company.com" />
+                      <label htmlFor="workEmail" className="text-sm font-medium text-foreground/80">Work Email</label>
+                      <input id="workEmail" {...register('workEmail')} type="email" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors" placeholder="john@company.com" />
                       {errors.workEmail && <p className="text-xs text-risk-red">{errors.workEmail.message}</p>}
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground/80">Company Name</label>
-                      <input {...register('companyName')} type="text" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors" placeholder="Acme Corp" />
+                      <label htmlFor="companyName" className="text-sm font-medium text-foreground/80">Company Name</label>
+                      <input id="companyName" {...register('companyName')} type="text" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors" placeholder="Acme Corp" />
                       {errors.companyName && <p className="text-xs text-risk-red">{errors.companyName.message}</p>}
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground/80">Company Size</label>
-                      <select {...register('companySize')} defaultValue="" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors appearance-none">
+                      <label htmlFor="companySize" className="text-sm font-medium text-foreground/80">Company Size</label>
+                      <select id="companySize" {...register('companySize')} defaultValue="" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors appearance-none">
                         <option value="" disabled>Select size</option>
                         {companySizeOptions.map((size) => (
                           <option key={size} value={size}>{size} employees</option>
@@ -137,8 +143,8 @@ export const ContactSection = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground/80">Main AI Challenge</label>
-                    <textarea {...register('challenge')} rows={4} className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors resize-none" placeholder="What is the biggest barrier to AI adoption in your organization?"></textarea>
+                    <label htmlFor="challenge" className="text-sm font-medium text-foreground/80">Main AI Challenge</label>
+                    <textarea id="challenge" {...register('challenge')} rows={4} className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors resize-none" placeholder="What is the biggest barrier to AI adoption in your organization?"></textarea>
                     {errors.challenge && <p className="text-xs text-risk-red">{errors.challenge.message}</p>}
                   </div>
 
@@ -149,18 +155,21 @@ export const ContactSection = () => {
                     </div>
                   )}
 
+                  <TurnstileWidget onVerify={setTurnstileToken} onExpire={() => setTurnstileToken(null)} />
+
                   <Button
                     type="submit"
+                    data-testid="contact-submit-button"
                     className="w-full"
                     size="lg"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || (TURNSTILE_REQUIRED && !turnstileToken)}
                     icon={isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   >
                     {isSubmitting ? 'Submitting…' : 'Request AI Readiness Review'}
                   </Button>
                 </form>
               ) : (
-                <div className="h-full flex flex-col items-center justify-center text-center p-8 bg-glass-panel border border-card-border rounded-xl">
+                <div data-testid="contact-success" className="h-full flex flex-col items-center justify-center text-center p-8 bg-glass-panel border border-card-border rounded-xl">
                   <div className="w-16 h-16 bg-emerald-success/20 rounded-full flex items-center justify-center mb-6">
                     <CheckCircle2 className="w-8 h-8 text-emerald-success" />
                   </div>

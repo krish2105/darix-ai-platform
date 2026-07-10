@@ -1,12 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ReadinessResult } from '@/utils/scoring';
 import { SectionTitle } from './SectionTitle';
 import { AnimatedCounter } from './AnimatedCounter';
 import { Button } from './Button';
-import { Download, RefreshCw, CheckCircle2, AlertTriangle, Lightbulb, Activity, Loader2, Mail, Send } from 'lucide-react';
+import { Download, RefreshCw, CheckCircle2, AlertTriangle, Lightbulb, Activity, Loader2, Mail, Send, Crown, PhoneCall } from 'lucide-react';
+import { pricingPlans } from '@/data/pricing';
+import { trackEvent } from '@/lib/analytics/posthog-client';
 import {
   Radar,
   RadarChart,
@@ -22,13 +24,16 @@ import {
   Cell
 } from 'recharts';
 
+type ReportTier = 'free' | 'pro' | 'business';
+
 interface ScoreDashboardProps {
   result: ReadinessResult;
   assessmentId: string;
+  tier?: ReportTier;
   onReset?: () => void;
 }
 
-export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessmentId, onReset }) => {
+export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessmentId, tier = 'free', onReset }) => {
   const radarData = result.dimensionScores.map(d => ({
     subject: d.dimensionId.charAt(0).toUpperCase() + d.dimensionId.slice(1),
     A: d.percentage,
@@ -59,10 +64,45 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
+      trackEvent('report_pdf_downloaded', { assessment_id: assessmentId });
     } catch {
       setDownloadError('Could not generate the PDF. Please try again.');
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const [upgradingTier, setUpgradingTier] = useState<'pro' | 'business' | null>(null);
+  const [upgradeError, setUpgradeError] = useState<string | null>(null);
+  const [showUpgradedBanner, setShowUpgradedBanner] = useState(false);
+
+  // Reads a browser-only URL query param, so this can only run after
+  // mount — an unavoidable client-only-effect case, same tradeoff already
+  // accepted in ThemeToggle.tsx's mount-detection effect elsewhere in this
+  // codebase. A lazy useState initializer would risk a hydration mismatch
+  // instead (server has no `window`, so it'd always render the banner
+  // hidden, then the client could flip it on).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('upgraded') === '1') setShowUpgradedBanner(true);
+  }, []);
+
+  const handleUpgrade = async (targetTier: 'pro' | 'business') => {
+    setUpgradingTier(targetTier);
+    setUpgradeError(null);
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assessmentId, tier: targetTier }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.url) throw new Error(data.error || 'Could not start checkout.');
+      trackEvent('checkout_started', { assessment_id: assessmentId, tier: targetTier });
+      window.location.assign(data.url);
+    } catch (err) {
+      setUpgradeError(err instanceof Error ? err.message : 'Could not start checkout.');
+      setUpgradingTier(null);
     }
   };
 
@@ -106,8 +146,25 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
             </div>
           </motion.div>
           <h2 className="text-4xl md:text-5xl font-display font-bold mb-4">Your AI Readiness Command Center</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">Based on your responses, here is a detailed analysis of your organization's AI maturity.</p>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">Based on your responses, here is a detailed analysis of your organization&apos;s AI maturity.</p>
+          {tier !== 'free' && (
+            <div className="inline-flex items-center gap-1.5 mt-4 px-3 py-1 rounded-full bg-dubai-gold/10 border border-dubai-gold/30 text-dubai-gold text-xs font-semibold uppercase tracking-wider">
+              <Crown className="w-3.5 h-3.5" />
+              {tier === 'pro' ? 'Professional Report' : 'Business Consultation'}
+            </div>
+          )}
         </div>
+
+        {showUpgradedBanner && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-xl mx-auto mb-10 flex items-center gap-3 rounded-lg border border-emerald-success/40 bg-emerald-success/10 p-4 text-sm text-emerald-success"
+          >
+            <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+            <span>Payment received — your upgraded report is unlocked. A receipt has been emailed to you.</span>
+          </motion.div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {/* Main Score Card */}
@@ -253,6 +310,76 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
           </div>
         </motion.div>
 
+        {/* Upgrade / plan-specific CTA */}
+        {tier === 'business' ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="glass-card p-8 mb-10 flex flex-col md:flex-row items-center justify-between gap-6 border-t-2 border-t-dubai-gold"
+          >
+            <div>
+              <h3 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
+                <PhoneCall className="w-5 h-5 text-dubai-gold" /> Your strategy call is included
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Business Consultation includes a 60-minute AI strategy session — request a time and we&apos;ll confirm by email.
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              Schedule My Call
+            </Button>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="glass-card p-8 mb-10"
+          >
+            <h3 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
+              <Crown className="w-5 h-5 text-dubai-gold" />
+              {tier === 'free' ? 'Unlock a deeper report' : 'Add a strategy call'}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              {tier === 'free'
+                ? 'Upgrade this assessment for a department-level breakdown, opportunity matrix, and governance checklist.'
+                : 'Add a 60-minute AI strategy session with our team on top of your Professional Report.'}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              {tier === 'free' && (
+                <Button
+                  variant="secondary"
+                  onClick={() => handleUpgrade('pro')}
+                  disabled={upgradingTier !== null}
+                  icon={upgradingTier === 'pro' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crown className="w-4 h-4" />}
+                >
+                  {upgradingTier === 'pro'
+                    ? 'Redirecting…'
+                    : `Upgrade to Professional — AED ${pricingPlans.find((p) => p.id === 'pro')?.checkoutAmountAed}`}
+                </Button>
+              )}
+              <Button
+                onClick={() => handleUpgrade('business')}
+                disabled={upgradingTier !== null}
+                icon={upgradingTier === 'business' ? <Loader2 className="w-4 h-4 animate-spin" /> : <PhoneCall className="w-4 h-4" />}
+              >
+                {upgradingTier === 'business'
+                  ? 'Redirecting…'
+                  : `Upgrade to Business Consultation — AED ${pricingPlans.find((p) => p.id === 'business')?.checkoutAmountAed}`}
+              </Button>
+            </div>
+            {upgradeError && (
+              <p className="text-sm text-risk-red flex items-center gap-2 mt-4">
+                <AlertTriangle className="w-4 h-4" /> {upgradeError}
+              </p>
+            )}
+          </motion.div>
+        )}
+
         {/* CTAs */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -262,6 +389,7 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
         >
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Button
+              data-testid="download-pdf-button"
               size="lg"
               onClick={handleDownloadPdf}
               disabled={isDownloading}

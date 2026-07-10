@@ -65,10 +65,10 @@ export const FounderSection = () => {
               </div>
 
               <div>
-                <h4 className="text-sm uppercase tracking-wider text-foreground font-semibold mb-4 flex items-center gap-2">
+                <h3 className="text-sm uppercase tracking-wider text-foreground font-semibold mb-4 flex items-center gap-2">
                   <Briefcase className="w-4 h-4 text-electric-blue" />
                   Core Competencies
-                </h4>
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {skills.map((skill, i) => (
                     <span key={i} className="px-3 py-1 bg-glass-panel border border-card-border rounded-full text-xs text-foreground/80 hover:bg-glass-panel hover:border-cyber-cyan/30 transition-colors">

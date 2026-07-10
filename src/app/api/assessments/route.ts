@@ -4,6 +4,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAssessmentSchema } from '@/lib/validation/schemas';
 import { calculateReadiness } from '@/utils/scoring';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
+import { verifyTurnstileToken } from '@/lib/turnstile/verify';
 
 export async function POST(request: NextRequest) {
   const ip = getClientIp(request);
@@ -28,6 +29,14 @@ export async function POST(request: NextRequest) {
       { error: 'Invalid assessment data.', details: parsed.error.flatten() },
       { status: 400 }
     );
+  }
+
+  const turnstileToken = typeof body === 'object' && body !== null && 'turnstileToken' in body
+    ? (body as { turnstileToken?: string }).turnstileToken
+    : undefined;
+  const isHuman = await verifyTurnstileToken(turnstileToken, ip);
+  if (!isHuman) {
+    return NextResponse.json({ error: 'Verification failed. Please try again.' }, { status: 403 });
   }
 
   const { answers, companyName, contactName, contactEmail } = parsed.data;

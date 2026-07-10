@@ -5,6 +5,8 @@ export interface PricingPlan {
   description: string;
   features: string[];
   isPopular?: boolean;
+  /** Numeric AED amount used to create a real Stripe Checkout session. Only set for tiers purchasable online. */
+  checkoutAmountAed?: number;
 }
 
 export const pricingPlans: PricingPlan[] = [
@@ -33,7 +35,8 @@ export const pricingPlans: PricingPlan[] = [
       'Governance checklist',
       'PDF export'
     ],
-    isPopular: true
+    isPopular: true,
+    checkoutAmountAed: 499
   },
   {
     id: 'business',
@@ -46,7 +49,8 @@ export const pricingPlans: PricingPlan[] = [
       'Custom use-case prioritization',
       'ROI planning',
       'Leadership presentation summary'
-    ]
+    ],
+    checkoutAmountAed: 1999
   },
   {
     id: 'enterprise',

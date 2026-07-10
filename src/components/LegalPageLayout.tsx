@@ -25,7 +25,7 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({ title, lastUpd
             </p>
           </div>
 
-          <div className="prose-legal space-y-8 text-foreground/90 leading-relaxed [&_h2]:text-xl [&_h2]:font-display [&_h2]:font-bold [&_h2]:text-foreground [&_h2]:mt-10 [&_h2]:mb-3 [&_p]:text-muted-foreground [&_p]:mb-4 [&_li]:text-muted-foreground [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-2 [&_ul]:mb-4 [&_a]:text-cyber-cyan [&_a]:hover:text-electric-blue">
+          <div className="prose-legal space-y-8 text-foreground/90 leading-relaxed [&_h2]:text-xl [&_h2]:font-display [&_h2]:font-bold [&_h2]:text-foreground [&_h2]:mt-10 [&_h2]:mb-3 [&_p]:text-muted-foreground [&_p]:mb-4 [&_li]:text-muted-foreground [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-2 [&_ul]:mb-4 [&_a]:text-[#0E7490] [&_a]:dark:text-cyber-cyan [&_a]:hover:text-electric-blue [&_a]:underline [&_a]:underline-offset-2">
             {children}
           </div>
         </div>

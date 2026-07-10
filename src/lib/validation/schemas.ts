@@ -32,3 +32,12 @@ export type ContactInput = z.infer<typeof contactSchema>;
 export const emailReportSchema = z.object({
   email: z.string().trim().email('Enter a valid email').max(320),
 });
+
+export const purchasableTiers = ['pro', 'business'] as const;
+
+export const createCheckoutSchema = z.object({
+  assessmentId: z.string().uuid('Invalid assessment id'),
+  tier: z.enum(purchasableTiers),
+});
+
+export type CreateCheckoutInput = z.infer<typeof createCheckoutSchema>;

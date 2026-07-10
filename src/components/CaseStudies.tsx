@@ -30,13 +30,13 @@ export const CaseStudies = () => {
 
         <div className="max-w-5xl mx-auto mt-16 relative">
           <div className="absolute top-1/2 -translate-y-1/2 -left-4 md:-left-12 z-20">
-            <button onClick={prevSlide} className="w-10 h-10 rounded-full glass-panel flex items-center justify-center text-foreground hover:text-cyber-cyan transition-colors">
+            <button onClick={prevSlide} aria-label="Previous case study" className="w-10 h-10 rounded-full glass-panel flex items-center justify-center text-foreground hover:text-cyber-cyan transition-colors">
               <ArrowLeft className="w-5 h-5" />
             </button>
           </div>
-          
+
           <div className="absolute top-1/2 -translate-y-1/2 -right-4 md:-right-12 z-20">
-            <button onClick={nextSlide} className="w-10 h-10 rounded-full glass-panel flex items-center justify-center text-foreground hover:text-cyber-cyan transition-colors">
+            <button onClick={nextSlide} aria-label="Next case study" className="w-10 h-10 rounded-full glass-panel flex items-center justify-center text-foreground hover:text-cyber-cyan transition-colors">
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>
@@ -53,7 +53,7 @@ export const CaseStudies = () => {
               >
                 {/* Left side: Context */}
                 <div className="p-8 md:p-12 bg-card border-r border-card-border">
-                  <div className="inline-block px-3 py-1 rounded-full bg-electric-blue/10 border border-electric-blue/20 text-electric-blue text-xs font-bold uppercase tracking-wider mb-6">
+                  <div className="inline-block px-3 py-1 rounded-full bg-electric-blue/10 border border-electric-blue/20 text-[#0369A1] dark:text-electric-blue text-xs font-bold uppercase tracking-wider mb-6">
                     Case Study
                   </div>
                   <h3 className="text-3xl font-display font-bold text-foreground mb-8">{study.title}</h3>
@@ -79,7 +79,7 @@ export const CaseStudies = () => {
                     </div>
                     
                     <div className="p-6 rounded-xl bg-glass-panel border border-card-border border-l-4 border-l-emerald-success">
-                      <h4 className="text-sm text-emerald-success uppercase tracking-wider font-semibold mb-2">Business Value</h4>
+                      <h4 className="text-sm text-[#047857] dark:text-emerald-success uppercase tracking-wider font-semibold mb-2">Business Value</h4>
                       <p className="text-foreground font-bold text-xl">{study.businessValue}</p>
                     </div>
 
@@ -105,10 +105,12 @@ export const CaseStudies = () => {
           
           {/* Pagination Indicators */}
           <div className="flex justify-center gap-2 mt-8">
-            {caseStudies.map((_, i) => (
+            {caseStudies.map((study, i) => (
               <button
                 key={i}
                 onClick={() => setCurrentIndex(i)}
+                aria-label={`Show case study: ${study.title}`}
+                aria-current={i === currentIndex}
                 className={`w-2 h-2 rounded-full transition-all duration-300 ${i === currentIndex ? 'w-8 bg-cyber-cyan' : 'bg-white/20'}`}
               />
             ))}
