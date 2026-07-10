@@ -3,20 +3,23 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { dimensions, Dimension } from '@/data/questions';
-import { calculateReadiness, ReadinessResult } from '@/utils/scoring';
+import { ReadinessResult } from '@/utils/scoring';
 import { Button } from './Button';
 import { SectionTitle } from './SectionTitle';
 import { ScoreDashboard } from './ScoreDashboard';
-import { CheckCircle2, ChevronRight, ChevronLeft } from 'lucide-react';
+import { CheckCircle2, ChevronRight, ChevronLeft, AlertTriangle, Loader2 } from 'lucide-react';
 
 export const ReadinessAssessment = () => {
   const [currentDimIndex, setCurrentDimIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [isComplete, setIsComplete] = useState(false);
   const [result, setResult] = useState<ReadinessResult | null>(null);
+  const [assessmentId, setAssessmentId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const currentDim = dimensions[currentDimIndex];
-  
+
   const handleAnswer = (qId: string, value: number) => {
     setAnswers(prev => ({ ...prev, [qId]: value }));
   };
@@ -25,13 +28,32 @@ export const ReadinessAssessment = () => {
     return currentDim.questions.every(q => answers[q.id] !== undefined);
   };
 
+  const submitAssessment = async () => {
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      const res = await fetch('/api/assessments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers }),
+      });
+      if (!res.ok) throw new Error('Failed to save assessment');
+      const data: { id: string; result: ReadinessResult } = await res.json();
+      setResult(data.result);
+      setAssessmentId(data.id);
+      setIsComplete(true);
+    } catch {
+      setSaveError('We could not save your assessment. Please check your connection and try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleNext = () => {
     if (currentDimIndex < dimensions.length - 1) {
       setCurrentDimIndex(prev => prev + 1);
     } else {
-      const res = calculateReadiness(answers);
-      setResult(res);
-      setIsComplete(true);
+      submitAssessment();
     }
   };
 
@@ -41,13 +63,20 @@ export const ReadinessAssessment = () => {
     }
   };
 
-  if (isComplete && result) {
-    return <ScoreDashboard result={result} onReset={() => {
-      setAnswers({});
-      setCurrentDimIndex(0);
-      setIsComplete(false);
-      setResult(null);
-    }} />;
+  if (isComplete && result && assessmentId) {
+    return (
+      <ScoreDashboard
+        result={result}
+        assessmentId={assessmentId}
+        onReset={() => {
+          setAnswers({});
+          setCurrentDimIndex(0);
+          setIsComplete(false);
+          setResult(null);
+          setAssessmentId(null);
+        }}
+      />
+    );
   }
 
   const progress = ((currentDimIndex) / dimensions.length) * 100;
@@ -131,25 +160,42 @@ export const ReadinessAssessment = () => {
               </motion.div>
             </AnimatePresence>
 
+            {saveError && (
+              <div className="mt-8 flex items-start gap-3 rounded-lg border border-risk-red/40 bg-risk-red/10 p-4 text-sm text-risk-red">
+                <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <span>{saveError}</span>
+              </div>
+            )}
+
             <div className="mt-12 pt-6 border-t border-card-border flex justify-between items-center">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 onClick={handlePrev}
-                disabled={currentDimIndex === 0}
+                disabled={currentDimIndex === 0 || isSaving}
                 className={currentDimIndex === 0 ? 'invisible' : ''}
                 icon={<ChevronLeft className="w-4 h-4" />}
               >
                 Previous
               </Button>
-              
-              <Button 
+
+              <Button
                 onClick={handleNext}
-                disabled={!isCurrentDimComplete()}
+                disabled={!isCurrentDimComplete() || isSaving}
                 variant={currentDimIndex === dimensions.length - 1 ? 'primary' : 'secondary'}
                 className={!isCurrentDimComplete() ? 'opacity-50' : ''}
+                icon={
+                  isSaving
+                    ? <Loader2 className="w-4 h-4 animate-spin" />
+                    : currentDimIndex !== dimensions.length - 1
+                      ? <ChevronRight className="w-4 h-4" />
+                      : undefined
+                }
               >
-                {currentDimIndex === dimensions.length - 1 ? 'See Results' : 'Next Dimension'}
-                {currentDimIndex !== dimensions.length - 1 && <ChevronRight className="w-4 h-4 ml-1" />}
+                {isSaving
+                  ? 'Saving your results…'
+                  : currentDimIndex === dimensions.length - 1
+                    ? (saveError ? 'Retry' : 'See Results')
+                    : 'Next Dimension'}
               </Button>
             </div>
           </div>

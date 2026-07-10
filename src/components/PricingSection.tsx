@@ -54,11 +54,15 @@ export const PricingSection = () => {
                 ))}
               </div>
 
-              <Button 
-                variant={plan.isPopular ? 'primary' : 'outline'} 
+              <Button
+                variant={plan.isPopular ? 'primary' : 'outline'}
                 className="w-full mt-auto"
+                onClick={() => {
+                  const targetId = plan.price === 'AED 0' ? 'assessment' : 'contact';
+                  document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
+                }}
               >
-                {plan.price === 'AED 0' ? 'Start Free' : plan.price === 'Custom' ? 'Contact Us' : 'Choose Plan'}
+                {plan.price === 'AED 0' ? 'Start Free' : plan.price === 'Custom' ? 'Contact Us' : 'Request This Plan'}
               </Button>
             </motion.div>
           ))}

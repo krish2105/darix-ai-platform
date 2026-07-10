@@ -1,12 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ReadinessResult } from '@/utils/scoring';
 import { SectionTitle } from './SectionTitle';
 import { AnimatedCounter } from './AnimatedCounter';
 import { Button } from './Button';
-import { Download, RefreshCw, CheckCircle2, AlertTriangle, Lightbulb, Activity } from 'lucide-react';
+import { Download, RefreshCw, CheckCircle2, AlertTriangle, Lightbulb, Activity, Loader2, Mail, Send } from 'lucide-react';
 import {
   Radar,
   RadarChart,
@@ -24,10 +24,11 @@ import {
 
 interface ScoreDashboardProps {
   result: ReadinessResult;
-  onReset: () => void;
+  assessmentId: string;
+  onReset?: () => void;
 }
 
-export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, onReset }) => {
+export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessmentId, onReset }) => {
   const radarData = result.dimensionScores.map(d => ({
     subject: d.dimensionId.charAt(0).toUpperCase() + d.dimensionId.slice(1),
     A: d.percentage,
@@ -38,6 +39,55 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, onReset 
     if (score >= 75) return '#10B981'; // Emerald Success
     if (score >= 50) return '#F59E0B'; // Warning Amber
     return '#EF4444'; // Risk Red
+  };
+
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+
+  const handleDownloadPdf = async () => {
+    setIsDownloading(true);
+    setDownloadError(null);
+    try {
+      const res = await fetch(`/api/assessments/${assessmentId}/pdf`);
+      if (!res.ok) throw new Error('PDF generation failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'darix-ai-readiness-report.pdf';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      setDownloadError('Could not generate the PDF. Please try again.');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [emailValue, setEmailValue] = useState('');
+  const [emailStatus, setEmailStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [emailError, setEmailError] = useState<string | null>(null);
+
+  const handleEmailReport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEmailStatus('sending');
+    setEmailError(null);
+    try {
+      const res = await fetch(`/api/assessments/${assessmentId}/email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailValue }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Could not send the email.');
+      setEmailStatus('sent');
+    } catch (err) {
+      setEmailStatus('error');
+      setEmailError(err instanceof Error ? err.message : 'Could not send the email.');
+    }
   };
 
   return (
@@ -204,18 +254,78 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, onReset 
         </motion.div>
 
         {/* CTAs */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
-          className="flex flex-col sm:flex-row justify-center gap-4"
+          className="flex flex-col items-center gap-4"
         >
-          <Button size="lg" icon={<Download className="w-5 h-5" />}>
-            Download Full Report PDF
-          </Button>
-          <Button variant="outline" size="lg" onClick={onReset} icon={<RefreshCw className="w-5 h-5" />}>
-            Retake Assessment
-          </Button>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Button
+              size="lg"
+              onClick={handleDownloadPdf}
+              disabled={isDownloading}
+              icon={isDownloading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
+            >
+              {isDownloading ? 'Generating PDF…' : 'Download Full Report PDF'}
+            </Button>
+            <Button
+              variant="secondary"
+              size="lg"
+              onClick={() => setShowEmailForm((v) => !v)}
+              icon={<Mail className="w-5 h-5" />}
+            >
+              Email Me This Report
+            </Button>
+            {onReset && (
+              <Button variant="outline" size="lg" onClick={onReset} icon={<RefreshCw className="w-5 h-5" />}>
+                Retake Assessment
+              </Button>
+            )}
+          </div>
+
+          {downloadError && (
+            <p className="text-sm text-risk-red flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4" /> {downloadError}
+            </p>
+          )}
+
+          {showEmailForm && (
+            <motion.form
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              onSubmit={handleEmailReport}
+              className="w-full max-w-md glass-card p-4 flex flex-col gap-3"
+            >
+              {emailStatus === 'sent' ? (
+                <div className="flex items-center gap-2 text-emerald-success text-sm py-2 mx-auto">
+                  <CheckCircle2 className="w-4 h-4" /> Report sent — check your inbox.
+                </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row gap-3 items-stretch">
+                  <input
+                    type="email"
+                    required
+                    value={emailValue}
+                    onChange={(e) => setEmailValue(e.target.value)}
+                    placeholder="you@company.com"
+                    className="flex-1 bg-glass-panel border border-card-border rounded-lg px-4 py-2 text-sm text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors"
+                  />
+                  <Button
+                    type="submit"
+                    size="sm"
+                    disabled={emailStatus === 'sending'}
+                    icon={emailStatus === 'sending' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  >
+                    {emailStatus === 'sending' ? 'Sending…' : 'Send'}
+                  </Button>
+                </div>
+              )}
+              {emailStatus === 'error' && (
+                <p className="text-xs text-risk-red">{emailError}</p>
+              )}
+            </motion.form>
+          )}
         </motion.div>
 
       </div>

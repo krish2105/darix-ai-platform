@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { BrainCircuit, Globe, Mail } from 'lucide-react';
 
 const GithubIcon = ({ className }: { className?: string }) => (
@@ -85,8 +86,8 @@ export const Footer = () => {
             © {currentYear} DARIX AI (Dubai AI Readiness Index). All rights reserved.
           </p>
           <div className="flex gap-6">
-            <a href="#" className="text-muted-foreground hover:text-foreground text-xs transition-colors">Privacy Policy</a>
-            <a href="#" className="text-muted-foreground hover:text-foreground text-xs transition-colors">Terms of Service</a>
+            <Link href="/privacy" className="text-muted-foreground hover:text-foreground text-xs transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="text-muted-foreground hover:text-foreground text-xs transition-colors">Terms of Service</Link>
           </div>
         </div>
       </div>
