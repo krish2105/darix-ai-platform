@@ -2,18 +2,48 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { SectionTitle } from './SectionTitle';
 import { Button } from './Button';
-import { Send, CheckCircle2 } from 'lucide-react';
+import { Send, CheckCircle2, AlertTriangle, Loader2 } from 'lucide-react';
 import { fadeIn } from '@/utils/animations';
+import { companySizeOptions, contactSchema, type ContactInput } from '@/lib/validation/schemas';
+import { trackEvent } from '@/lib/analytics/posthog-client';
+import { TurnstileWidget } from './Turnstile';
+
+const TURNSTILE_REQUIRED = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
 export const ContactSection = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Simulate form submission
-    setTimeout(() => setIsSubmitted(true), 1000);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<ContactInput>({
+    resolver: zodResolver(contactSchema),
+  });
+
+  const onSubmit = async (values: ContactInput) => {
+    setSubmitError(null);
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...values, turnstileToken }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Something went wrong. Please try again.');
+      setIsSubmitted(true);
+      trackEvent('contact_submitted', { company_size: values.companySize });
+      reset();
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    }
   };
 
   return (
@@ -47,7 +77,7 @@ export const ContactSection = () => {
                     <span className="text-cyber-cyan font-bold">1</span>
                   </div>
                   <div>
-                    <h4 className="text-foreground font-semibold mb-1">Complete the Form</h4>
+                    <h3 className="text-foreground font-semibold mb-1">Complete the Form</h3>
                     <p className="text-sm text-muted-foreground">Tell us about your organization and current stage.</p>
                   </div>
                 </div>
@@ -56,7 +86,7 @@ export const ContactSection = () => {
                     <span className="text-cyber-cyan font-bold">2</span>
                   </div>
                   <div>
-                    <h4 className="text-foreground font-semibold mb-1">Schedule a Call</h4>
+                    <h3 className="text-foreground font-semibold mb-1">Schedule a Call</h3>
                     <p className="text-sm text-muted-foreground">We'll arrange a 30-minute discovery session.</p>
                   </div>
                 </div>
@@ -65,7 +95,7 @@ export const ContactSection = () => {
                     <span className="text-cyber-cyan font-bold">3</span>
                   </div>
                   <div>
-                    <h4 className="text-foreground font-semibold mb-1">Receive Your Roadmap</h4>
+                    <h3 className="text-foreground font-semibold mb-1">Receive Your Roadmap</h3>
                     <p className="text-sm text-muted-foreground">Get actionable recommendations to start your AI transformation.</p>
                   </div>
                 </div>
@@ -80,46 +110,66 @@ export const ContactSection = () => {
               transition={{ duration: 0.8 }}
             >
               {!isSubmitted ? (
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground/80">Full Name</label>
-                      <input required type="text" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors" placeholder="John Doe" />
+                      <label htmlFor="fullName" className="text-sm font-medium text-foreground/80">Full Name</label>
+                      <input id="fullName" {...register('fullName')} type="text" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors" placeholder="John Doe" />
+                      {errors.fullName && <p className="text-xs text-risk-red">{errors.fullName.message}</p>}
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground/80">Work Email</label>
-                      <input required type="email" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors" placeholder="john@company.com" />
+                      <label htmlFor="workEmail" className="text-sm font-medium text-foreground/80">Work Email</label>
+                      <input id="workEmail" {...register('workEmail')} type="email" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors" placeholder="john@company.com" />
+                      {errors.workEmail && <p className="text-xs text-risk-red">{errors.workEmail.message}</p>}
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground/80">Company Name</label>
-                      <input required type="text" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors" placeholder="Acme Corp" />
+                      <label htmlFor="companyName" className="text-sm font-medium text-foreground/80">Company Name</label>
+                      <input id="companyName" {...register('companyName')} type="text" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors" placeholder="Acme Corp" />
+                      {errors.companyName && <p className="text-xs text-risk-red">{errors.companyName.message}</p>}
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground/80">Company Size</label>
-                      <select required className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors appearance-none">
-                        <option value="" disabled selected>Select size</option>
-                        <option value="1-50">1-50 employees</option>
-                        <option value="51-200">51-200 employees</option>
-                        <option value="201-500">201-500 employees</option>
-                        <option value="500+">500+ employees</option>
+                      <label htmlFor="companySize" className="text-sm font-medium text-foreground/80">Company Size</label>
+                      <select id="companySize" {...register('companySize')} defaultValue="" className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors appearance-none">
+                        <option value="" disabled>Select size</option>
+                        {companySizeOptions.map((size) => (
+                          <option key={size} value={size}>{size} employees</option>
+                        ))}
                       </select>
+                      {errors.companySize && <p className="text-xs text-risk-red">{errors.companySize.message}</p>}
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground/80">Main AI Challenge</label>
-                    <textarea required rows={4} className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors resize-none" placeholder="What is the biggest barrier to AI adoption in your organization?"></textarea>
+                    <label htmlFor="challenge" className="text-sm font-medium text-foreground/80">Main AI Challenge</label>
+                    <textarea id="challenge" {...register('challenge')} rows={4} className="w-full bg-glass-panel border border-card-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-colors resize-none" placeholder="What is the biggest barrier to AI adoption in your organization?"></textarea>
+                    {errors.challenge && <p className="text-xs text-risk-red">{errors.challenge.message}</p>}
                   </div>
 
-                  <Button type="submit" className="w-full" size="lg" icon={<Send className="w-4 h-4" />}>
-                    Request AI Readiness Review
+                  {submitError && (
+                    <div className="flex items-start gap-3 rounded-lg border border-risk-red/40 bg-risk-red/10 p-4 text-sm text-risk-red">
+                      <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                      <span>{submitError}</span>
+                    </div>
+                  )}
+
+                  <TurnstileWidget onVerify={setTurnstileToken} onExpire={() => setTurnstileToken(null)} />
+
+                  <Button
+                    type="submit"
+                    data-testid="contact-submit-button"
+                    className="w-full"
+                    size="lg"
+                    disabled={isSubmitting || (TURNSTILE_REQUIRED && !turnstileToken)}
+                    icon={isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  >
+                    {isSubmitting ? 'Submitting…' : 'Request AI Readiness Review'}
                   </Button>
                 </form>
               ) : (
-                <div className="h-full flex flex-col items-center justify-center text-center p-8 bg-glass-panel border border-card-border rounded-xl">
+                <div data-testid="contact-success" className="h-full flex flex-col items-center justify-center text-center p-8 bg-glass-panel border border-card-border rounded-xl">
                   <div className="w-16 h-16 bg-emerald-success/20 rounded-full flex items-center justify-center mb-6">
                     <CheckCircle2 className="w-8 h-8 text-emerald-success" />
                   </div>

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, BrainCircuit } from 'lucide-react';
 import { Button, cn } from './Button';
 import { ThemeToggle } from './ThemeToggle';
+import { AuthNavLink } from './AuthNavLink';
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -62,7 +63,7 @@ export const Navbar = () => {
             </ul>
             <div className="flex items-center gap-4 border-l border-card-border pl-8">
               <ThemeToggle />
-              <a href="#report" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">View Demo</a>
+              <AuthNavLink />
               <Button variant="primary" size="sm" onClick={() => document.getElementById('assessment')?.scrollIntoView({ behavior: 'smooth' })}>
                 Start Free Assessment
               </Button>
@@ -100,8 +101,27 @@ export const Navbar = () => {
                 </a>
               ))}
               <div className="pt-4 flex flex-col gap-4">
-                <Button variant="outline" className="w-full justify-center">View Demo Report</Button>
-                <Button variant="primary" className="w-full justify-center">Start Assessment</Button>
+                <AuthNavLink className="text-lg font-medium text-foreground py-2 flex items-center gap-2 justify-center" />
+                <Button
+                  variant="outline"
+                  className="w-full justify-center"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    document.getElementById('report')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
+                  View Demo Report
+                </Button>
+                <Button
+                  variant="primary"
+                  className="w-full justify-center"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    document.getElementById('assessment')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
+                  Start Assessment
+                </Button>
               </div>
             </div>
           </motion.div>

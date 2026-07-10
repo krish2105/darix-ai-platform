@@ -62,7 +62,7 @@ export const IndustryUseCases = () => {
                     <p className="text-foreground leading-relaxed">{activeIndustry.problem}</p>
                   </div>
                   <div>
-                    <h4 className="text-sm uppercase tracking-wider text-electric-blue mb-2 font-semibold flex items-center gap-2">
+                    <h4 className="text-sm uppercase tracking-wider text-[#0369A1] dark:text-electric-blue mb-2 font-semibold flex items-center gap-2">
                       <Lightbulb className="w-4 h-4" /> AI Solution
                     </h4>
                     <p className="text-foreground leading-relaxed">{activeIndustry.aiSolution}</p>
@@ -70,7 +70,7 @@ export const IndustryUseCases = () => {
                 </div>
 
                 <div className="bg-background/50 border border-card-border rounded-xl p-6 mb-8">
-                  <h4 className="text-sm uppercase tracking-wider text-emerald-success mb-3 font-semibold flex items-center gap-2">
+                  <h4 className="text-sm uppercase tracking-wider text-[#047857] dark:text-emerald-success mb-3 font-semibold flex items-center gap-2">
                     <TrendingUp className="w-4 h-4" /> Business Impact
                   </h4>
                   <p className="text-lg text-foreground/90">{activeIndustry.impact}</p>
@@ -79,7 +79,7 @@ export const IndustryUseCases = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-card-border pt-8">
                   <div>
                     <span className="block text-xs text-muted-foreground uppercase mb-1">Recommended Pilot</span>
-                    <span className="font-medium text-cyber-cyan">{activeIndustry.firstPilot}</span>
+                    <span className="font-medium text-[#0E7490] dark:text-cyber-cyan">{activeIndustry.firstPilot}</span>
                   </div>
                   <div>
                     <span className="block text-xs text-muted-foreground uppercase mb-1 flex items-center gap-1">

@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { BrainCircuit, Globe, Mail } from 'lucide-react';
 
 const GithubIcon = ({ className }: { className?: string }) => (
@@ -38,9 +39,9 @@ export const Footer = () => {
               Dubai AI Readiness Index helps organizations assess AI readiness, identify business opportunities, and build practical roadmaps for responsible AI transformation.
             </p>
             <div className="flex items-center gap-4">
-              <a href="https://www.linkedin.com/in/krishnamathurmay/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-cyber-cyan transition-colors"><LinkedinIcon className="w-5 h-5" /></a>
-              <a href="https://github.com/krish2105" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-cyber-cyan transition-colors"><GithubIcon className="w-5 h-5" /></a>
-              <a href="mailto:hello@darix.ai" className="text-muted-foreground hover:text-cyber-cyan transition-colors"><Mail className="w-5 h-5" /></a>
+              <a href="https://www.linkedin.com/in/krishnamathurmay/" target="_blank" rel="noopener noreferrer" aria-label="Darix AI on LinkedIn" className="text-muted-foreground hover:text-cyber-cyan transition-colors"><LinkedinIcon className="w-5 h-5" /></a>
+              <a href="https://github.com/krish2105" target="_blank" rel="noopener noreferrer" aria-label="Darix AI on GitHub" className="text-muted-foreground hover:text-cyber-cyan transition-colors"><GithubIcon className="w-5 h-5" /></a>
+              <a href="mailto:hello@darix.ai" aria-label="Email Darix AI" className="text-muted-foreground hover:text-cyber-cyan transition-colors"><Mail className="w-5 h-5" /></a>
             </div>
           </div>
 
@@ -70,7 +71,7 @@ export const Footer = () => {
               <li className="text-muted-foreground text-sm">Dubai, United Arab Emirates</li>
               <li><a href="mailto:hello@darix.ai" className="text-muted-foreground hover:text-cyber-cyan text-sm transition-colors">hello@darix.ai</a></li>
               <li className="mt-4">
-                <a href="#contact" className="inline-flex items-center text-sm font-medium text-electric-blue hover:text-foreground transition-colors group">
+                <a href="#contact" className="inline-flex items-center text-sm font-medium text-[#0369A1] dark:text-electric-blue hover:text-foreground transition-colors group">
                   Book a Consultation
                   <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
                 </a>
@@ -85,8 +86,8 @@ export const Footer = () => {
             © {currentYear} DARIX AI (Dubai AI Readiness Index). All rights reserved.
           </p>
           <div className="flex gap-6">
-            <a href="#" className="text-muted-foreground hover:text-foreground text-xs transition-colors">Privacy Policy</a>
-            <a href="#" className="text-muted-foreground hover:text-foreground text-xs transition-colors">Terms of Service</a>
+            <Link href="/privacy" className="text-muted-foreground hover:text-foreground text-xs transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="text-muted-foreground hover:text-foreground text-xs transition-colors">Terms of Service</Link>
           </div>
         </div>
       </div>
