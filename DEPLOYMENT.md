@@ -182,9 +182,13 @@ npm run test:e2e       # Playwright — installs its own browser if needed: npx 
 5. After the first deploy, update `NEXT_PUBLIC_SITE_URL` to the real domain and redeploy so email links and Stripe checkout redirects point to the right place.
 6. Re-create the Stripe webhook endpoint (step 3 above) pointing at the real deployed URL — the one used during local testing won't fire in production.
 
-## 10. CI
+## 10. CI / CD
 
 `.github/workflows/ci.yml` runs on every pull request: lint, typecheck, unit/integration tests, a production build, and the Playwright E2E suite (in its own job, installing Chromium fresh via `playwright install --with-deps`). All must pass before merging.
+
+`.github/dependabot.yml` opens weekly PRs for outdated npm and GitHub Actions dependencies — worth watching closely given this is a Next.js 16.2.10 fork with documented breaking-change behavior (see `AGENTS.md`), so a routine-looking dependency bump can carry real behavior changes.
+
+There is intentionally no custom deploy/CD workflow in `.github/workflows/`. The deploy path is Vercel's own git integration (section 9 above): pushing to `main` triggers a Vercel deploy automatically once the GitHub repo is imported into a Vercel project, with no GitHub Actions secrets or custom workflow needed. If you outgrow that (e.g. you want deploy gated on a manual approval step, or a non-Vercel target), add a dedicated `cd.yml` at that point rather than building one speculatively now.
 
 E2E coverage note: `e2e/checkout-and-forms.spec.ts` covers the checkout flow for all three payment methods (Stripe, Telr, Tabby) and the anonymous forms (WhatsApp report delivery, Privacy Center PDPL request, partner application) by intercepting `/api/*` client-side, the same technique `e2e/assessment-flow.spec.ts` uses. What isn't covered: the `/dashboard` self-service PDPL export/delete and the `/admin` CRM lead editor, because both sit behind real Supabase Auth — sign-in happens client-side (interceptable) but `proxy.ts` validates the session server-side against the real `NEXT_PUBLIC_SUPABASE_URL` on every request, which Playwright's browser-side route interception can't reach. Exercising those two flows end-to-end needs a real (or locally-run) Supabase project wired into the E2E environment; both are covered at the unit/integration level instead (`src/app/api/account/export/route.test.ts`, `src/app/api/account/delete/route.test.ts`, `src/app/api/admin/leads/[id]/route.test.ts`).
 

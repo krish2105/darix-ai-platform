@@ -13,6 +13,37 @@ Terms pages, which applies here too.
 
 Last updated: 10 July 2026.
 
+## 0. Regime applicability by customer registration (read before onboarding a free-zone customer)
+
+UAE data protection is **not one law**. Three separate, non-overlapping
+regimes exist depending on where the *customer/data subject's entity* is
+registered, not where Darix is registered:
+
+- **Federal PDPL** (Federal Decree-Law No. 45 of 2021) — applies to UAE
+  mainland entities. This is the regime the rest of this document assumes
+  by default.
+- **DIFC Data Protection Law No. 5 of 2020** — applies to entities
+  registered in the Dubai International Financial Centre. GDPR/UK-aligned,
+  materially amended in July 2025 (Amendment Law No. 1 of 2025), which
+  added a **private right of action** — a DIFC-registered data subject can
+  sue directly in DIFC Courts, a materially higher-stakes enforcement path
+  than Federal PDPL's regulator-led model.
+- **ADGM Data Protection Regulations 2021** — applies to entities
+  registered in Abu Dhabi Global Market. GDPR-aligned, updated September
+  2025 with new substantial-public-interest rules for special-category
+  data.
+
+These regimes do not defer to one another (Federal PDPL and DIFC do not
+recognise each other as "adequate" for cross-border transfer purposes).
+**Action required before onboarding any DIFC- or ADGM-registered customer:**
+get counsel to confirm which regime governs that specific relationship and
+whether this document and the Privacy Policy/Terms actually cover it — do
+not assume Federal PDPL coverage extends automatically. Until that's
+confirmed, treat DIFC/ADGM-registered customers as **out of scope** (a
+"mainland-only for now" policy), and consider adding a business-registration-
+jurisdiction question to the contact/intake flow so this is surfaced before
+a deal closes, not after.
+
 ## 1. Controller
 
 Darix AI (Dubai AI Readiness Index). Contact: hello@darix.ai.
@@ -39,11 +70,19 @@ license is issued._
 
 See `/sub-processors` (public page) for the full list of providers and
 their approximate hosting location. None of the current sub-processors are
-UAE-based. PDPL doesn't require UAE-only hosting outside the specifically
-regulated sectors (financial services, healthcare, telecoms, government) —
-Darix is not currently active in any of those sectors, but that
-determination should be formally confirmed by counsel, not just this
-document.
+UAE-based, and this is a firmer statement than it might sound: Supabase (the
+primary data store) has **no native Middle East/UAE region** as of this
+writing — the nearest official Supabase regions are outside the UAE, and
+any "Supabase hosted in the UAE" option on the market today is a
+third-party-managed reseller wrapping Supabase's open-source stack on
+UAE-based servers, not Supabase's own infrastructure. That's a materially
+different vendor-risk and due-diligence profile than a native regional
+offering, and it's a more specific fact than a general "no localization
+required" statement. PDPL doesn't require UAE-only hosting outside the
+specifically regulated sectors (financial services, healthcare, telecoms,
+government) — Darix is not currently active in any of those sectors, but
+that determination, together with the specific data-flow fact above,
+should be put to counsel by name, not just assumed.
 
 Appropriate safeguards in place today: TLS in transit for all provider
 connections, encryption at rest (Supabase/Stripe/Telr default), and
@@ -75,3 +114,14 @@ of Phase 9 finalization.
    requirement applies.
 5. Confirm whether any UAE Data Office registration or notification is
    required at this stage of enforcement.
+6. Confirm the exact data-subject-rights response window under the 2026
+   Executive Regulations — this document currently states 30 days as a
+   general PDPL norm (§4); verify against the Executive Regulations text
+   itself rather than treating it as settled.
+7. Determine whether Darix's processing volume/sensitivity crosses the
+   threshold requiring a formal Data Protection Officer appointment under
+   the 2026 Executive Regulations' DPO-appointment criteria. If yes, an
+   external/fractional DPO service is a reasonable starting option before
+   a full-time hire is justified.
+8. See §0 above — confirm regime applicability (Federal PDPL vs. DIFC vs.
+   ADGM) before any free-zone-registered customer is onboarded.

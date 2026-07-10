@@ -30,6 +30,11 @@ Grouped by who typically owns the action.
       `docs/ROPA.md` documents "no data-localization requirement applies"
       as a working assumption based on Darix's sector; get this confirmed
       in writing, not assumed.
+- [ ] If registering in DIFC or ADGM rather than mainland: confirm with
+      counsel which data protection regime applies to *your own* processing
+      as a controller (DIFC Data Protection Law vs. ADGM Data Protection
+      Regulations vs. Federal PDPL) — these are three separate regimes, not
+      variants of one law. See `docs/ROPA.md` §0.
 
 ## 2. Legal sign-off (blocks removing the "draft" notices in the app)
 
@@ -49,6 +54,34 @@ Grouped by who typically owns the action.
 - [ ] Professional indemnity and cyber liability insurance — worth
       pricing given PDPL's fine exposure (AED 50,000-5,000,000; higher for
       data-localization breaches) before the first paying customer.
+- [ ] Determine whether Darix's processing volume/sensitivity requires a
+      formal Data Protection Officer appointment under the 2026 PDPL
+      Executive Regulations' DPO criteria — an external/fractional DPO
+      service is a reasonable starting option if so. See `docs/ROPA.md`
+      §5.7.
+
+## 2b. Security certification path (for enterprise/government-adjacent sales)
+
+Not needed pre-revenue, but worth scoping now since accreditation
+timelines are long and it changes what "done" means for a future
+enterprise deal:
+
+- [ ] Target **ISO 27001**, not SOC 2, as the long-term certification —
+      for UAE/GCC enterprise and government procurement, ISO 27001 is the
+      credential actually named in tenders and security questionnaires;
+      SOC 2 is a US-centric ask rarely requested regionally.
+- [ ] Use an **accredited** certification body when the time comes — a
+      non-accredited certificate is cheaper but routinely rejected in
+      procurement, forcing a full (paid-twice) redo.
+- [ ] Most of the technical controls an ISO 27001 audit expects (access
+      control, encryption in transit/at rest, centralized error/audit
+      logging via Sentry, least-privilege service-role credentials) are
+      already implemented as engineering defaults in this codebase — the
+      real gap when the time comes will be formal ISMS policy
+      documentation and a risk assessment, not a rebuild.
+- [ ] Requires a stable registered legal entity as the certification
+      subject — sequence this after Section 1 (company formation), not
+      before.
 
 ## 3. Payments — going from test/sandbox to live
 
@@ -65,6 +98,12 @@ Every gateway in the codebase runs in test mode until you flip these:
 - [ ] Decide which gateway is primary (`PAYMENT_PROVIDER` env var) for
       launch — Stripe has the simplest global tooling, Telr/Tabby have
       better UAE-local card and BNPL coverage.
+- [ ] Note for later: Stripe supports UAE-registered entities (sole
+      establishments, branches, free-zone companies) for standard payment
+      processing, but restricts Stripe Connect (marketplace-style payouts)
+      for UAE accounts. This matters if the Partners programme (`/partners`)
+      ever wants to pay referral commissions via Stripe Connect — flag it
+      now so it isn't discovered late when designing partner payouts.
 
 ## 4. Grants & government programs (optional, worth 30 minutes of research)
 
@@ -73,12 +112,21 @@ eligibility and application are a human business-development task, not
 something this repo can determine:
 
 - [ ] Dubai Future Foundation / Dubai Future District Fund programs.
-- [ ] Mohammed Bin Rashid Innovation Fund.
-- [ ] Dubai SME (Mohammed Bin Rashid Establishment for SME Development)
-      support programs, if incorporated as an SME under Dubai mainland.
+- [ ] Mohammed Bin Rashid Innovation Fund (MBRIF).
+- [ ] Dubai SME (an agency of the Dubai Department of Economy and Tourism)
+      — cash grants reported up to ~AED 200k for qualifying high-growth
+      startups, if incorporated as an SME under Dubai mainland.
+- [ ] Dubai Research, Development and Innovation (RDI) Program — funds
+      research-aligned innovation projects.
+- [ ] Khalifa Fund for Enterprise Development — government-backed
+      investment, mentoring, and ecosystem access for UAE SMEs.
 - [ ] Free zone-specific incubator/accelerator programs (e.g. in5 at
       Dubai Internet City, Hub71 in Abu Dhabi) if operating from one of
       those zones.
+- [ ] Darix's direct alignment with the UAE AI Strategy 2031's stated
+      economic-impact goals (lifting AI's GDP share and adding an
+      estimated AED 335bn in value) is a genuine narrative asset — cite it
+      explicitly in applications rather than leaving it implicit.
 
 ## 5. Sales & partnerships
 
