@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { SectionTitle } from './SectionTitle';
 import { Button } from './Button';
 import { fadeIn } from '@/utils/animations';
 import { Link2, GraduationCap, MapPin, Briefcase } from 'lucide-react';
@@ -36,7 +35,7 @@ export const FounderSection = () => {
                 </div>
               </div>
               
-              <h3 className="text-2xl font-bold text-foreground mb-2 relative z-10">Master's Student</h3>
+              <h3 className="text-2xl font-bold text-foreground mb-2 relative z-10">Master&apos;s Student</h3>
               <p className="text-cyber-cyan font-medium mb-4 relative z-10">AI Business Strategy</p>
               
               <div className="flex items-center gap-2 text-muted-foreground text-sm mb-8 relative z-10">

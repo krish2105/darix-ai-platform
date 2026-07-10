@@ -9,6 +9,14 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'retain-on-failure',
+    // Deterministic runs: with MotionConfig reducedMotion="user" wired up
+    // in the app, this also makes framer-motion entrance animations
+    // resolve instantly instead of transitioning, so axe never samples a
+    // mid-fade element (which briefly renders as a blended, low-contrast
+    // color) — the real bug the flaky color-contrast failures pointed to.
+    contextOptions: {
+      reducedMotion: 'reduce',
+    },
   },
   projects: [
     {

@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useSyncExternalStore } from 'react';
 import { motion } from 'framer-motion';
 import { ReadinessResult } from '@/utils/scoring';
-import { SectionTitle } from './SectionTitle';
 import { AnimatedCounter } from './AnimatedCounter';
 import { Button } from './Button';
 import { Download, RefreshCw, CheckCircle2, AlertTriangle, Lightbulb, Activity, Loader2, Mail, Send, Crown, PhoneCall } from 'lucide-react';
@@ -17,12 +16,7 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
   ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
   Tooltip,
-  Cell
 } from 'recharts';
 
 type ReportTier = 'free' | 'pro' | 'business';
@@ -41,12 +35,6 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
     A: d.percentage,
     fullMark: 100,
   }));
-
-  const getScoreColor = (score: number) => {
-    if (score >= 75) return '#10B981'; // Emerald Success
-    if (score >= 50) return '#F59E0B'; // Warning Amber
-    return '#EF4444'; // Risk Red
-  };
 
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
@@ -76,18 +64,17 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ result, assessme
 
   const [upgradingTier, setUpgradingTier] = useState<'pro' | 'business' | null>(null);
   const [upgradeError, setUpgradeError] = useState<string | null>(null);
-  const [showUpgradedBanner, setShowUpgradedBanner] = useState(false);
 
-  // Reads a browser-only URL query param, so this can only run after
-  // mount — an unavoidable client-only-effect case, same tradeoff already
-  // accepted in ThemeToggle.tsx's mount-detection effect elsewhere in this
-  // codebase. A lazy useState initializer would risk a hydration mismatch
-  // instead (server has no `window`, so it'd always render the banner
-  // hidden, then the client could flip it on).
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('upgraded') === '1') setShowUpgradedBanner(true);
-  }, []);
+  // Derived from a browser-only URL query param. useSyncExternalStore (not
+  // a mount effect) is what lets this read `window.location.search`
+  // without a hydration mismatch: React renders the server snapshot
+  // (false — no `window` on the server) during hydration, then re-checks
+  // the real client snapshot right after mount.
+  const showUpgradedBanner = useSyncExternalStore(
+    () => () => {},
+    () => new URLSearchParams(window.location.search).get('upgraded') === '1',
+    () => false
+  );
 
   const handleUpgrade = async (targetTier: 'pro' | 'business') => {
     setUpgradingTier(targetTier);

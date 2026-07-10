@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { dimensions, Dimension } from '@/data/questions';
+import { dimensions } from '@/data/questions';
 import { ReadinessResult } from '@/utils/scoring';
 import { Button } from './Button';
 import { SectionTitle } from './SectionTitle';

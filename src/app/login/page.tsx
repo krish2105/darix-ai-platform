@@ -132,7 +132,7 @@ export default function LoginPage() {
                 setError(null);
                 setSignupMessage(null);
               }}
-              className="text-[#0E7490] dark:text-cyber-cyan hover:text-electric-blue font-medium transition-colors underline underline-offset-2"
+              className="text-[#0369A1] dark:text-electric-blue hover:text-electric-blue font-medium transition-colors underline underline-offset-2"
             >
               {mode === 'sign-in' ? 'Sign up' : 'Sign in'}
             </button>

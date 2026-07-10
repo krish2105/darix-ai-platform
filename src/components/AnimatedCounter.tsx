@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 
 interface AnimatedCounterProps {
@@ -18,13 +18,11 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
   suffix = '',
   className,
 }) => {
-  const [hasAnimated, setHasAnimated] = useState(false);
   const count = useMotionValue(0);
   const rounded = useTransform(count, Math.round);
 
   useEffect(() => {
     const animation = animate(count, value, { duration });
-    animation.then(() => setHasAnimated(true));
     return animation.stop;
   }, [value, duration, count]);
 

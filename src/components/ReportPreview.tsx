@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { SectionTitle } from './SectionTitle';
 import { Button } from './Button';
 import { FileText, Download } from 'lucide-react';
 import { fadeIn } from '@/utils/animations';

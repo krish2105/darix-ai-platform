@@ -1,9 +1,45 @@
 'use client';
 
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useSyncExternalStore } from 'react';
 import { dictionaries, localeDirection, type Locale } from '@/lib/i18n/translations';
 
 const STORAGE_KEY = 'darix:locale';
+
+const readStoredLocale = (): Locale => {
+  const stored = window.localStorage.getItem(STORAGE_KEY);
+  return stored === 'ar' || stored === 'en' ? stored : 'en';
+};
+
+// Tiny external store for the persisted locale preference. Reading it via
+// useSyncExternalStore (instead of a mount effect calling setState) avoids
+// both a hydration mismatch and a visible flash of English before flipping
+// to the stored language: React renders getServerSnapshot() ('en' — no
+// window/localStorage on the server) during hydration to exactly match the
+// server HTML, then re-checks getSnapshot() immediately after mount. This
+// module-level store, not React state, is the single source of truth for
+// `locale`; setLocale below persists a change and notifies subscribers.
+let cachedLocale: Locale | null = null;
+const listeners = new Set<() => void>();
+
+const getSnapshot = (): Locale => {
+  if (cachedLocale === null) cachedLocale = readStoredLocale();
+  return cachedLocale;
+};
+
+const getServerSnapshot = (): Locale => 'en';
+
+const subscribe = (callback: () => void) => {
+  listeners.add(callback);
+  return () => listeners.delete(callback);
+};
+
+const commitLocale = (next: Locale) => {
+  cachedLocale = next;
+  window.localStorage.setItem(STORAGE_KEY, next);
+  document.documentElement.lang = next;
+  document.documentElement.dir = localeDirection[next];
+  listeners.forEach((listener) => listener());
+};
 
 interface LanguageContextValue {
   locale: Locale;
@@ -13,29 +49,11 @@ interface LanguageContextValue {
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
-const applyDocumentDirection = (locale: Locale) => {
-  document.documentElement.lang = locale;
-  document.documentElement.dir = localeDirection[locale];
-};
-
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
-  const [locale, setLocaleState] = useState<Locale>('en');
-
-  // Read the persisted preference once on mount. The inline script in
-  // layout.tsx already set `lang`/`dir` on <html> before hydration to
-  // avoid a flash of the wrong direction — this just syncs React state
-  // to match what's already on the page.
-  useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored === 'ar' || stored === 'en') {
-      setLocaleState(stored);
-    }
-  }, []);
+  const locale = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   const setLocale = useCallback((next: Locale) => {
-    setLocaleState(next);
-    window.localStorage.setItem(STORAGE_KEY, next);
-    applyDocumentDirection(next);
+    commitLocale(next);
   }, []);
 
   const t = useCallback(

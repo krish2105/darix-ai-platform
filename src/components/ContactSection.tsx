@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { SectionTitle } from './SectionTitle';
 import { Button } from './Button';
 import { Send, CheckCircle2, AlertTriangle, Loader2 } from 'lucide-react';
 import { fadeIn } from '@/utils/animations';

@@ -3,28 +3,58 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
+interface NeuralNode {
+  id: number;
+  x: number;
+  y: number;
+  size: number;
+  // Animation timing is randomized once at generation time (an effect, not
+  // render) and stored here — reading Math.random() directly inside JSX
+  // during render would violate component purity (React Compiler flags
+  // this: react-hooks/purity) and could produce inconsistent output across
+  // a StrictMode double-render.
+  glowDuration: number;
+}
+
+interface NeuralLink {
+  source: number;
+  target: number;
+  duration: number;
+  delay: number;
+}
+
 // Generates random points for the neural network
-const generateNodes = (count: number) => {
+const generateNodes = (count: number): NeuralNode[] => {
   return Array.from({ length: count }).map((_, i) => ({
     id: i,
     x: Math.random() * 100, // percentage
     y: Math.random() * 100, // percentage
     size: Math.random() * 3 + 1,
+    glowDuration: Math.random() * 2 + 2,
   }));
 };
 
 export const NeuralNetwork = () => {
-  const [nodes, setNodes] = useState<{ id: number; x: number; y: number; size: number }[]>([]);
-  const [links, setLinks] = useState<{ source: number; target: number }[]>([]);
-  const [isMounted, setIsMounted] = useState(false);
+  const [nodes, setNodes] = useState<NeuralNode[]>([]);
+  const [links, setLinks] = useState<NeuralLink[]>([]);
 
   useEffect(() => {
-    setIsMounted(true);
     const newNodes = generateNodes(25);
+    // Intentional exception to react-hooks/set-state-in-effect: this isn't
+    // reading an existing external value with a well-defined SSR default
+    // (that case belongs in useSyncExternalStore, used elsewhere in this
+    // codebase for exactly that — see useHasMounted / LanguageContext).
+    // This effect *creates* brand-new random decorative data that has no
+    // server-side equivalent at all. Moving the Math.random() calls into a
+    // lazy useState initializer would run them independently on the server
+    // and on the client during hydration, producing two different random
+    // SVG layouts and a real hydration mismatch — worse than this lint
+    // warning. Generating it client-only, after mount, is correct here.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setNodes(newNodes);
 
     // Create connections for nearby nodes
-    const newLinks: { source: number; target: number }[] = [];
+    const newLinks: NeuralLink[] = [];
     for (let i = 0; i < newNodes.length; i++) {
       for (let j = i + 1; j < newNodes.length; j++) {
         const dx = newNodes[i].x - newNodes[j].x;
@@ -32,14 +62,17 @@ export const NeuralNetwork = () => {
         const distance = Math.sqrt(dx * dx + dy * dy);
         // Connect if they are reasonably close
         if (distance < 25 && Math.random() > 0.3) {
-          newLinks.push({ source: i, target: j });
+          newLinks.push({ source: i, target: j, duration: Math.random() * 5 + 4, delay: Math.random() * 3 });
         }
       }
     }
     setLinks(newLinks);
   }, []);
 
-  if (!isMounted) return null;
+  // nodes only populate inside the effect above (client-only, after mount)
+  // — using this as the "ready" gate avoids a separate isMounted state set
+  // from inside the same effect.
+  if (nodes.length === 0) return null;
 
   return (
     <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-40">
@@ -75,10 +108,10 @@ export const NeuralNetwork = () => {
                 opacity: [0, 0.4, 0.4, 0] 
               }}
               transition={{
-                duration: Math.random() * 5 + 4,
+                duration: link.duration,
                 repeat: Infinity,
                 ease: "linear",
-                delay: Math.random() * 3
+                delay: link.delay
               }}
             />
           );
@@ -103,7 +136,7 @@ export const NeuralNetwork = () => {
               initial={{ scale: 1, opacity: 0.5 }}
               animate={{ scale: [1, 2, 1], opacity: [0.5, 0, 0.5] }}
               transition={{
-                duration: Math.random() * 2 + 2,
+                duration: node.glowDuration,
                 repeat: Infinity,
                 ease: "easeInOut"
               }}

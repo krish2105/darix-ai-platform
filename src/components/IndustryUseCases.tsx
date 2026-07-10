@@ -79,7 +79,7 @@ export const IndustryUseCases = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-card-border pt-8">
                   <div>
                     <span className="block text-xs text-muted-foreground uppercase mb-1">Recommended Pilot</span>
-                    <span className="font-medium text-[#0E7490] dark:text-cyber-cyan">{activeIndustry.firstPilot}</span>
+                    <span className="font-medium text-[#0369A1] dark:text-electric-blue">{activeIndustry.firstPilot}</span>
                   </div>
                   <div>
                     <span className="block text-xs text-muted-foreground uppercase mb-1 flex items-center gap-1">

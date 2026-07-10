@@ -18,6 +18,12 @@ export const Hero = () => {
     { label: t('hero.kpi.data'), icon: <Database className="w-5 h-5 text-ai-violet" /> },
   ];
 
+  // Decorative per-KPI bar width, randomized once per mount rather than on
+  // every render — calling Math.random() directly inside JSX during render
+  // breaks component purity (react-hooks/purity) and could shift on every
+  // re-render (e.g. when the language toggle changes `kpis`' labels).
+  const [barWidths] = React.useState(() => kpis.map(() => Math.random() * 40 + 40));
+
   return (
     <section className="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden">
       {/* Sleek Modern Background */}
@@ -93,7 +99,7 @@ export const Hero = () => {
                   <div className="w-full h-1.5 bg-card-border rounded-full mt-3 overflow-hidden">
                     <motion.div 
                       initial={{ width: 0 }}
-                      animate={{ width: `${Math.random() * 40 + 40}%` }}
+                      animate={{ width: `${barWidths[index]}%` }}
                       transition={{ duration: 1.5, delay: 1 + index * 0.2 }}
                       className="h-full bg-gradient-to-r from-electric-blue to-ai-violet"
                     />

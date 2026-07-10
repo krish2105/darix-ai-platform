@@ -10,6 +10,14 @@ import AxeBuilder from '@axe-core/playwright';
 const BLOCKING_IMPACTS = new Set(['critical', 'serious']);
 
 async function runAxeAndAssert(page: import('@playwright/test').Page, label: string) {
+  // framer-motion's `initial={{ opacity: 0 }}` entrance state renders on
+  // first paint and only commits to `animate`'s end state once React has
+  // hydrated and run its first effect — even with reducedMotion="user"
+  // making that transition instant, there's still a brief window right
+  // after navigation where elements sit at opacity 0. Scanning during that
+  // window makes axe sample a blended, near-invisible text color and
+  // report a false-positive contrast failure. This settles it first.
+  await page.waitForTimeout(500);
   const results = await new AxeBuilder({ page }).analyze();
   const blocking = results.violations.filter((v) => BLOCKING_IMPACTS.has(v.impact ?? ''));
   const nonBlocking = results.violations.filter((v) => !BLOCKING_IMPACTS.has(v.impact ?? ''));

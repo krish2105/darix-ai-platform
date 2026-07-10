@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { caseStudies } from '@/data/caseStudies';
 import { SectionTitle } from './SectionTitle';
-import { staggerContainer, fadeIn } from '@/utils/animations';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
 
 export const CaseStudies = () => {

@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { ShieldAlert, Database, Bot, Zap, LineChart, Cpu } from 'lucide-react';
+import { useHasMounted } from '@/hooks/useHasMounted';
 
 const floatingElements = [
   { id: 1, icon: <Bot className="w-6 h-6 text-cyber-cyan" />, text: "AI Model Deployed", top: "15%", left: "10%", delay: 0, duration: 8 },
@@ -14,11 +15,7 @@ const floatingElements = [
 ];
 
 export const FloatingWindows = () => {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isMounted = useHasMounted();
 
   if (!isMounted) return null;
 

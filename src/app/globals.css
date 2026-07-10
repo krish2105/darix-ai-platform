@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+/* Without this, Tailwind v4's `dark:` variant defaults to the
+   `prefers-color-scheme: dark` media query, completely independent of the
+   `.dark` class next-themes toggles on <html> (attribute="class" in
+   layout.tsx). That mismatch meant `dark:`-prefixed utilities (e.g.
+   dark:text-electric-blue) could activate purely from OS preference even
+   when the app's own theme — and therefore the CSS-custom-property-driven
+   colors like bg-background/text-foreground — was resolved to light,
+   silently pairing a light background with a bright dark-mode accent
+   color and failing contrast. This ties `dark:` to the actual class. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

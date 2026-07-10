@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { MotionProvider } from "@/components/MotionProvider";
 import { PostHogProvider } from "@/components/PostHogProvider";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -102,13 +103,15 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} ${outfit.variable} antialiased bg-background text-foreground transition-colors duration-300`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <LanguageProvider>
-            <PostHogProvider />
-            <Navbar />
-            <main>{children}</main>
-            <Footer />
-            <WhatsAppButton />
-          </LanguageProvider>
+          <MotionProvider>
+            <LanguageProvider>
+              <PostHogProvider />
+              <Navbar />
+              <main>{children}</main>
+              <Footer />
+              <WhatsAppButton />
+            </LanguageProvider>
+          </MotionProvider>
         </ThemeProvider>
       </body>
     </html>
