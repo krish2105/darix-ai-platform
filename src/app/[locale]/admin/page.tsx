@@ -1,11 +1,14 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Mail, Building2, Calendar, ShieldAlert, FileWarning, Handshake } from 'lucide-react';
+import { Mail, Building2, Calendar, ShieldAlert, FileWarning, Handshake, Download } from 'lucide-react';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminSupabaseClient } from '@/lib/supabase/admin';
 import { isAdminEmail } from '@/lib/auth/is-admin';
 import { SignOutButton } from '@/components/SignOutButton';
 import { LeadStatusEditor } from '@/components/LeadStatusEditor';
+import { AdminAnalytics } from '@/components/admin/AdminAnalytics';
+import { buildLeadFunnel, buildAssessmentTrend } from '@/lib/admin/analytics';
 import { defaultLocale, isLocale } from '@/lib/i18n/translations';
 import { localePath } from '@/lib/i18n/paths';
 import type { ReadinessResult } from '@/utils/scoring';
@@ -134,8 +137,27 @@ export default async function AdminPage({ params }: AdminPageProps) {
             <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-2">Admin</h1>
             <p className="text-muted-foreground">Signed in as {user.email}</p>
           </div>
-          <SignOutButton />
+          <div className="flex items-center gap-4">
+            <Link
+              href="/api/admin/export?type=leads"
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Download className="w-3.5 h-3.5" /> Leads CSV
+            </Link>
+            <Link
+              href="/api/admin/export?type=assessments"
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Download className="w-3.5 h-3.5" /> Assessments CSV
+            </Link>
+            <SignOutButton />
+          </div>
         </div>
+
+        <AdminAnalytics
+          leadFunnel={buildLeadFunnel(leads ?? [])}
+          assessmentTrend={buildAssessmentTrend(assessments ?? [])}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-10">
           <div>
