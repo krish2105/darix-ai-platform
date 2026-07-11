@@ -38,6 +38,10 @@ export default defineConfig({
       NEXT_PUBLIC_SUPABASE_URL: 'https://placeholder.supabase.co',
       NEXT_PUBLIC_SUPABASE_ANON_KEY: 'placeholder-anon-key',
       SUPABASE_SERVICE_ROLE_KEY: 'placeholder-service-role-key',
+      // Renders the chat widget for e2e/chatbot.spec.ts — the widget's
+      // own network calls are mocked (no real GEMINI_API_KEY needed),
+      // this only controls the client-side render guard.
+      NEXT_PUBLIC_CHATBOT_ENABLED: 'true',
     },
   },
 });

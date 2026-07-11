@@ -169,3 +169,100 @@ describe('RLS: public.data_requests', () => {
     await admin.from('data_requests').delete().eq('email', email);
   });
 });
+
+describe('RLS: public.chat_conversations & public.chat_messages', () => {
+  let userA: { client: SupabaseClient; userId: string };
+  let userB: { client: SupabaseClient; userId: string };
+  let conversationAId: string;
+  let messageAId: string;
+
+  beforeAll(async () => {
+    userA = await createSignedInUser('chat-a');
+    userB = await createSignedInUser('chat-b');
+
+    const { data: conversation, error: conversationError } = await userA.client
+      .from('chat_conversations')
+      .insert({ mode: 'faq' })
+      .select('id')
+      .single();
+    if (conversationError || !conversation) throw conversationError ?? new Error('seed conversation insert failed');
+    conversationAId = conversation.id as string;
+
+    const { data: message, error: messageError } = await userA.client
+      .from('chat_messages')
+      .insert({ conversation_id: conversationAId, role: 'user', content: 'Hello' })
+      .select('id')
+      .single();
+    if (messageError || !message) throw messageError ?? new Error('seed message insert failed');
+    messageAId = message.id as string;
+  });
+
+  afterAll(async () => {
+    await admin.from('chat_conversations').delete().eq('id', conversationAId);
+    await admin.auth.admin.deleteUser(userA.userId);
+    await admin.auth.admin.deleteUser(userB.userId);
+  });
+
+  it("lets a signed-in user insert their own conversation without specifying user_id (defaults aren't required — RLS's with check relies on auth.uid())", async () => {
+    // Verified implicitly by beforeAll succeeding — a failed insert there
+    // would have thrown before this test file got this far. This test
+    // exists to make that assumption explicit and independently checkable.
+    expect(conversationAId).toBeTruthy();
+  });
+
+  it('lets the owning user read their own conversation and messages', async () => {
+    const { data: conversations, error: conversationError } = await userA.client
+      .from('chat_conversations')
+      .select('id')
+      .eq('id', conversationAId);
+    expect(conversationError).toBeNull();
+    expect(conversations).toHaveLength(1);
+
+    const { data: messages, error: messageError } = await userA.client
+      .from('chat_messages')
+      .select('id')
+      .eq('conversation_id', conversationAId);
+    expect(messageError).toBeNull();
+    expect(messages).toHaveLength(1);
+  });
+
+  it('blocks a different signed-in user from reading the conversation', async () => {
+    const { data, error } = await userB.client.from('chat_conversations').select('id').eq('id', conversationAId);
+    expect(error).toBeNull();
+    expect(data).toEqual([]);
+  });
+
+  // This is the genuinely new RLS shape in this codebase: chat_messages
+  // has no user_id column of its own, so its policy is a join through
+  // chat_conversations rather than a direct column comparison. Every
+  // other table's RLS in this project checks a column on the row itself
+  // — this test is what verifies the join actually enforces ownership
+  // instead of silently allowing (or blocking) everything.
+  it('blocks a different signed-in user from reading messages via the join-based policy', async () => {
+    const { data, error } = await userB.client.from('chat_messages').select('id').eq('id', messageAId);
+    expect(error).toBeNull();
+    expect(data).toEqual([]);
+  });
+
+  it('blocks a different signed-in user from inserting a message into someone else\'s conversation', async () => {
+    const { error } = await userB.client
+      .from('chat_messages')
+      .insert({ conversation_id: conversationAId, role: 'user', content: 'Hijacked' });
+    // RLS's WITH CHECK on the insert rejects this outright (unlike a
+    // filtered select/update, an insert that fails RLS surfaces as a
+    // real error, not a silently-empty result).
+    expect(error).not.toBeNull();
+  });
+
+  it('blocks an anonymous (unauthenticated) client from reading or inserting either table', async () => {
+    const anon = anonClient();
+    const { data: conversations, error: conversationsError } = await anon.from('chat_conversations').select('id');
+    expect(conversationsError).toBeNull();
+    expect(conversations).toEqual([]);
+
+    const { error: insertError } = await anon
+      .from('chat_conversations')
+      .insert({ mode: 'faq' });
+    expect(insertError).not.toBeNull();
+  });
+});

@@ -165,6 +165,29 @@ otherwise, same graceful-degradation pattern as everything else. Note:
 this covers the email channel only — a WhatsApp equivalent would need
 Meta-approved message templates first (see section 6b).
 
+## 6h. RAG chatbot (Google Gemini)
+
+Two chat surfaces, both backed by Google Gemini's free tier: a public
+FAQ widget (site-wide, grounded in Darix AI's own content via a vector
+search) and a personalized advisor panel (signed-in users only, on their
+own report page, reasoning over that assessment's actual score/gaps).
+
+1. Get a free API key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
+2. Set `GEMINI_API_KEY` and `NEXT_PUBLIC_CHATBOT_ENABLED=true`.
+3. Enable the `vector` extension migration (`supabase/migrations/0008_chatbot.sql`)
+   the same way as any other migration (`supabase db push` or the SQL editor).
+4. Populate the knowledge base: `npm run ingest:kb`. This is a **manual
+   step**, not run automatically on deploy or in CI — it calls the Gemini
+   embeddings API once per content chunk, which costs free-tier quota, so
+   it should only be re-run when `src/data/resources.ts`, the FAQ/industry
+   translation keys, or `src/utils/scoring.ts`'s level descriptions
+   actually change. It's idempotent (safe to re-run; unchanged chunks are
+   skipped, changed ones are updated in place).
+5. The free tier has daily/per-minute quota limits — both chat routes
+   degrade to a "temporarily unavailable" message (never a 500/crash)
+   when the key is unset or the quota is exhausted, same pattern as every
+   other optional integration in this project.
+
 ## 7. Environment variables
 
 Copy `.env.example` to `.env.local` and fill in every value described there. `NEXT_PUBLIC_SITE_URL` should be your production URL once deployed (used to build links inside emails and Stripe/Telr checkout redirects).

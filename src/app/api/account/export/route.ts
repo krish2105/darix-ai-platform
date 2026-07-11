@@ -29,10 +29,22 @@ export async function GET() {
     return NextResponse.json({ error: 'Could not export your data. Please try again.' }, { status: 500 });
   }
 
+  const { data: conversations, error: conversationsError } = await admin
+    .from('chat_conversations')
+    .select('id, mode, assessment_id, created_at, chat_messages(role, content, created_at)')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
+
+  if (conversationsError) {
+    console.error('Failed to export chatbot conversations', conversationsError);
+    return NextResponse.json({ error: 'Could not export your data. Please try again.' }, { status: 500 });
+  }
+
   const exportPayload = {
     exportedAt: new Date().toISOString(),
     account: { id: user.id, email: user.email, createdAt: user.created_at },
     assessments,
+    chatbotConversations: conversations,
   };
 
   return new NextResponse(JSON.stringify(exportPayload, null, 2), {

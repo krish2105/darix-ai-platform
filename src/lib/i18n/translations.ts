@@ -538,6 +538,21 @@ const en: Dict = {
   'pdf.roadmapTitle': '90-Day Transformation Roadmap',
   'pdf.generated': 'Generated',
   'pdf.footerLocation': 'darix.ai — Dubai, United Arab Emirates',
+
+  // Chatbot
+  'chatbot.openLabel': 'Chat with Darix AI',
+  'chatbot.closeLabel': 'Close chat',
+  'chatbot.faqTitle': 'Ask Darix AI',
+  'chatbot.faqGreeting': "Hi! Ask me anything about Darix AI — pricing, industries, PDPL, or how the assessment works.",
+  'chatbot.advisorTitle': 'Ask about your report',
+  'chatbot.advisorGreeting': "Ask me why you scored the way you did, or what to prioritize first.",
+  'chatbot.placeholder': 'Type a message…',
+  'chatbot.send': 'Send',
+  'chatbot.thinking': 'Thinking…',
+  'chatbot.error': "Something went wrong. Please try again.",
+  'chatbot.unavailable': 'The assistant is temporarily unavailable.',
+  'chatbot.whyLowScore': 'Why did I score low on {dimension}?',
+  'chatbot.whatFirst': 'What should I prioritize first?',
 };
 
 const ar: Dict = {
@@ -1039,6 +1054,21 @@ const ar: Dict = {
   'pdf.roadmapTitle': 'خارطة طريق التحول لـ 90 يوماً',
   'pdf.generated': 'تاريخ الإصدار',
   'pdf.footerLocation': 'darix.ai — دبي، الإمارات العربية المتحدة',
+
+  // Chatbot
+  'chatbot.openLabel': 'تحدث مع Darix AI',
+  'chatbot.closeLabel': 'إغلاق المحادثة',
+  'chatbot.faqTitle': 'اسأل Darix AI',
+  'chatbot.faqGreeting': 'مرحباً! اسألني أي شيء عن Darix AI — الأسعار، القطاعات، قانون حماية البيانات، أو كيفية عمل التقييم.',
+  'chatbot.advisorTitle': 'اسأل عن تقريرك',
+  'chatbot.advisorGreeting': 'اسألني لماذا حصلت على هذه الدرجة، أو ما الذي يجب إعطاؤه الأولوية أولاً.',
+  'chatbot.placeholder': 'اكتب رسالة…',
+  'chatbot.send': 'إرسال',
+  'chatbot.thinking': 'جارٍ التفكير…',
+  'chatbot.error': 'حدث خطأ ما. يرجى المحاولة مرة أخرى.',
+  'chatbot.unavailable': 'المساعد غير متاح مؤقتاً.',
+  'chatbot.whyLowScore': 'لماذا كانت درجتي منخفضة في {dimension}؟',
+  'chatbot.whatFirst': 'ما الذي يجب أن أعطيه الأولوية أولاً؟',
 };
 
 export const dictionaries: Record<Locale, Dict> = { en, ar };

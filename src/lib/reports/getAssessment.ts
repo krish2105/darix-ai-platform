@@ -11,6 +11,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
 export interface ReportAssessment {
   id: string;
+  user_id: string | null;
   company_name: string | null;
   result: ReadinessResult;
   tier: 'free' | 'pro' | 'business';
@@ -21,7 +22,7 @@ export async function getAssessmentForReport(id: string): Promise<ReportAssessme
   const admin = createAdminSupabaseClient();
   const { data, error } = await admin
     .from('assessments')
-    .select('id, company_name, result, tier')
+    .select('id, user_id, company_name, result, tier')
     .eq('id', id)
     .single();
   if (error || !data) return null;

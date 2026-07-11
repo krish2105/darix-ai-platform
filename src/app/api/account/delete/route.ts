@@ -30,6 +30,21 @@ export async function POST() {
     return NextResponse.json({ error: 'Could not delete your data. Please try again.' }, { status: 500 });
   }
 
+  // chat_conversations.user_id is ON DELETE CASCADE from auth.users, so
+  // this would also happen implicitly when the auth user is deleted below
+  // (chat_messages cascades again from chat_conversations) — deleted
+  // explicitly here anyway so the intent is visible in this file rather
+  // than relying on an FK behavior a future reader can't see.
+  const { error: deleteConversationsError } = await admin
+    .from('chat_conversations')
+    .delete()
+    .eq('user_id', user.id);
+
+  if (deleteConversationsError) {
+    console.error('Failed to delete chatbot conversations', deleteConversationsError);
+    return NextResponse.json({ error: 'Could not delete your data. Please try again.' }, { status: 500 });
+  }
+
   const { error: deleteUserError } = await admin.auth.admin.deleteUser(user.id);
 
   if (deleteUserError) {

@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { MotionProvider } from "@/components/MotionProvider";
 import { PostHogProvider } from "@/components/PostHogProvider";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { FaqChatWidget } from "@/components/chatbot/FaqChatWidget";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { defaultLocale, isLocale, localeDirection, locales, type Locale } from "@/lib/i18n/translations";
 import { localePath } from "@/lib/i18n/paths";
@@ -127,6 +128,7 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
               <main>{children}</main>
               <Footer />
               <WhatsAppButton />
+              <FaqChatWidget />
             </LanguageProvider>
           </MotionProvider>
         </ThemeProvider>
