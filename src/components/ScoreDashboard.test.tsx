@@ -6,6 +6,15 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import { calculateReadiness } from '@/utils/scoring';
 import { ScoreDashboard } from './ScoreDashboard';
 
+// LanguageProvider now derives locale from the URL (src/proxy.ts,
+// src/app/[locale]/layout.tsx) rather than localStorage, so it calls
+// next/navigation's router/pathname hooks unconditionally — every test
+// that renders it needs these mocked, same pattern as LeadStatusEditor.test.tsx.
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/',
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
 const ASSESSMENT_ID = '11111111-1111-4111-8111-111111111111';
 
 // A handful of mid-range answers is enough to produce a real, fully-formed
@@ -16,7 +25,7 @@ const result = calculateReadiness({ q1: 3, q2: 2, q3: 4, q4: 1, q5: 3 });
 
 const renderDashboard = (props: Partial<React.ComponentProps<typeof ScoreDashboard>> = {}) =>
   render(
-    <LanguageProvider>
+    <LanguageProvider locale="en">
       <ScoreDashboard result={result} assessmentId={ASSESSMENT_ID} {...props} />
     </LanguageProvider>
   );

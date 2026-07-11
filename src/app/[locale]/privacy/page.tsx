@@ -1,13 +1,28 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { LegalPageLayout } from '@/components/LegalPageLayout';
+import { defaultLocale, isLocale } from '@/lib/i18n/translations';
+import { localeAlternates, localePath } from '@/lib/i18n/paths';
 
-export const metadata: Metadata = {
-  title: 'Privacy Policy | Darix AI',
-  description: 'How Darix AI (Dubai AI Readiness Index) collects, uses, and protects your data.',
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale: rawLocale } = await params;
+  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
 
-export default function PrivacyPolicyPage() {
+  return {
+    title: 'Privacy Policy | Darix AI',
+    description: 'How Darix AI (Dubai AI Readiness Index) collects, uses, and protects your data.',
+    alternates: localeAlternates(locale, '/privacy'),
+  };
+}
+
+interface PrivacyPolicyPageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function PrivacyPolicyPage({ params }: PrivacyPolicyPageProps) {
+  const { locale: rawLocale } = await params;
+  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+
   return (
     <LegalPageLayout title="Privacy Policy" lastUpdated="10 July 2026">
       <p>
@@ -55,7 +70,7 @@ export default function PrivacyPolicyPage() {
       <h2>4. Data Sharing &amp; Processors</h2>
       <p>
         We share personal data with the service providers listed on our{' '}
-        <Link href="/sub-processors">Sub-Processors</Link> page, solely to operate the Service.
+        <Link href={localePath(locale, '/sub-processors')}>Sub-Processors</Link> page, solely to operate the Service.
         None of them fall into a UAE PDPL sector with a mandatory data-localization requirement
         (financial services, healthcare, telecommunications, or government); this determination,
         like the rest of this policy, should be confirmed as part of a full legal review.
@@ -83,7 +98,7 @@ export default function PrivacyPolicyPage() {
         <li>Withdraw consent, where processing is based on consent.</li>
       </ul>
       <p>
-        To exercise these rights, visit our <Link href="/privacy-center">Privacy Center</Link>. If
+        To exercise these rights, visit our <Link href={localePath(locale, '/privacy-center')}>Privacy Center</Link>. If
         you have an account, you can download or delete your data instantly; otherwise you can
         submit a request there and we&apos;ll respond within 30 days.
       </p>

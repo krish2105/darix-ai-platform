@@ -1,10 +1,18 @@
 import type { Metadata } from 'next';
 import { LegalPageLayout } from '@/components/LegalPageLayout';
+import { defaultLocale, isLocale } from '@/lib/i18n/translations';
+import { localeAlternates } from '@/lib/i18n/paths';
 
-export const metadata: Metadata = {
-  title: 'Terms of Service | Darix AI',
-  description: 'The terms governing your use of the Darix AI (Dubai AI Readiness Index) platform.',
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale: rawLocale } = await params;
+  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+
+  return {
+    title: 'Terms of Service | Darix AI',
+    description: 'The terms governing your use of the Darix AI (Dubai AI Readiness Index) platform.',
+    alternates: localeAlternates(locale, '/terms'),
+  };
+}
 
 export default function TermsPage() {
   return (

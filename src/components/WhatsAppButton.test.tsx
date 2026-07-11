@@ -1,9 +1,16 @@
 // @vitest-environment jsdom
-import { describe, expect, it, afterEach } from 'vitest';
+import { describe, expect, it, vi, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { translate } from '@/lib/i18n/translations';
 import { WhatsAppButton } from './WhatsAppButton';
+
+// LanguageProvider derives locale from the URL and calls next/navigation's
+// router/pathname hooks unconditionally — needs mocking for every render.
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/',
+  useRouter: () => ({ push: vi.fn() }),
+}));
 
 // process.env.NEXT_PUBLIC_WHATSAPP_NUMBER is read inside the component
 // body on every render (not at module load time), so a plain env var
@@ -17,7 +24,7 @@ const ORIGINAL_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
 
 const renderButton = () =>
   render(
-    <LanguageProvider>
+    <LanguageProvider locale="en">
       <WhatsAppButton />
     </LanguageProvider>
   );

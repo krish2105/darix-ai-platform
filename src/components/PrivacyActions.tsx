@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { Download, Trash2, AlertTriangle, Loader2 } from 'lucide-react';
 import { Button } from './Button';
 import { createClient } from '@/lib/supabase/client';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { localePath } from '@/lib/i18n/paths';
 
 // PDPL self-service panel for signed-in users: export (right to access /
 // portability) is a single click, delete (right to erasure) requires an
@@ -12,6 +14,7 @@ import { createClient } from '@/lib/supabase/client';
 // since it permanently removes the account and every assessment tied to it.
 export const PrivacyActions = () => {
   const router = useRouter();
+  const { locale } = useLanguage();
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -60,7 +63,7 @@ export const PrivacyActions = () => {
       }
       const supabase = createClient();
       await supabase.auth.signOut();
-      router.push('/');
+      router.push(localePath(locale, '/'));
       router.refresh();
     } catch (err) {
       setIsDeleting(false);

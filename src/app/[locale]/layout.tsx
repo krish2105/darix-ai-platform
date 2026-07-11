@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Inter, Outfit } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -8,6 +9,8 @@ import { MotionProvider } from "@/components/MotionProvider";
 import { PostHogProvider } from "@/components/PostHogProvider";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { defaultLocale, isLocale, localeDirection, locales, type Locale } from "@/lib/i18n/translations";
+import { localePath } from "@/lib/i18n/paths";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -22,25 +25,6 @@ const outfit = Outfit({
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://darix.ai";
 const title = "Dubai AI Readiness Index | AI Readiness Assessment for Businesses";
 const description = "Assess your organization's AI readiness with DARIX AI. Measure strategy, data maturity, automation potential, governance risk, and AI business value through a premium AI readiness dashboard.";
-
-export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title,
-  description,
-  openGraph: {
-    title,
-    description,
-    url: siteUrl,
-    siteName: "Darix AI",
-    locale: "en_AE",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title,
-    description,
-  },
-};
 
 const organizationJsonLd = {
   "@context": "https://schema.org",
@@ -75,23 +59,56 @@ const webApplicationJsonLd = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+export function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
+}
+
+interface RootLayoutProps {
   children: React.ReactNode;
-}>) {
+  params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale: rawLocale } = await params;
+  const locale: Locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title,
+    description,
+    alternates: {
+      canonical: localePath(locale, "/"),
+      languages: {
+        en: localePath("en", "/"),
+        ar: localePath("ar", "/"),
+        "x-default": localePath(defaultLocale, "/"),
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${siteUrl}${localePath(locale, "/")}`,
+      siteName: "Darix AI",
+      locale: locale === "ar" ? "ar_AE" : "en_AE",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+  };
+}
+
+export default async function RootLayout({ children, params }: RootLayoutProps) {
+  const { locale: rawLocale } = await params;
+  if (!isLocale(rawLocale)) notFound();
+  const locale = rawLocale;
+  const direction = localeDirection[locale];
+
   return (
-    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
+    <html lang={locale} dir={direction} className="scroll-smooth" suppressHydrationWarning>
       <head>
-        <script
-          // Runs before paint to set lang/dir from the persisted language
-          // preference, avoiding a flash of the wrong text direction on
-          // load — same rationale as next-themes' own injected script for
-          // dark/light mode.
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var l=localStorage.getItem('darix:locale');if(l==='ar'){document.documentElement.lang='ar';document.documentElement.dir='rtl';}}catch(e){}})();`,
-          }}
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
@@ -104,7 +121,7 @@ export default function RootLayout({
       <body className={`${inter.variable} ${outfit.variable} antialiased bg-background text-foreground transition-colors duration-300`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <MotionProvider>
-            <LanguageProvider>
+            <LanguageProvider locale={locale}>
               <PostHogProvider />
               <Navbar />
               <main>{children}</main>

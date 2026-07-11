@@ -6,6 +6,8 @@ import { createAdminSupabaseClient } from '@/lib/supabase/admin';
 import { isAdminEmail } from '@/lib/auth/is-admin';
 import { SignOutButton } from '@/components/SignOutButton';
 import { LeadStatusEditor } from '@/components/LeadStatusEditor';
+import { defaultLocale, isLocale } from '@/lib/i18n/translations';
+import { localePath } from '@/lib/i18n/paths';
 import type { ReadinessResult } from '@/utils/scoring';
 import type { leadStatusOptions } from '@/lib/validation/schemas';
 
@@ -55,13 +57,20 @@ interface PartnerInquiryRow {
   created_at: string;
 }
 
-export default async function AdminPage() {
+interface AdminPageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function AdminPage({ params }: AdminPageProps) {
+  const { locale: rawLocale } = await params;
+  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+
   const supabase = await createServerSupabaseClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect('/login?next=/admin');
+  if (!user) redirect(`${localePath(locale, '/login')}?next=${localePath(locale, '/admin')}`);
 
   if (!isAdminEmail(user.email)) {
     return (
@@ -167,7 +176,7 @@ export default async function AdminPage() {
               {assessments?.map((a) => (
                 <a
                   key={a.id}
-                  href={`/report/${a.id}`}
+                  href={localePath(locale, `/report/${a.id}`)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="glass-card p-5 flex items-center justify-between gap-4 hover:border-cyber-cyan/50 transition-colors block"

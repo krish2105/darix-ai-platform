@@ -2,6 +2,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 import { PrivacyActions } from './PrivacyActions';
 
 const push = vi.fn();
@@ -10,11 +11,19 @@ const signOut = vi.fn().mockResolvedValue({ error: null });
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push, refresh }),
+  usePathname: () => '/dashboard',
 }));
 
 vi.mock('@/lib/supabase/client', () => ({
   createClient: () => ({ auth: { signOut } }),
 }));
+
+const renderPrivacyActions = () =>
+  render(
+    <LanguageProvider locale="en">
+      <PrivacyActions />
+    </LanguageProvider>
+  );
 
 describe('PrivacyActions', () => {
   beforeEach(() => {
@@ -37,7 +46,7 @@ describe('PrivacyActions', () => {
     vi.mocked(fetch).mockResolvedValue(
       new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } })
     );
-    render(<PrivacyActions />);
+    renderPrivacyActions();
 
     await user.click(screen.getByRole('button', { name: /download my data/i }));
 
@@ -51,7 +60,7 @@ describe('PrivacyActions', () => {
     vi.mocked(fetch).mockResolvedValue(
       new Response(JSON.stringify({ error: 'Export failed.' }), { status: 500 })
     );
-    render(<PrivacyActions />);
+    renderPrivacyActions();
 
     await user.click(screen.getByRole('button', { name: /download my data/i }));
 
@@ -63,7 +72,7 @@ describe('PrivacyActions', () => {
     vi.mocked(fetch).mockResolvedValue(
       new Response(JSON.stringify({ success: true }), { status: 200 })
     );
-    render(<PrivacyActions />);
+    renderPrivacyActions();
 
     const deleteButton = screen.getByRole('button', { name: /delete my account/i });
     await user.click(deleteButton);
@@ -84,7 +93,7 @@ describe('PrivacyActions', () => {
     vi.mocked(fetch).mockResolvedValue(
       new Response(JSON.stringify({ error: 'Could not delete your account.' }), { status: 500 })
     );
-    render(<PrivacyActions />);
+    renderPrivacyActions();
 
     await user.click(screen.getByRole('button', { name: /delete my account/i }));
     await user.click(screen.getByRole('button', { name: /click again to confirm deletion/i }));

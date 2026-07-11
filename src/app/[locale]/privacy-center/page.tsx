@@ -3,13 +3,28 @@ import Link from 'next/link';
 import { ShieldCheck, ArrowRight } from 'lucide-react';
 import { createServerSupabaseClient, isSupabaseConfigured } from '@/lib/supabase/server';
 import { PrivacyRequestForm } from '@/components/PrivacyRequestForm';
+import { defaultLocale, isLocale } from '@/lib/i18n/translations';
+import { localeAlternates, localePath } from '@/lib/i18n/paths';
 
-export const metadata: Metadata = {
-  title: 'Privacy Center | Darix AI',
-  description: 'Exercise your UAE PDPL data rights: access, export, or delete the personal data Darix AI holds about you.',
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale: rawLocale } = await params;
+  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
 
-export default async function PrivacyCenterPage() {
+  return {
+    title: 'Privacy Center | Darix AI',
+    description: 'Exercise your UAE PDPL data rights: access, export, or delete the personal data Darix AI holds about you.',
+    alternates: localeAlternates(locale, '/privacy-center'),
+  };
+}
+
+interface PrivacyCenterPageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function PrivacyCenterPage({ params }: PrivacyCenterPageProps) {
+  const { locale: rawLocale } = await params;
+  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+
   // Unlike /dashboard and /admin, this page is reachable by anonymous
   // visitors and never redirects — it must not crash when Supabase isn't
   // configured, it should just show the same view as a logged-out visitor.
@@ -42,7 +57,7 @@ export default async function PrivacyCenterPage() {
                 </div>
               </div>
               <Link
-                href="/dashboard"
+                href={localePath(locale, '/dashboard')}
                 className="inline-flex items-center gap-2 text-cyber-cyan hover:text-electric-blue font-medium transition-colors flex-shrink-0"
               >
                 Go to dashboard <ArrowRight className="w-4 h-4" />
@@ -52,7 +67,7 @@ export default async function PrivacyCenterPage() {
             <div className="glass-card p-6 border-t-2 border-t-cyber-cyan">
               <h2 className="font-semibold text-foreground mb-1">Have a Darix account?</h2>
               <p className="text-sm text-muted-foreground">
-                <Link href="/login" className="text-cyber-cyan hover:text-electric-blue underline underline-offset-2">
+                <Link href={localePath(locale, '/login')} className="text-cyber-cyan hover:text-electric-blue underline underline-offset-2">
                   Sign in
                 </Link>{' '}
                 to download or delete your data instantly, without waiting for a manual request.

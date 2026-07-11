@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Clock, ArrowRight } from 'lucide-react';
 import { localizeResource, resources } from '@/data/resources';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { localePath } from '@/lib/i18n/paths';
 
 export const ResourcesPageContent = () => {
   const { t, locale } = useLanguage();
@@ -22,7 +23,7 @@ export const ResourcesPageContent = () => {
             return (
               <Link
                 key={article.slug}
-                href={`/resources/${article.slug}`}
+                href={localePath(locale, `/resources/${article.slug}`)}
                 className="glass-card p-6 flex flex-col gap-4 hover:border-cyber-cyan/50 transition-colors group"
               >
                 <span className="inline-block w-fit px-3 py-1 rounded-full bg-electric-blue/10 border border-electric-blue/20 text-[#0369A1] dark:text-electric-blue text-xs font-bold uppercase tracking-wider">

@@ -8,6 +8,13 @@ import { translate } from '@/lib/i18n/translations';
 import { calculateReadiness } from '@/utils/scoring';
 import { ReadinessAssessment } from './ReadinessAssessment';
 
+// LanguageProvider derives locale from the URL and calls next/navigation's
+// router/pathname hooks unconditionally — needs mocking for every render.
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/',
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
 // SectionTitle (rendered by ReadinessAssessment) uses framer-motion's
 // whileInView, which needs a real IntersectionObserver — jsdom doesn't
 // implement one, so a minimal stub is required for the tree to mount.
@@ -30,7 +37,7 @@ const result = calculateReadiness({ q1: 3, q2: 2, q3: 4, q4: 1, q5: 3 });
 
 const renderAssessment = () =>
   render(
-    <LanguageProvider>
+    <LanguageProvider locale="en">
       <ReadinessAssessment />
     </LanguageProvider>
   );

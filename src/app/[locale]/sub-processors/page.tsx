@@ -1,10 +1,18 @@
 import type { Metadata } from 'next';
 import { LegalPageLayout } from '@/components/LegalPageLayout';
+import { defaultLocale, isLocale } from '@/lib/i18n/translations';
+import { localeAlternates } from '@/lib/i18n/paths';
 
-export const metadata: Metadata = {
-  title: 'Sub-Processors | Darix AI',
-  description: 'Every third-party service that processes personal data on behalf of Darix AI, what it does, and where it runs.',
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale: rawLocale } = await params;
+  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+
+  return {
+    title: 'Sub-Processors | Darix AI',
+    description: 'Every third-party service that processes personal data on behalf of Darix AI, what it does, and where it runs.',
+    alternates: localeAlternates(locale, '/sub-processors'),
+  };
+}
 
 interface SubProcessor {
   name: string;

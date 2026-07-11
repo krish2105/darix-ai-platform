@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { User } from 'lucide-react';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { localePath } from '@/lib/i18n/paths';
 
 export const AuthNavLink = ({ className }: { className?: string }) => {
   // Lazy initializer (not a setState call inside the effect body) so the
@@ -12,6 +14,7 @@ export const AuthNavLink = ({ className }: { className?: string }) => {
   const [isSignedIn, setIsSignedIn] = useState<boolean | null>(() =>
     isSupabaseConfigured() ? null : false
   );
+  const { locale } = useLanguage();
 
   useEffect(() => {
     if (!isSupabaseConfigured()) return;
@@ -27,7 +30,7 @@ export const AuthNavLink = ({ className }: { className?: string }) => {
 
   return (
     <Link
-      href={isSignedIn ? '/dashboard' : '/login'}
+      href={localePath(locale, isSignedIn ? '/dashboard' : '/login')}
       className={className ?? 'text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5'}
     >
       <User className="w-4 h-4" />

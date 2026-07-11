@@ -5,6 +5,13 @@ import userEvent from '@testing-library/user-event';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { ContactSection } from './ContactSection';
 
+// LanguageProvider derives locale from the URL and calls next/navigation's
+// router/pathname hooks unconditionally — needs mocking for every render.
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/',
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
 // ContactSection's motion.div wrappers use framer-motion's whileInView,
 // which needs a real IntersectionObserver — jsdom doesn't implement one.
 // Assigned directly (not via vi.stubGlobal) so it survives the
@@ -19,7 +26,7 @@ class IntersectionObserverStub {
 
 const renderContact = () =>
   render(
-    <LanguageProvider>
+    <LanguageProvider locale="en">
       <ContactSection />
     </LanguageProvider>
   );

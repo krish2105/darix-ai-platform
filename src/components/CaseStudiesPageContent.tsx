@@ -4,9 +4,10 @@ import Link from 'next/link';
 import { Info, Clock, Wrench, TrendingUp, ArrowRight } from 'lucide-react';
 import { caseStudies } from '@/data/caseStudies';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { localePath } from '@/lib/i18n/paths';
 
 export const CaseStudiesPageContent = () => {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   return (
     <section className="py-32 bg-background">
@@ -68,7 +69,7 @@ export const CaseStudiesPageContent = () => {
 
         <div className="text-center mt-16">
           <Link
-            href="/#assessment"
+            href={`${localePath(locale, '/')}#assessment`}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cyber-cyan text-deep-black font-medium hover:bg-electric-blue transition-colors"
           >
             {t('caseStudiesPage.cta')} <ArrowRight className="w-4 h-4" />

@@ -6,11 +6,14 @@ import { motion } from 'framer-motion';
 import { Mail, Lock, Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { createClient } from '@/lib/supabase/client';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { localePath } from '@/lib/i18n/paths';
 
 type Mode = 'sign-in' | 'sign-up';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { locale } = useLanguage();
   const [mode, setMode] = useState<Mode>('sign-in');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,7 +32,7 @@ export default function LoginPage() {
       if (mode === 'sign-in') {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        router.push('/dashboard');
+        router.push(localePath(locale, '/dashboard'));
         router.refresh();
       } else {
         const { error } = await supabase.auth.signUp({

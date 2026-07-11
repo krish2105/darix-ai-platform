@@ -13,6 +13,15 @@
 export const locales = ['en', 'ar'] as const;
 export type Locale = (typeof locales)[number];
 
+// The one locale never shown as a URL prefix — src/proxy.ts rewrites
+// unprefixed requests to this locale's route tree internally, and
+// redirects an explicit /en/* URL back to its unprefixed canonical form.
+// See src/lib/i18n/paths.ts for the corresponding URL-building helper.
+export const defaultLocale: Locale = 'en';
+
+export const isLocale = (value: string): value is Locale =>
+  (locales as readonly string[]).includes(value);
+
 export const localeDirection: Record<Locale, 'ltr' | 'rtl'> = {
   en: 'ltr',
   ar: 'rtl',

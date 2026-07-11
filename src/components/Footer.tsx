@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { BrainCircuit, Mail } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { localePath } from '@/lib/i18n/paths';
 
 const GithubIcon = ({ className }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -22,7 +23,7 @@ const LinkedinIcon = ({ className }: { className?: string }) => (
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   return (
     <footer className="bg-card border-t border-card-border pt-20 pb-10 relative overflow-hidden">
@@ -63,10 +64,10 @@ export const Footer = () => {
             <h4 className="text-foreground font-semibold mb-6 uppercase tracking-wider text-sm">{t('footer.resources')}</h4>
             <ul className="flex flex-col gap-4">
               <li><a href="#industries" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.industryUseCases')}</a></li>
-              <li><Link href="/case-studies" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.caseStudies')}</Link></li>
-              <li><Link href="/resources" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.researchPapers')}</Link></li>
+              <li><Link href={localePath(locale, '/case-studies')} className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.caseStudies')}</Link></li>
+              <li><Link href={localePath(locale, '/resources')} className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.researchPapers')}</Link></li>
               <li><a href="#faq" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.faq')}</a></li>
-              <li><Link href="/partners" className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.partners')}</Link></li>
+              <li><Link href={localePath(locale, '/partners')} className="text-muted-foreground hover:text-foreground text-sm transition-colors">{t('footer.partners')}</Link></li>
             </ul>
           </div>
 
@@ -91,10 +92,10 @@ export const Footer = () => {
             © {currentYear} DARIX AI (Dubai AI Readiness Index). {t('footer.allRightsReserved')}
           </p>
           <div className="flex gap-6">
-            <Link href="/privacy" className="text-muted-foreground hover:text-foreground text-xs transition-colors">{t('footer.privacyPolicy')}</Link>
-            <Link href="/terms" className="text-muted-foreground hover:text-foreground text-xs transition-colors">{t('footer.termsOfService')}</Link>
-            <Link href="/privacy-center" className="text-muted-foreground hover:text-foreground text-xs transition-colors">{t('footer.privacyCenter')}</Link>
-            <Link href="/sub-processors" className="text-muted-foreground hover:text-foreground text-xs transition-colors">{t('footer.subProcessors')}</Link>
+            <Link href={localePath(locale, '/privacy')} className="text-muted-foreground hover:text-foreground text-xs transition-colors">{t('footer.privacyPolicy')}</Link>
+            <Link href={localePath(locale, '/terms')} className="text-muted-foreground hover:text-foreground text-xs transition-colors">{t('footer.termsOfService')}</Link>
+            <Link href={localePath(locale, '/privacy-center')} className="text-muted-foreground hover:text-foreground text-xs transition-colors">{t('footer.privacyCenter')}</Link>
+            <Link href={localePath(locale, '/sub-processors')} className="text-muted-foreground hover:text-foreground text-xs transition-colors">{t('footer.subProcessors')}</Link>
           </div>
         </div>
       </div>

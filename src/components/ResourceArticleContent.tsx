@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Clock, Calendar } from 'lucide-react';
 import { localizeResource, type Resource } from '@/data/resources';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { localePath } from '@/lib/i18n/paths';
 
 export const ResourceArticleContent = ({ article }: { article: Resource }) => {
   const { t, locale } = useLanguage();
@@ -14,7 +15,7 @@ export const ResourceArticleContent = ({ article }: { article: Resource }) => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-2xl mx-auto">
           <Link
-            href="/resources"
+            href={localePath(locale, '/resources')}
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8"
           >
             <ArrowLeft className="w-3.5 h-3.5" /> {t('resourcesPage.allResources')}
@@ -53,7 +54,7 @@ export const ResourceArticleContent = ({ article }: { article: Resource }) => {
 
           <div className="mt-16 pt-8 border-t border-card-border">
             <Link
-              href="/#assessment"
+              href={`${localePath(locale, '/')}#assessment`}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cyber-cyan text-deep-black font-medium hover:bg-electric-blue transition-colors"
             >
               {t('resourcesPage.cta')} <ArrowRight className="w-4 h-4" />

@@ -5,6 +5,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { SignOutButton } from '@/components/SignOutButton';
 import { PrivacyActions } from '@/components/PrivacyActions';
 import { DashboardScoreTrend } from '@/components/DashboardScoreTrend';
+import { defaultLocale, isLocale } from '@/lib/i18n/translations';
+import { localePath } from '@/lib/i18n/paths';
 import type { ReadinessResult } from '@/utils/scoring';
 
 interface AssessmentRow {
@@ -21,14 +23,21 @@ const tierLabels: Record<AssessmentRow['tier'], string> = {
   business: 'Business',
 };
 
-export default async function DashboardPage() {
+interface DashboardPageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function DashboardPage({ params }: DashboardPageProps) {
+  const { locale: rawLocale } = await params;
+  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+
   const supabase = await createServerSupabaseClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/login');
+    redirect(localePath(locale, '/login'));
   }
 
   // RLS (assessments_select_own) restricts this to rows owned by the
@@ -68,7 +77,7 @@ export default async function DashboardPage() {
               Take the free AI Readiness Assessment to see your results here.
             </p>
             <Link
-              href="/#assessment"
+              href={`${localePath(locale, '/')}#assessment`}
               className="inline-flex items-center gap-2 text-cyber-cyan hover:text-electric-blue font-medium transition-colors"
             >
               Start Assessment <ArrowRight className="w-4 h-4" />
@@ -92,7 +101,7 @@ export default async function DashboardPage() {
             {assessments.map((a) => (
               <Link
                 key={a.id}
-                href={`/report/${a.id}`}
+                href={`${localePath(locale, `/report/${a.id}`)}`}
                 className="glass-card p-6 flex flex-col gap-4 hover:border-cyber-cyan/50 transition-colors group"
               >
                 <div className="flex items-start justify-between">
