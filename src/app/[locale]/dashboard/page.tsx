@@ -1,16 +1,19 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ArrowRight, FileText, Calendar, Crown } from 'lucide-react';
+import { ArrowRight, FileText, Calendar, Crown, Users2 } from 'lucide-react';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createAdminSupabaseClient } from '@/lib/supabase/admin';
 import { SignOutButton } from '@/components/SignOutButton';
 import { PrivacyActions } from '@/components/PrivacyActions';
 import { DashboardScoreTrend } from '@/components/DashboardScoreTrend';
+import { TeamPanel, type TeamMember } from '@/components/TeamPanel';
 import { defaultLocale, isLocale } from '@/lib/i18n/translations';
 import { localePath } from '@/lib/i18n/paths';
 import type { ReadinessResult } from '@/utils/scoring';
 
 interface AssessmentRow {
   id: string;
+  user_id: string | null;
   company_name: string | null;
   result: ReadinessResult;
   tier: 'free' | 'pro' | 'business';
@@ -40,15 +43,58 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
     redirect(localePath(locale, '/login'));
   }
 
-  // RLS (assessments_select_own) restricts this to rows owned by the
-  // signed-in user — no need to add .eq('user_id', ...) ourselves, but
-  // it doesn't hurt to be explicit about intent.
+  // RLS now unions two permissive select policies (0001_init.sql's
+  // assessments_select_own OR 0009_sharing_and_teams.sql's
+  // assessments_select_org_member) — dropping the .eq('user_id', ...)
+  // filter here lets a teammate's org-shared assessments show up
+  // alongside the caller's own, with user_id kept in the select so the
+  // card below can badge the ones that aren't the caller's.
   const { data: assessments, error } = await supabase
     .from('assessments')
-    .select('id, company_name, result, tier, created_at')
-    .eq('user_id', user.id)
+    .select('id, user_id, company_name, result, tier, created_at')
     .order('created_at', { ascending: false })
     .returns<AssessmentRow[]>();
+
+  // Lightweight team accounts: at most one organization per user (see
+  // src/lib/organizations/ensure.ts). No membership row means the user
+  // has never used team sharing — TeamPanel simply doesn't render.
+  const { data: ownMembership } = await supabase
+    .from('organization_members')
+    .select('organization_id, role')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  let teamMembers: TeamMember[] = [];
+  let pendingInvites: string[] = [];
+  const isTeamOwner = ownMembership?.role === 'owner';
+
+  if (ownMembership) {
+    const { data: memberRows } = await supabase
+      .from('organization_members')
+      .select('user_id, role')
+      .eq('organization_id', ownMembership.organization_id)
+      .returns<{ user_id: string; role: 'owner' | 'member' }[]>();
+
+    if (memberRows) {
+      const admin = createAdminSupabaseClient();
+      teamMembers = await Promise.all(
+        memberRows.map(async (row) => {
+          const { data } = await admin.auth.admin.getUserById(row.user_id);
+          return { userId: row.user_id, email: data.user?.email ?? row.user_id, role: row.role };
+        })
+      );
+    }
+
+    if (isTeamOwner) {
+      const admin = createAdminSupabaseClient();
+      const { data: inviteRows } = await admin
+        .from('organization_invites')
+        .select('email')
+        .eq('organization_id', ownMembership.organization_id)
+        .returns<{ email: string }[]>();
+      pendingInvites = inviteRows?.map((r) => r.email) ?? [];
+    }
+  }
 
   return (
     <section className="min-h-screen py-32 bg-background">
@@ -127,17 +173,30 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-cyber-cyan">{a.result.level}</span>
-                  {a.tier !== 'free' && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-dubai-gold">
-                      <Crown className="w-3 h-3" /> {tierLabels[a.tier]}
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {a.user_id !== user.id && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        <Users2 className="w-3 h-3" /> Shared
+                      </span>
+                    )}
+                    {a.tier !== 'free' && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-dubai-gold">
+                        <Crown className="w-3 h-3" /> {tierLabels[a.tier]}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center gap-1 text-sm text-muted-foreground group-hover:text-foreground transition-colors mt-auto">
                   View Report <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </Link>
             ))}
+          </div>
+        )}
+
+        {ownMembership && (
+          <div className="mt-12 max-w-2xl">
+            <TeamPanel members={teamMembers} pendingInvites={pendingInvites} isOwner={isTeamOwner} />
           </div>
         )}
 

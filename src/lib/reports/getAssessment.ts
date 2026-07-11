@@ -15,6 +15,9 @@ export interface ReportAssessment {
   company_name: string | null;
   result: ReadinessResult;
   tier: 'free' | 'pro' | 'business';
+  share_enabled: boolean;
+  share_expires_at: string | null;
+  organization_id: string | null;
 }
 
 export async function getAssessmentForReport(id: string): Promise<ReportAssessment | null> {
@@ -22,9 +25,14 @@ export async function getAssessmentForReport(id: string): Promise<ReportAssessme
   const admin = createAdminSupabaseClient();
   const { data, error } = await admin
     .from('assessments')
-    .select('id, user_id, company_name, result, tier')
+    .select('id, user_id, company_name, result, tier, share_enabled, share_expires_at, organization_id')
     .eq('id', id)
     .single();
   if (error || !data) return null;
   return data as ReportAssessment;
+}
+
+// True once a share_expires_at deadline has passed. Null means "no expiry".
+export function isShareExpired(assessment: Pick<ReportAssessment, 'share_expires_at'>): boolean {
+  return Boolean(assessment.share_expires_at && new Date(assessment.share_expires_at).getTime() < Date.now());
 }

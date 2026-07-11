@@ -40,11 +40,23 @@ export async function GET() {
     return NextResponse.json({ error: 'Could not export your data. Please try again.' }, { status: 500 });
   }
 
+  const { data: membership, error: membershipError } = await admin
+    .from('organization_members')
+    .select('organization_id, role, created_at')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  if (membershipError) {
+    console.error('Failed to export team membership', membershipError);
+    return NextResponse.json({ error: 'Could not export your data. Please try again.' }, { status: 500 });
+  }
+
   const exportPayload = {
     exportedAt: new Date().toISOString(),
     account: { id: user.id, email: user.email, createdAt: user.created_at },
     assessments,
     chatbotConversations: conversations,
+    teamMembership: membership,
   };
 
   return new NextResponse(JSON.stringify(exportPayload, null, 2), {

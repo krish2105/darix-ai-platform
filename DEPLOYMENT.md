@@ -188,6 +188,21 @@ own report page, reasoning over that assessment's actual score/gaps).
    when the key is unset or the quota is exhausted, same pattern as every
    other optional integration in this project.
 
+## 6i. Report sharing & lightweight team accounts
+
+Run `supabase/migrations/0009_sharing_and_teams.sql` the same way as any
+other migration. No new environment variables — this adds:
+
+- `share_enabled`/`share_expires_at` columns on `assessments`, letting a
+  report's owner revoke or time-limit the previously-permanent
+  "anyone with the link" access from the Sharing panel on `/report/[id]`.
+- `organizations`/`organization_members`/`organization_invites` tables for
+  lightweight teams. A team is created lazily — there's no signup step —
+  the first time a user toggles "Share with my team" on a report or
+  invites a teammate from `/dashboard`. Inviting an email with no existing
+  Darix account sends Supabase's own invite email and auto-joins them on
+  signup (`src/app/auth/callback/route.ts`).
+
 ## 7. Environment variables
 
 Copy `.env.example` to `.env.local` and fill in every value described there. `NEXT_PUBLIC_SITE_URL` should be your production URL once deployed (used to build links inside emails and Stripe/Telr checkout redirects).

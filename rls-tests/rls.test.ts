@@ -266,3 +266,108 @@ describe('RLS: public.chat_conversations & public.chat_messages', () => {
     expect(insertError).not.toBeNull();
   });
 });
+
+describe('RLS: public.organizations, organization_members, organization_invites & assessments_select_org_member', () => {
+  let owner: { client: SupabaseClient; userId: string };
+  let teammate: { client: SupabaseClient; userId: string };
+  let outsider: { client: SupabaseClient; userId: string };
+  let orgId: string;
+  let sharedAssessmentId: string;
+
+  beforeAll(async () => {
+    owner = await createSignedInUser('org-owner');
+    teammate = await createSignedInUser('org-teammate');
+    outsider = await createSignedInUser('org-outsider');
+
+    const { data: org, error: orgError } = await admin
+      .from('organizations')
+      .insert({ name: 'RLS Test Org', created_by: owner.userId })
+      .select('id')
+      .single();
+    if (orgError || !org) throw orgError ?? new Error('organization insert failed');
+    orgId = org.id as string;
+
+    const { error: memberError } = await admin.from('organization_members').insert([
+      { organization_id: orgId, user_id: owner.userId, role: 'owner' },
+      { organization_id: orgId, user_id: teammate.userId, role: 'member' },
+    ]);
+    if (memberError) throw memberError;
+
+    // Owned by `owner`, shared with the whole org — this is the row that
+    // proves assessments_select_org_member (0009_sharing_and_teams.sql)
+    // actually grants a non-owner teammate read access, not just the owner.
+    const { data: assessment, error: assessmentError } = await admin
+      .from('assessments')
+      .insert({
+        user_id: owner.userId,
+        organization_id: orgId,
+        answers: {},
+        result: { score: 50 },
+        tier: 'free',
+      })
+      .select('id')
+      .single();
+    if (assessmentError || !assessment) throw assessmentError ?? new Error('assessment insert failed');
+    sharedAssessmentId = assessment.id as string;
+  });
+
+  afterAll(async () => {
+    await admin.from('assessments').delete().eq('id', sharedAssessmentId);
+    await admin.from('organizations').delete().eq('id', orgId);
+    await admin.auth.admin.deleteUser(owner.userId);
+    await admin.auth.admin.deleteUser(teammate.userId);
+    await admin.auth.admin.deleteUser(outsider.userId);
+  });
+
+  it('lets a member read their own organization row', async () => {
+    const { data, error } = await owner.client.from('organizations').select('id').eq('id', orgId);
+    expect(error).toBeNull();
+    expect(data).toHaveLength(1);
+  });
+
+  it('blocks a non-member from reading the organization row', async () => {
+    const { data, error } = await outsider.client.from('organizations').select('id').eq('id', orgId);
+    expect(error).toBeNull();
+    expect(data).toEqual([]);
+  });
+
+  it('lets a member see the full roster of their organization, including teammates', async () => {
+    // organization_members_select_same_org is self-referential (a second
+    // lookup on the same table, not "is this my own row") specifically so
+    // this works — a plain auth.uid() = user_id check would only ever let
+    // a member see their own single membership row.
+    const { data, error } = await teammate.client
+      .from('organization_members')
+      .select('user_id')
+      .eq('organization_id', orgId);
+    expect(error).toBeNull();
+    expect(data?.map((row) => row.user_id).sort()).toEqual([owner.userId, teammate.userId].sort());
+  });
+
+  it('blocks a non-member from reading the organization roster', async () => {
+    const { data, error } = await outsider.client
+      .from('organization_members')
+      .select('user_id')
+      .eq('organization_id', orgId);
+    expect(error).toBeNull();
+    expect(data).toEqual([]);
+  });
+
+  it('blocks everyone but the service role from reading organization_invites', async () => {
+    const { data, error } = await owner.client.from('organization_invites').select('id');
+    expect(error).toBeNull();
+    expect(data).toEqual([]);
+  });
+
+  it('lets a teammate read an assessment shared with their organization even though they do not own it', async () => {
+    const { data, error } = await teammate.client.from('assessments').select('id').eq('id', sharedAssessmentId);
+    expect(error).toBeNull();
+    expect(data).toHaveLength(1);
+  });
+
+  it('still blocks a non-member from reading the org-shared assessment', async () => {
+    const { data, error } = await outsider.client.from('assessments').select('id').eq('id', sharedAssessmentId);
+    expect(error).toBeNull();
+    expect(data).toEqual([]);
+  });
+});

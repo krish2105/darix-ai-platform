@@ -45,6 +45,11 @@ export async function POST() {
     return NextResponse.json({ error: 'Could not delete your data. Please try again.' }, { status: 500 });
   }
 
+  // organization_members.user_id is also ON DELETE CASCADE from auth.users
+  // (supabase/migrations/0009_sharing_and_teams.sql) — deleting the auth
+  // user below removes their team membership row too. Unlike
+  // chat_conversations, there's no separate personal-data table to clean up
+  // here: the membership row holds no PII beyond the FK itself.
   const { error: deleteUserError } = await admin.auth.admin.deleteUser(user.id);
 
   if (deleteUserError) {

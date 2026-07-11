@@ -115,3 +115,22 @@ export const partnerInquirySchema = z.object({
 });
 
 export type PartnerInquiryInput = z.infer<typeof partnerInquirySchema>;
+
+// 'never' means share_expires_at is cleared (no deadline) — see
+// src/app/api/assessments/[id]/sharing/route.ts.
+export const shareExpiryOptions = ['never', '1d', '7d', '30d'] as const;
+export type ShareExpiryOption = (typeof shareExpiryOptions)[number];
+
+export const updateSharingSchema = z.object({
+  shareEnabled: z.boolean(),
+  shareExpiry: z.enum(shareExpiryOptions),
+  organizationShared: z.boolean(),
+});
+
+export type UpdateSharingInput = z.infer<typeof updateSharingSchema>;
+
+export const inviteTeammateSchema = z.object({
+  email: z.string().trim().email('Enter a valid email').max(320),
+});
+
+export type InviteTeammateInput = z.infer<typeof inviteTeammateSchema>;

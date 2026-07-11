@@ -6,6 +6,7 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import { dimensions } from '@/data/questions';
 import { translate } from '@/lib/i18n/translations';
 import { calculateReadiness } from '@/utils/scoring';
+import { ASSESSMENT_DRAFT_KEY } from '@/lib/storage-keys';
 import { ReadinessAssessment } from './ReadinessAssessment';
 
 // LanguageProvider derives locale from the URL and calls next/navigation's
@@ -63,6 +64,10 @@ const answerDimension = async (user: ReturnType<typeof userEvent.setup>, dimInde
 describe('ReadinessAssessment', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
+    // The component now persists an in-progress draft to localStorage —
+    // without clearing it, one test's answers would bleed into the next
+    // test's initial render as a "restored" draft.
+    window.localStorage.clear();
   });
 
   afterEach(() => {
@@ -159,5 +164,52 @@ describe('ReadinessAssessment', () => {
         screen.getByText('We could not save your assessment. Please check your connection and try again.')
       ).toBeInTheDocument()
     );
+  });
+
+  it('clears the saved draft after a successful submit', async () => {
+    const user = userEvent.setup();
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ id: ASSESSMENT_ID, result }), { status: 200 })
+    );
+    renderAssessment();
+
+    for (let i = 0; i < dimensions.length; i++) {
+      await answerDimension(user, i);
+      await user.click(screen.getByTestId('assessment-next-button'));
+    }
+
+    await waitFor(() => expect(screen.getByText('Your AI Readiness Command Center')).toBeInTheDocument());
+    expect(window.localStorage.getItem(ASSESSMENT_DRAFT_KEY)).toBeNull();
+  });
+
+  it('restores an in-progress draft on mount and shows a restored banner', async () => {
+    const [q1] = dimensions[0].questions;
+    window.localStorage.setItem(
+      ASSESSMENT_DRAFT_KEY,
+      JSON.stringify({ answers: { [q1.id]: 4 }, currentDimIndex: 0, industry: '', companySize: '' })
+    );
+
+    renderAssessment();
+
+    expect(await screen.findByText(/restored your in-progress assessment/i)).toBeInTheDocument();
+    expect(screen.getByTestId(`answer-${q1.id}-4`)).toHaveClass('bg-cyber-cyan/20');
+  });
+
+  it('clears the draft and restarts from scratch when "Start over" is clicked', async () => {
+    const user = userEvent.setup();
+    const [q1] = dimensions[0].questions;
+    window.localStorage.setItem(
+      ASSESSMENT_DRAFT_KEY,
+      JSON.stringify({ answers: { [q1.id]: 4 }, currentDimIndex: 0, industry: '', companySize: '' })
+    );
+
+    renderAssessment();
+    await screen.findByText(/restored your in-progress assessment/i);
+
+    await user.click(screen.getByRole('button', { name: 'Start over' }));
+
+    expect(window.localStorage.getItem(ASSESSMENT_DRAFT_KEY)).toBeNull();
+    expect(screen.queryByText(/restored your in-progress assessment/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId(`answer-${q1.id}-3`)).not.toHaveClass('bg-cyber-cyan/20');
   });
 });

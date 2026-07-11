@@ -8,11 +8,12 @@ import { vi } from 'vitest';
 // live database.
 export function makeQueryBuilder<T>(result: { data: T | null; error: unknown }) {
   const builder: Record<string, unknown> = {};
-  const chainMethods = ['from', 'select', 'insert', 'update', 'delete', 'eq', 'order', 'limit', 'returns'];
+  const chainMethods = ['from', 'select', 'insert', 'update', 'delete', 'upsert', 'eq', 'order', 'limit', 'returns'];
   chainMethods.forEach((method) => {
     builder[method] = vi.fn(() => builder);
   });
   builder.single = vi.fn(() => Promise.resolve(result));
+  builder.maybeSingle = vi.fn(() => Promise.resolve(result));
   builder.then = (
     onFulfilled?: (value: typeof result) => unknown,
     onRejected?: (reason: unknown) => unknown

@@ -83,6 +83,9 @@ const en: Dict = {
   'assessment.industryLabel': 'Industry (optional)',
   'assessment.selectIndustry': 'Select your industry — personalizes your report',
   'assessment.companySizeLabel': 'Company size (optional)',
+  'assessment.draftRestored': "We restored your in-progress assessment.",
+  'assessment.startOver': 'Start over',
+  'assessment.dismissBanner': 'Dismiss',
 
   'dim.strategy.title': 'AI Strategy',
   'dim.strategy.desc': 'Alignment of AI initiatives with business goals.',
@@ -553,6 +556,22 @@ const en: Dict = {
   'chatbot.unavailable': 'The assistant is temporarily unavailable.',
   'chatbot.whyLowScore': 'Why did I score low on {dimension}?',
   'chatbot.whatFirst': 'What should I prioritize first?',
+
+  // Sharing & team accounts
+  'sharing.title': 'Sharing',
+  'sharing.publicLinkLabel': 'Anyone with the link can view this report',
+  'sharing.expiryLabel': 'Link expires',
+  'sharing.expiry.never': 'Never',
+  'sharing.expiry.1d': 'In 1 day',
+  'sharing.expiry.7d': 'In 7 days',
+  'sharing.expiry.30d': 'In 30 days',
+  'sharing.teamShareLabel': 'Share with my team',
+  'sharing.copyLink': 'Copy link',
+  'sharing.linkCopied': 'Link copied',
+  'sharing.save': 'Save',
+  'sharing.saved': 'Saved',
+  'sharing.saveError': 'Could not save sharing settings. Please try again.',
+  'sharing.linkDisabledNote': "Turning this off immediately breaks the link for anyone who isn't you or a teammate.",
 };
 
 const ar: Dict = {
@@ -604,6 +623,9 @@ const ar: Dict = {
   'assessment.industryLabel': 'القطاع (اختياري)',
   'assessment.selectIndustry': 'اختر قطاعك — يخصّص تقريرك',
   'assessment.companySizeLabel': 'حجم الشركة (اختياري)',
+  'assessment.draftRestored': 'استعدنا تقييمك الذي كان قيد التقدّم.',
+  'assessment.startOver': 'البدء من جديد',
+  'assessment.dismissBanner': 'إغلاق',
 
   'dim.strategy.title': 'استراتيجية الذكاء الاصطناعي',
   'dim.strategy.desc': 'مدى توافق مبادرات الذكاء الاصطناعي مع أهداف العمل.',
@@ -1069,6 +1091,22 @@ const ar: Dict = {
   'chatbot.unavailable': 'المساعد غير متاح مؤقتاً.',
   'chatbot.whyLowScore': 'لماذا كانت درجتي منخفضة في {dimension}؟',
   'chatbot.whatFirst': 'ما الذي يجب أن أعطيه الأولوية أولاً؟',
+
+  // Sharing & team accounts
+  'sharing.title': 'المشاركة',
+  'sharing.publicLinkLabel': 'يمكن لأي شخص لديه الرابط عرض هذا التقرير',
+  'sharing.expiryLabel': 'ينتهي الرابط',
+  'sharing.expiry.never': 'أبداً',
+  'sharing.expiry.1d': 'خلال يوم واحد',
+  'sharing.expiry.7d': 'خلال 7 أيام',
+  'sharing.expiry.30d': 'خلال 30 يوماً',
+  'sharing.teamShareLabel': 'المشاركة مع فريقي',
+  'sharing.copyLink': 'نسخ الرابط',
+  'sharing.linkCopied': 'تم نسخ الرابط',
+  'sharing.save': 'حفظ',
+  'sharing.saved': 'تم الحفظ',
+  'sharing.saveError': 'تعذر حفظ إعدادات المشاركة. يرجى المحاولة مرة أخرى.',
+  'sharing.linkDisabledNote': 'إيقاف هذا الخيار يُبطل الرابط فوراً لأي شخص لست أنت أو أحد زملائك في الفريق.',
 };
 
 export const dictionaries: Record<Locale, Dict> = { en, ar };

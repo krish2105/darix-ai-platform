@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { dimensions } from '@/data/questions';
 import { industries } from '@/data/industries';
@@ -9,29 +9,96 @@ import { companySizeOptions } from '@/lib/validation/schemas';
 import { Button } from './Button';
 import { SectionTitle } from './SectionTitle';
 import { ScoreDashboard } from './ScoreDashboard';
-import { CheckCircle2, ChevronRight, ChevronLeft, AlertTriangle, Loader2 } from 'lucide-react';
-import { LAST_ASSESSMENT_ID_KEY } from '@/lib/storage-keys';
+import { CheckCircle2, ChevronRight, ChevronLeft, AlertTriangle, Loader2, X } from 'lucide-react';
+import { LAST_ASSESSMENT_ID_KEY, ASSESSMENT_DRAFT_KEY } from '@/lib/storage-keys';
 import { trackEvent } from '@/lib/analytics/posthog-client';
 import { TurnstileWidget } from './Turnstile';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useHasMounted } from '@/hooks/useHasMounted';
 
 const TURNSTILE_REQUIRED = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
-export const ReadinessAssessment = () => {
+interface AssessmentDraft {
+  answers: Record<string, number>;
+  currentDimIndex: number;
+  industry: string;
+  companySize: string;
+}
+
+const readDraft = (): AssessmentDraft | null => {
+  try {
+    const raw = window.localStorage.getItem(ASSESSMENT_DRAFT_KEY);
+    if (!raw) return null;
+    const draft = JSON.parse(raw) as Partial<AssessmentDraft>;
+    if (!draft.answers || Object.keys(draft.answers).length === 0) return null;
+    return {
+      answers: draft.answers,
+      currentDimIndex: typeof draft.currentDimIndex === 'number' ? draft.currentDimIndex : 0,
+      industry: draft.industry ?? '',
+      companySize: draft.companySize ?? '',
+    };
+  } catch {
+    // Corrupt JSON or storage unavailable (private browsing) — start fresh.
+    return null;
+  }
+};
+
+const clearDraft = () => {
+  try {
+    window.localStorage.removeItem(ASSESSMENT_DRAFT_KEY);
+  } catch {
+    // Non-critical — nothing to clean up if storage isn't available.
+  }
+};
+
+// The actual form + all its state. Kept separate from ReadinessAssessment
+// below so draft restoration can use lazy useState initializers (which run
+// once, synchronously, when this component instance is created) instead of
+// setState-in-an-effect: ReadinessAssessment mounts this with a key that
+// changes once the page is actually hydrated, forcing a fresh instance —
+// and therefore a fresh read of localStorage — right after mount, with no
+// setState call inside an effect body at all.
+const AssessmentForm = () => {
   const { t } = useLanguage();
-  const [currentDimIndex, setCurrentDimIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, number>>({});
+  // Each a lazy initializer — React guarantees these run exactly once, on
+  // this instance's first render, never again on subsequent re-renders.
+  const [currentDimIndex, setCurrentDimIndex] = useState(() => readDraft()?.currentDimIndex ?? 0);
+  const [answers, setAnswers] = useState<Record<string, number>>(() => readDraft()?.answers ?? {});
   const [isComplete, setIsComplete] = useState(false);
   const [result, setResult] = useState<ReadinessResult | null>(null);
   const [assessmentId, setAssessmentId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const [industry, setIndustry] = useState('');
-  const [companySize, setCompanySize] = useState('');
+  const [industry, setIndustry] = useState(() => readDraft()?.industry ?? '');
+  const [companySize, setCompanySize] = useState(() => readDraft()?.companySize ?? '');
+  const [draftRestored, setDraftRestored] = useState(() => Boolean(readDraft()));
 
   const currentDim = dimensions[currentDimIndex];
-  const hasStartedRef = useRef(false);
+  const hasStartedRef = useRef(draftRestored);
+
+  // Persists on every change so a refresh or accidental tab close never
+  // loses progress — cleared on successful submit or an explicit retake.
+  useEffect(() => {
+    if (Object.keys(answers).length === 0) return;
+    try {
+      window.localStorage.setItem(
+        ASSESSMENT_DRAFT_KEY,
+        JSON.stringify({ answers, currentDimIndex, industry, companySize })
+      );
+    } catch {
+      // Non-critical — the assessment still works without draft persistence.
+    }
+  }, [answers, currentDimIndex, industry, companySize]);
+
+  const startOver = () => {
+    clearDraft();
+    setAnswers({});
+    setCurrentDimIndex(0);
+    setIndustry('');
+    setCompanySize('');
+    setDraftRestored(false);
+  };
 
   const handleAnswer = (qId: string, value: number) => {
     if (!hasStartedRef.current) {
@@ -64,6 +131,7 @@ export const ReadinessAssessment = () => {
       setResult(data.result);
       setAssessmentId(data.id);
       setIsComplete(true);
+      clearDraft();
       try {
         window.localStorage.setItem(LAST_ASSESSMENT_ID_KEY, data.id);
       } catch {
@@ -97,6 +165,7 @@ export const ReadinessAssessment = () => {
         result={result}
         assessmentId={assessmentId}
         onReset={() => {
+          clearDraft();
           setAnswers({});
           setCurrentDimIndex(0);
           setIsComplete(false);
@@ -110,14 +179,36 @@ export const ReadinessAssessment = () => {
   const progress = ((currentDimIndex) / dimensions.length) * 100;
 
   return (
-    <section className="py-24 bg-background" id="assessment">
-      <div className="container mx-auto px-4 md:px-6">
+    <div className="container mx-auto px-4 md:px-6">
         <SectionTitle
           title={t('assessment.title')}
           subtitle={t('assessment.subtitle')}
         />
 
         <div className="max-w-4xl mx-auto mt-12">
+          {draftRestored && (
+            <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-cyber-cyan/30 bg-cyber-cyan/10 px-4 py-3 text-sm text-foreground">
+              <span>{t('assessment.draftRestored')}</span>
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <button
+                  type="button"
+                  onClick={startOver}
+                  className="text-cyber-cyan hover:text-electric-blue font-medium underline underline-offset-2"
+                >
+                  {t('assessment.startOver')}
+                </button>
+                <button
+                  type="button"
+                  aria-label={t('assessment.dismissBanner')}
+                  onClick={() => setDraftRestored(false)}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Progress Bar */}
           <div className="mb-8">
             <div className="flex justify-between text-sm text-muted-foreground mb-2 font-medium">
@@ -278,6 +369,24 @@ export const ReadinessAssessment = () => {
           </div>
         </div>
       </div>
+  );
+};
+
+export const ReadinessAssessment = () => {
+  // false during SSR and the client's first hydration pass, true right
+  // after — see useHasMounted's own comment for why this, and not
+  // useState+useEffect, is the safe way to do this. AssessmentForm (not
+  // this wrapper) unmounts and remounts as a fresh instance once real
+  // `window` access is available, so its lazy useState initializers
+  // re-run and pick up localStorage — no setState call inside an effect
+  // anywhere. The id="assessment" section lives out here, not inside
+  // AssessmentForm, specifically so that remount doesn't detach the
+  // anchor other pages scroll/link to (e.g. `/#assessment`) — only the
+  // form's own content underneath it is torn down and rebuilt.
+  const mounted = useHasMounted();
+  return (
+    <section className="py-24 bg-background" id="assessment">
+      <AssessmentForm key={mounted ? 'mounted' : 'ssr'} />
     </section>
   );
 };

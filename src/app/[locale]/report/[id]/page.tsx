@@ -1,13 +1,14 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getAssessmentForReport } from '@/lib/reports/getAssessment';
+import { getAssessmentForReport, isShareExpired } from '@/lib/reports/getAssessment';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { ScoreDashboard } from '@/components/ScoreDashboard';
 import { AdvisorChatPanel } from '@/components/chatbot/AdvisorChatPanel';
+import { SharingPanel } from '@/components/SharingPanel';
 import type { ReadinessResult } from '@/utils/scoring';
 
 interface ReportPageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; locale: string }>;
 }
 
 export async function generateMetadata({ params }: ReportPageProps): Promise<Metadata> {
@@ -23,7 +24,7 @@ export async function generateMetadata({ params }: ReportPageProps): Promise<Met
 }
 
 export default async function ReportPage({ params }: ReportPageProps) {
-  const { id } = await params;
+  const { id, locale } = await params;
   const assessment = await getAssessmentForReport(id);
 
   if (!assessment) notFound();
@@ -39,6 +40,30 @@ export default async function ReportPage({ params }: ReportPageProps) {
   } = await supabase.auth.getUser();
   const isOwner = Boolean(user && assessment.user_id && user.id === assessment.user_id);
 
+  // A teammate the owner has shared this assessment with via their
+  // organization (see SharingPanel) — a separate distribution channel from
+  // the public link toggle below, so it isn't subject to share_enabled/
+  // share_expires_at. RLS (assessments_select_org_member) only lets this
+  // query return a row if the caller is actually a member of the same org.
+  let isOrgMember = false;
+  if (user && assessment.organization_id) {
+    const { data: membership } = await supabase
+      .from('organization_members')
+      .select('id')
+      .eq('organization_id', assessment.organization_id)
+      .eq('user_id', user.id)
+      .maybeSingle();
+    isOrgMember = Boolean(membership);
+  }
+
+  const isTeamViewer = isOwner || isOrgMember;
+
+  // Non-owner, non-teammate viewers are the "anyone with the link" audience
+  // — the only ones the owner's public-link toggle/expiry actually governs.
+  if (!isTeamViewer && (!assessment.share_enabled || isShareExpired(assessment))) {
+    notFound();
+  }
+
   return (
     <>
       <ScoreDashboard
@@ -46,7 +71,18 @@ export default async function ReportPage({ params }: ReportPageProps) {
         assessmentId={assessment.id}
         tier={assessment.tier ?? 'free'}
       />
-      {isOwner && <AdvisorChatPanel assessmentId={assessment.id} result={assessment.result as ReadinessResult} />}
+      {isTeamViewer && (
+        <AdvisorChatPanel assessmentId={assessment.id} result={assessment.result as ReadinessResult} />
+      )}
+      {isOwner && (
+        <SharingPanel
+          assessmentId={assessment.id}
+          shareEnabled={assessment.share_enabled}
+          shareExpiresAt={assessment.share_expires_at}
+          organizationShared={Boolean(assessment.organization_id)}
+          reportUrl={`${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://darix.ai'}/${locale}/report/${assessment.id}`}
+        />
+      )}
     </>
   );
 }

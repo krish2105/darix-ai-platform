@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { getAssessmentForReport } from '@/lib/reports/getAssessment';
+import { getAssessmentForReport, isShareExpired } from '@/lib/reports/getAssessment';
 
 export const alt = 'Darix AI — AI Readiness Report';
 export const size = { width: 1200, height: 630 };
@@ -22,9 +22,16 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const { id } = await params;
   const assessment = await getAssessmentForReport(id);
 
-  const score = assessment?.result?.score;
-  const level = assessment?.result?.level;
-  const companyName = assessment?.company_name;
+  // Social-media crawlers fetching this image never carry a session cookie
+  // (they're anonymous, like any other non-owner visitor), so a
+  // revoked/expired public link should fall back to the generic card below
+  // exactly as it would for any other non-owner — same gate as
+  // report/[id]/page.tsx, just without an owner/teammate bypass since
+  // there's no session here to check.
+  const shareable = assessment && assessment.share_enabled && !isShareExpired(assessment);
+  const score = shareable ? assessment.result?.score : undefined;
+  const level = shareable ? assessment.result?.level : undefined;
+  const companyName = shareable ? assessment.company_name : undefined;
 
   return new ImageResponse(
     (
