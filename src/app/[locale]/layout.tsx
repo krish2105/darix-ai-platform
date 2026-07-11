@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { Inter, Outfit } from "next/font/google";
 import "../globals.css";
@@ -9,6 +9,7 @@ import { MotionProvider } from "@/components/MotionProvider";
 import { PostHogProvider } from "@/components/PostHogProvider";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { FaqChatWidget } from "@/components/chatbot/FaqChatWidget";
+import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { defaultLocale, isLocale, localeDirection, locales, type Locale } from "@/lib/i18n/translations";
 import { localePath } from "@/lib/i18n/paths";
@@ -58,6 +59,10 @@ const webApplicationJsonLd = {
     price: "0",
     priceCurrency: "AED",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#030712',
 };
 
 export function generateStaticParams() {
@@ -129,6 +134,7 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
               <Footer />
               <WhatsAppButton />
               <FaqChatWidget />
+              <ServiceWorkerRegistration />
             </LanguageProvider>
           </MotionProvider>
         </ThemeProvider>

@@ -93,3 +93,24 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 14
+
+  lighthouse:
+    # Budget gate: fails the build if performance/accessibility/best-practices/
+    # SEO regress below lighthouserc.json's thresholds, on a handful of
+    # representative pages (home, plus two static legal pages as a proxy for
+    # every other mostly-static route). ubuntu-latest ships Chrome
+    # preinstalled, which @lhci/cli's chrome-launcher finds automatically —
+    # no separate browser setup step needed. Thresholds are deliberately
+    # lenient on performance (CI runners are CPU-throttled vs. real devices)
+    # so this catches genuine regressions, not runner noise.
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx @lhci/cli@0.14.x autorun

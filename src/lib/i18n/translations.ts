@@ -572,6 +572,11 @@ const en: Dict = {
   'sharing.saved': 'Saved',
   'sharing.saveError': 'Could not save sharing settings. Please try again.',
   'sharing.linkDisabledNote': "Turning this off immediately breaks the link for anyone who isn't you or a teammate.",
+
+  // Offline fallback (service worker)
+  'offline.title': "You're offline",
+  'offline.body': 'This page needs an internet connection. Reconnect and try again — anything you already loaded stays available.',
+  'offline.retry': 'Try again',
 };
 
 const ar: Dict = {
@@ -1107,6 +1112,11 @@ const ar: Dict = {
   'sharing.saved': 'تم الحفظ',
   'sharing.saveError': 'تعذر حفظ إعدادات المشاركة. يرجى المحاولة مرة أخرى.',
   'sharing.linkDisabledNote': 'إيقاف هذا الخيار يُبطل الرابط فوراً لأي شخص لست أنت أو أحد زملائك في الفريق.',
+
+  // Offline fallback (service worker)
+  'offline.title': 'أنت غير متصل بالإنترنت',
+  'offline.body': 'تحتاج هذه الصفحة إلى اتصال بالإنترنت. أعد الاتصال وحاول مرة أخرى — كل ما حمّلته من قبل يبقى متاحاً.',
+  'offline.retry': 'حاول مرة أخرى',
 };
 
 export const dictionaries: Record<Locale, Dict> = { en, ar };
