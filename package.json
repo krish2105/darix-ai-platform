@@ -22,7 +22,7 @@
     "@react-three/fiber": "^9.6.1",
     "@sentry/nextjs": "^10.65.0",
     "@supabase/ssr": "^0.12.0",
-    "@supabase/supabase-js": "^2.110.2",
+    "@supabase/supabase-js": "^2.110.7",
     "@upstash/redis": "^1.38.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.42.2",
